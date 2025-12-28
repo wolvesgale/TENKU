@@ -23,7 +23,7 @@ export default function TemplateMonitorPage() {
           <div key={item.id} className="rounded-lg border border-slate-800/70 bg-slate-900/50 p-3">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
-                <Globe2 className="text-neon-cyan" size={18} />
+                <Globe2 className="text-brand-blue" size={18} />
                 <div>
                   <p className="font-semibold text-white">{item.name}</p>
                   <p className="text-xs text-slate-400">{item.url}</p>
@@ -35,7 +35,7 @@ export default function TemplateMonitorPage() {
               <button onClick={() => handleDiff(item.name, item.hasDiff)} className="button-ghost text-xs flex items-center gap-1">
                 <RefreshCw size={14} /> 差分チェック
               </button>
-              <button className="button-primary text-xs py-1 flex items-center gap-1">
+              <button className="btn-primary text-xs py-1 flex items-center gap-1">
                 <Sparkles size={14} /> AIサマリ
               </button>
             </div>
@@ -53,7 +53,7 @@ export default function TemplateMonitorPage() {
         ))}
       </NeonCard>
 
-      {result && <div className="text-sm text-neon-green">{result}</div>}
+      {result && <div className="text-sm text-brand-teal">{result}</div>}
     </div>
   );
 }

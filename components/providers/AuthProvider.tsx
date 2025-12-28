@@ -20,9 +20,9 @@ type AuthContextType = {
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 const DEMO_CREDENTIALS = {
-  tenantCode: process.env.NEXT_PUBLIC_DEMO_TENANT_CODE || "240224",
-  email: process.env.NEXT_PUBLIC_DEMO_EMAIL || "support@techtas.jp",
-  password: process.env.NEXT_PUBLIC_DEMO_PASSWORD || "techtas720",
+  tenantCode: process.env.NEXT_PUBLIC_DEMO_TENANT_CODE || "T-739102",
+  email: process.env.NEXT_PUBLIC_DEMO_EMAIL || "demo@tenku.cloud",
+  password: process.env.NEXT_PUBLIC_DEMO_PASSWORD || "tenku-demo42",
 };
 
 export function AuthProvider({ children }: { children: ReactNode }) {

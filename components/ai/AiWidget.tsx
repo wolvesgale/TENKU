@@ -67,10 +67,10 @@ export default function AiWidget() {
   return (
     <div className="fixed bottom-6 right-6 z-50">
       {open ? (
-        <div className="w-[360px] glass-panel border border-neon-cyan/40 shadow-neon">
+        <div className="w-[360px] glass-panel border border-brand-blue/40 shadow-neon">
           <div className="flex items-center justify-between px-4 py-3 border-b border-slate-800/80">
             <div className="flex items-center gap-2">
-              <Sparkles className="text-neon-cyan" size={18} />
+              <Sparkles className="text-brand-blue" size={18} />
               <div>
                 <p className="text-sm font-semibold text-white">TENKU AI</p>
                 <p className="text-[11px] text-slate-400">期限・不足項目を即時提示（モック）</p>
@@ -82,8 +82,8 @@ export default function AiWidget() {
           </div>
 
           <div className="max-h-80 overflow-y-auto space-y-3 px-4 py-3 scrollbar-thin">
-            {history.map((m) => (
-              <div key={m.id} className={`text-sm leading-relaxed ${m.role === "assistant" ? "text-neon-cyan" : "text-slate-200"}`}>
+              {history.map((m) => (
+                <div key={m.id} className={`text-sm leading-relaxed ${m.role === "assistant" ? "text-brand-blue" : "text-slate-200"}`}>
                 <p className="font-semibold flex items-center gap-2 text-xs text-slate-400">
                   {m.role === "assistant" ? "AI" : "You"}
                   <Clock3 size={12} className="text-slate-500" />
@@ -99,7 +99,7 @@ export default function AiWidget() {
                 <button
                   key={s.title}
                   onClick={() => sendMessage(s.prompt)}
-                  className="text-[11px] px-2 py-2 rounded-lg border border-neon-cyan/40 text-neon-cyan bg-neon-cyan/5 hover:bg-neon-cyan/10"
+                  className="text-[11px] px-2 py-2 rounded-lg border border-brand-blue/40 text-brand-blue bg-brand-blue/5 hover:bg-brand-blue/10"
                 >
                   {s.title}
                 </button>
@@ -110,9 +110,9 @@ export default function AiWidget() {
                 value={message}
                 onChange={(e) => setMessage(e.target.value)}
                 placeholder="不足項目や次アクションを質問"
-                className="flex-1 rounded-lg bg-slate-900/70 border border-slate-700 px-3 py-2 focus:border-neon-cyan/80 focus:outline-none text-sm"
+                className="flex-1 rounded-lg bg-slate-900/70 border border-slate-700 px-3 py-2 focus:border-brand-blue/80 focus:outline-none text-sm"
               />
-              <button type="submit" className="button-primary px-3 py-2 flex items-center gap-1" disabled={loading}>
+              <button type="submit" className="btn-primary px-3 py-2 flex items-center gap-1" disabled={loading}>
                 <Send size={14} />
               </button>
             </form>
@@ -121,7 +121,7 @@ export default function AiWidget() {
       ) : (
         <button
           onClick={() => setOpen(true)}
-          className="flex items-center gap-3 px-4 py-3 rounded-full bg-gradient-to-r from-neon-green/70 to-neon-cyan/70 text-slate-900 font-semibold shadow-neon"
+          className="flex items-center gap-3 px-4 py-3 rounded-full bg-gradient-to-r from-brand-teal/80 to-brand-blue/80 text-slate-900 font-semibold shadow-neon"
         >
           <MessageCircle size={18} />
           AIアシスタント

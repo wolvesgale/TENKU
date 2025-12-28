@@ -1,6 +1,6 @@
 # TENKU Demo (Next.js + Tailwind)
 
-TENKUは「絆/KIZUNA」の主要機能を再現しつつ、SF風UIとAIアシスタントを備えたデモサイトです。モックデータで営業・検討用の体験を提供し、本番拡張を見据えた情報設計を採用しています。
+TENKUは監理・申請・請求を一元化する未来志向のデモSaaSです。モダンUIとAIアシスタントで運用負荷を下げる体験を示します（データはすべてモック）。
 
 ## リポジトリ作成（GitHubが空の場合）
 1. GitHubで新規リポジトリを作成（リポジトリ名: `tenku-demo`）。
@@ -12,10 +12,10 @@ TENKUは「絆/KIZUNA」の主要機能を再現しつつ、SF風UIとAIアシ�
    ```
 3. 以降は通常のPR/CIフローで運用できます。
 
-## デモ用ログイン情報
-- tenantCode: `240224`
-- email: `support@techtas.jp`
-- password: `techtas720`
+## デモ用ログイン情報（架空の値）
+- tenantCode: `T-739102`
+- email: `demo@tenku.cloud`
+- password: `tenku-demo42`
 - 役割選択: tenantAdmin / tenantStaff / migrantUser（RBAC拡張を想定したUI）
 
 ## セットアップ
@@ -41,26 +41,26 @@ APIキーなどの秘密情報はコミットに含めず、環境変数で注�
 
 ## 主要ルート
 - `/login` : 管理団体コード + ID + PW でダミーログイン
-- `/dashboard` : KPI、リマインダー、お知らせ、外部リンク
-- `/companies` : 実習実施先の一覧 + 詳細 + 対応履歴UI
-- `/migrants` : 入国者一覧（期限・フェーズを強調）
-- `/sending-agencies` : 送出機関一覧 + 対応履歴UI
-- `/documents/plan` : 計画認定書類（複製/出力ボタン）
-- `/documents/procedures` : 各種手続（前月複製/出力）
-- `/documents/audit` : 監査・報告・記録（差分チェック+出力）
-- `/billing` : 監理費請求（新規作成/前月複製 + 内訳）
-- `/csv` : インポート/エクスポートタブ、入力ルール、履歴
-- `/schedule` : ガント風スケジュール表示
-- `/templates/monitor` : 行政書式の更新検知（ハッシュ差分 + AI要約表示）
+- `/dashboard` : KPI、期限接近、最近更新、リスク高の4ブロック
+- `/companies` : 実習実施先のテーブル + 右サマリー
+- `/migrants` : 入国者テーブル（VISA期限・フェーズ・リスク）
+- `/sending-agencies` : 送出機関テーブル
+- `/documents/plan` : 計画認定（カードグリッド + テンプレ表示）
+- `/documents/procedures` : 各種手続（複製/出力 + テンプレ）
+- `/documents/audit` : 監査（差分チェック + 安全項目サマリ）
+- `/billing` : 監理費請求（内訳 + 複製 UI）
+- `/csv` : D&Dインポート、エクスポート、履歴
+- `/schedule` : タイムライン表示
+- `/templates/monitor` : 書式変更検知（差分 + AI要約）
 
 ## 主要コンポーネント
-- **Sidebar / Topbar**: 左サイドバー + 上部ヘッダの共通レイアウト。ネオン/ガラス調のHUD風UI。
-- **AiWidget**: 画面右下のチャットウィジェット。`/app/api/ai/chat` でモック応答し、期限が近いタスクや不足項目を提示。OpenAI等に差し替え可能な構造。
+- **Sidebar / Topbar**: 折りたたみ式サイドバーとグローバルトップバー。
+- **AiWidget**: 画面右下のチャットウィジェット。`/app/api/ai/chat` でモック応答。
 - **Mock API & Data**: `lib/mockData.ts` に各マスター/タスク/ドキュメントのモックを集約。`/app/api/ai/chat` はこのデータを参照して応答を生成。
-- **UI Primitives**: `components/ui` にKPIカード、バッジ、プログレスバーなどのHUD風パーツを配置し、Tailwindで統一。
+- **UI Primitives**: `components/ui` にカード、バッジ、プログレスバーなどのパーツを配置し、Tailwindのカラートークンで統一。
 
 ## デザインガイド
-- ダーク + ネオン（シアン/グリーン） + グローをベースにHUD調のカードを採用。
+- ダーク基調にブランドカラー（blue/teal/violet/amber）をアクセントとして控えめに使用。
 - 期限、状態、リスク、進捗が一目で分かるテーブル/カード構成。
 
 ## セキュリティと本番拡張

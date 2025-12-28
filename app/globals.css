@@ -7,31 +7,25 @@
 }
 
 body {
-  background: radial-gradient(circle at 20% 20%, rgba(94, 234, 212, 0.1), transparent 25%),
-    radial-gradient(circle at 80% 0%, rgba(56, 189, 248, 0.12), transparent 25%),
-    radial-gradient(circle at 50% 80%, rgba(139, 92, 246, 0.15), transparent 30%),
-    #0b1120;
+  background: radial-gradient(circle at 15% 10%, rgba(106, 200, 255, 0.08), transparent 26%),
+    radial-gradient(circle at 85% 0%, rgba(156, 140, 255, 0.12), transparent 25%), #0c111b;
   color: #e2e8f0;
   min-height: 100vh;
 }
 
 .glass-panel {
-  @apply bg-panel backdrop-blur-xl border border-slate-800/80 shadow-inset rounded-xl;
+  @apply bg-panel backdrop-blur-2xl border border-slate-800/70 shadow-inset rounded-2xl;
 }
 
-.neon-border {
-  @apply border border-neon-cyan/40 shadow-neon;
-}
-
-.text-muted {
-  @apply text-slate-400;
+.muted {
+  @apply text-gray-400;
 }
 
 .scrollbar-thin::-webkit-scrollbar {
   width: 6px;
 }
 .scrollbar-thin::-webkit-scrollbar-thumb {
-  background: linear-gradient(180deg, rgba(62, 243, 195, 0.5), rgba(88, 208, 255, 0.5));
+  background: linear-gradient(180deg, rgba(106, 200, 255, 0.8), rgba(92, 240, 217, 0.5));
   border-radius: 9999px;
 }
 .scrollbar-thin::-webkit-scrollbar-track {
@@ -42,20 +36,22 @@ body {
   @apply grid grid-cols-12 gap-4 py-3 px-4 items-center;
 }
 
-.button-primary {
-  @apply bg-gradient-to-r from-neon-green/80 to-neon-cyan/70 text-slate-900 font-semibold px-4 py-2 rounded-lg shadow-neon transition hover:from-neon-green hover:to-neon-cyan;
+.btn {
+  @apply inline-flex items-center justify-center gap-2 font-semibold rounded-xl transition active:scale-[0.99];
 }
-
-.button-ghost {
-  @apply border border-slate-700 text-slate-200 px-4 py-2 rounded-lg hover:border-neon-cyan/70 hover:text-neon-cyan;
+.btn-primary {
+  @apply btn bg-gradient-to-r from-brand-teal to-brand-blue text-slate-900 shadow-ring px-4 py-2;
+}
+.btn-ghost {
+  @apply btn border border-slate-700 text-gray-100 px-4 py-2 hover:border-brand-blue/70;
 }
 
 .card-highlight {
-  background: linear-gradient(145deg, rgba(30, 41, 59, 0.7), rgba(15, 23, 42, 0.8));
-  border: 1px solid rgba(148, 163, 184, 0.12);
-  box-shadow: 0 0 0 1px rgba(88, 208, 255, 0.08), 0 10px 50px rgba(0, 0, 0, 0.45);
+  background: linear-gradient(160deg, rgba(17, 24, 39, 0.9), rgba(15, 23, 42, 0.8));
+  border: 1px solid rgba(148, 163, 184, 0.14);
+  box-shadow: 0 0 0 1px rgba(106, 200, 255, 0.08), 0 14px 50px rgba(0, 0, 0, 0.45);
 }
 
 .badge {
-  @apply text-xs px-2 py-1 rounded-full border font-semibold;
+  @apply text-[11px] px-2 py-1 rounded-full border font-semibold uppercase tracking-wide;
 }

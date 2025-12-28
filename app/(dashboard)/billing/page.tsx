@@ -28,7 +28,7 @@ export default function BillingPage() {
       <SectionHeader title="監理費請求" description="新規作成・前月複製 UI" />
       <NeonCard className="p-4 space-y-4">
         <div className="flex flex-wrap gap-2">
-          <button onClick={() => handleMock("新規作成済み")} className="button-primary flex items-center gap-1">
+          <button onClick={() => handleMock("新規作成済み")} className="btn-primary flex items-center gap-1">
             <PlusCircle size={16} /> 新規作成
           </button>
           <button onClick={() => handleMock("前月複製済み")} className="button-ghost flex items-center gap-1">
@@ -54,7 +54,7 @@ export default function BillingPage() {
           {mockBreakdown.map((b) => (
             <div key={b.label} className="flex items-center justify-between rounded-lg border border-slate-800/70 bg-slate-900/50 px-3 py-2">
               <div className="flex items-center gap-2">
-                <BarChart3 size={16} className="text-neon-cyan" />
+                <BarChart3 size={16} className="text-brand-blue" />
                 <div>
                   <p className="text-white font-semibold">{b.label}</p>
                   <p className="text-xs text-slate-400">人数 {b.count}</p>
@@ -63,7 +63,7 @@ export default function BillingPage() {
               <p className="text-white font-semibold">¥{b.amount.toLocaleString()}</p>
             </div>
           ))}
-          <div className="flex items-center justify-between text-sm text-neon-green border-t border-slate-800 pt-2">
+          <div className="flex items-center justify-between text-sm text-brand-teal border-t border-slate-800 pt-2">
             <span>合計</span>
             <span className="text-xl font-bold">¥{totalAmount.toLocaleString()}</span>
           </div>

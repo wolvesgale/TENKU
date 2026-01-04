@@ -8,6 +8,7 @@ import { JobOfferPdf } from "@/lib/pdf/job-offer-template";
 import { renderPdfToBuffer } from "@/lib/pdf/render";
 
 export const runtime = "nodejs";
+export const dynamic = "force-dynamic";
 
 export async function POST(_req: NextRequest, { params }: { params: { id: string } }) {
   const session = await getServerSession();

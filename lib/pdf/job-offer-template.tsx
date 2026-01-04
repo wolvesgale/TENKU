@@ -1,9 +1,5 @@
 import React from "react";
-import { Document, Page, Text, View, StyleSheet, Font } from "@react-pdf/renderer";
-
-// 日本語フォント登録（必要に応じて）
-// Font.register({ family: "NotoSansJP", src: "/fonts/NotoSansJP-Regular.ttf" });
-Font.registerHyphenationCallback((word) => [word]);
+import { Document, Page, Text, View, StyleSheet } from "@react-pdf/renderer";
 
 const styles = StyleSheet.create({
   page: { padding: 28, fontSize: 10 },

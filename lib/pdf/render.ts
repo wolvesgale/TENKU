@@ -1,5 +1,6 @@
 import { pdf } from "@react-pdf/renderer";
 import React from "react";
+import { ensurePdfSetup } from "./setup";
 
 /**
  * ReadableStream(=Web Stream) を Buffer に変換
@@ -41,6 +42,7 @@ async function normalizeToBuffer(val: unknown): Promise<Buffer> {
 }
 
 export async function renderPdfToBuffer(element: React.ReactElement): Promise<Buffer> {
+  ensurePdfSetup();
   const instance = pdf(element);
 
   // toBuffer() が Buffer とは限らない環境があるため unknown 扱いで正規化

@@ -1,11 +1,9 @@
 "use client";
-
-import { useState } from "react";
-import NeonCard from "@/components/ui/NeonCard";
-import SectionHeader from "@/components/ui/SectionHeader";
-import StatusBadge from "@/components/ui/StatusBadge";
-import ProgressBar from "@/components/ui/ProgressBar";
-import { BarChart3, Copy, PlusCircle } from "lucide-react";
+import { useMemo, useState } from "react";
+import { Badge } from "@/components/ui/badge";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { BarChart3, Copy, PlusCircle, ReceiptJapaneseYen } from "lucide-react";
 
 const mockBreakdown = [
   { label: "技能実習1号", count: 120, amount: 360000 },
@@ -15,60 +13,70 @@ const mockBreakdown = [
 
 export default function BillingPage() {
   const [status, setStatus] = useState("ドラフト生成済み");
+  const [message, setMessage] = useState("");
 
-  const handleMock = (msg: string) => {
-    setStatus(msg);
-    alert(`${msg} (モック)`);
+  const totalAmount = useMemo(() => mockBreakdown.reduce((sum, b) => sum + b.amount, 0), []);
+
+  const handleMock = (text: string) => {
+    setStatus(text);
+    setMessage(`${text} (モック)`);
+    setTimeout(() => setMessage(""), 2000);
   };
-
-  const totalAmount = mockBreakdown.reduce((sum, b) => sum + b.amount, 0);
 
   return (
     <div className="space-y-4">
-      <SectionHeader title="監理費請求" description="新規作成・前月複製 UI" />
-      <NeonCard className="p-4 space-y-4">
-        <div className="flex flex-wrap gap-2">
-          <button onClick={() => handleMock("新規作成済み")} className="btn-primary flex items-center gap-1">
-            <PlusCircle size={16} /> 新規作成
-          </button>
-          <button onClick={() => handleMock("前月複製済み")} className="button-ghost flex items-center gap-1">
-            <Copy size={16} /> 前月複製
-          </button>
-        </div>
-
-        <div className="rounded-lg border border-slate-800/70 bg-slate-900/50 p-3">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm text-slate-400">ステータス</p>
-              <p className="font-semibold text-white">{status}</p>
-            </div>
-            <StatusBadge status={status.includes("複製") ? "in_progress" : "open"}>{status}</StatusBadge>
+      <Card>
+        <CardHeader className="flex items-center justify-between">
+          <CardTitle>監理費請求</CardTitle>
+          <Badge className="border-brand-blue text-brand-blue flex items-center gap-1">
+            <ReceiptJapaneseYen size={14} /> 請求書
+          </Badge>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div className="flex flex-wrap gap-2">
+            <Button onClick={() => handleMock("新規作成済み")} size="sm">
+              <PlusCircle size={14} /> 新規作成
+            </Button>
+            <Button onClick={() => handleMock("前月複製済み")} size="sm" variant="ghost">
+              <Copy size={14} /> 前月複製
+            </Button>
           </div>
-          <div className="mt-2">
-            <ProgressBar value={status.includes("新規") ? 40 : 70} />
-            <p className="text-xs text-slate-500 mt-1">種別ごとの人数内訳を参照しながら確定</p>
-          </div>
-        </div>
-
-        <div className="space-y-3">
-          {mockBreakdown.map((b) => (
-            <div key={b.label} className="flex items-center justify-between rounded-lg border border-slate-800/70 bg-slate-900/50 px-3 py-2">
-              <div className="flex items-center gap-2">
-                <BarChart3 size={16} className="text-brand-blue" />
-                <div>
-                  <p className="text-white font-semibold">{b.label}</p>
-                  <p className="text-xs text-slate-400">人数 {b.count}</p>
-                </div>
+          <div className="rounded-lg border border-border bg-surface/70 p-4 space-y-2">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm text-muted">ステータス</p>
+                <p className="font-semibold text-white">{status}</p>
               </div>
-              <p className="text-white font-semibold">¥{b.amount.toLocaleString()}</p>
+              <Badge className={status.includes("複製") ? "border-brand-blue text-brand-blue" : "border-brand-amber text-brand-amber"}>
+                {status}
+              </Badge>
             </div>
-          ))}
-          <div className="flex items-center justify-between text-sm text-brand-teal border-t border-slate-800 pt-2">
-            <span>合計</span>
-            <span className="text-xl font-bold">¥{totalAmount.toLocaleString()}</span>
+            <p className="text-xs text-muted">種別ごとの人数内訳を確認し、確定前にAIチェックを走らせる想定。</p>
           </div>
-        </div>
-      </NeonCard>
+          <div className="space-y-3">
+            {mockBreakdown.map((b) => (
+              <div
+                key={b.label}
+                className="flex items-center justify-between rounded-lg border border-border bg-surface/70 px-3 py-2"
+              >
+                <div className="flex items-center gap-2">
+                  <BarChart3 size={16} className="text-brand-blue" />
+                  <div>
+                    <p className="text-white font-semibold">{b.label}</p>
+                    <p className="text-xs text-muted">人数 {b.count}</p>
+                  </div>
+                </div>
+                <p className="text-white font-semibold">¥{b.amount.toLocaleString()}</p>
+              </div>
+            ))}
+            <div className="flex items-center justify-between text-sm text-brand-teal border-t border-border pt-2">
+              <span>合計</span>
+              <span className="text-xl font-bold">¥{totalAmount.toLocaleString()}</span>
+            </div>
+          </div>
+          {message && <p className="text-xs text-brand-blue">{message}</p>}
+        </CardContent>
+      </Card>
     </div>
   );
 }

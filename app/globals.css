@@ -4,14 +4,38 @@
 
 :root {
   color-scheme: dark;
+  --grid-line: rgba(80, 123, 255, 0.07);
 }
 
 body {
-  background: radial-gradient(circle at 12% 12%, rgba(125, 211, 252, 0.1), transparent 22%),
-    radial-gradient(circle at 88% 8%, rgba(167, 139, 250, 0.12), transparent 24%),
-    #0d1117;
+  background:
+    radial-gradient(circle at 12% 12%, rgba(125, 211, 252, 0.08), transparent 22%),
+    radial-gradient(circle at 88% 8%, rgba(167, 139, 250, 0.08), transparent 24%),
+    linear-gradient(120deg, rgba(8, 47, 73, 0.9), rgba(12, 20, 38, 0.95));
   color: #e5e7eb;
   min-height: 100vh;
+  position: relative;
+  overflow-x: hidden;
+}
+
+body::before,
+body::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  background-image:
+    linear-gradient(to right, var(--grid-line) 1px, transparent 1px),
+    linear-gradient(to bottom, var(--grid-line) 1px, transparent 1px);
+  background-size: 80px 80px;
+  mask-image: radial-gradient(circle at 20% 20%, rgba(255, 255, 255, 0.12), transparent 40%);
+}
+body::after {
+  background-image:
+    linear-gradient(to right, rgba(56, 189, 248, 0.05) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(74, 222, 128, 0.04) 1px, transparent 1px);
+  background-size: 120px 120px;
+  mask-image: radial-gradient(circle at 80% 10%, rgba(255, 255, 255, 0.12), transparent 40%);
 }
 
 .glass-card {
@@ -36,6 +60,18 @@ input,
 select,
 textarea {
   @apply bg-surface border border-border rounded-lg px-3 py-2 text-sm text-gray-100 focus:outline-none focus:ring-2 focus:ring-brand-blue focus:border-brand-blue;
+}
+
+.shadow-glow {
+  box-shadow:
+    0 10px 40px rgba(56, 189, 248, 0.2),
+    0 0 0 1px rgba(56, 189, 248, 0.2);
+}
+
+.shadow-ambient {
+  box-shadow:
+    0 12px 36px rgba(10, 17, 40, 0.6),
+    inset 0 0 0 1px rgba(76, 201, 240, 0.08);
 }
 
 .table {

@@ -1,6 +1,7 @@
 import { ReactNode } from "react";
 import { Sidebar } from "@/components/layout/sidebar";
 import { Topbar } from "@/components/layout/topbar";
+import { AiWidget } from "@/components/ui/ai-widget";
 
 export function AppShell({ children }: { children: ReactNode }) {
   return (
@@ -8,7 +9,10 @@ export function AppShell({ children }: { children: ReactNode }) {
       <Sidebar />
       <div className="flex flex-col">
         <Topbar />
-        <main className="p-4 space-y-4">{children}</main>
+        <main className="relative p-4 space-y-4">
+          {children}
+          <AiWidget />
+        </main>
       </div>
     </div>
   );

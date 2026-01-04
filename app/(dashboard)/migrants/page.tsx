@@ -1,12 +1,9 @@
 "use client";
-
 import { useMemo, useState } from "react";
-import NeonCard from "@/components/ui/NeonCard";
-import ProgressBar from "@/components/ui/ProgressBar";
-import SectionHeader from "@/components/ui/SectionHeader";
-import StatusBadge from "@/components/ui/StatusBadge";
+import { Badge } from "@/components/ui/badge";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { migrants } from "@/lib/mockData";
-import { CalendarClock, Filter, Globe2, Search, User } from "lucide-react";
+import { CalendarClock, Filter, Search, User } from "lucide-react";
 
 export default function MigrantsPage() {
   const [query, setQuery] = useState("");
@@ -21,67 +18,101 @@ export default function MigrantsPage() {
     [query, phase]
   );
   const phases = Array.from(new Set(migrants.map((m) => m.phase)));
+  const detail = filtered[0];
 
   return (
-    <div className="space-y-4">
-      <SectionHeader title="入国者" description="フィルタ + テーブルで状態を一覧、右上にVISA期限を強調" />
-      <div className="flex flex-wrap items-center gap-3">
-        <div className="flex items-center gap-2 px-3 py-2 rounded-xl bg-slate-900/70 border border-slate-700">
-          <Search size={16} className="text-slate-400" />
-          <input
-            value={query}
-            onChange={(e) => setQuery(e.target.value)}
-            placeholder="氏名・実習先で検索"
-            className="bg-transparent focus:outline-none text-sm"
-          />
-        </div>
-        <div className="flex items-center gap-2 px-3 py-2 rounded-xl bg-slate-900/70 border border-slate-700">
-          <Filter size={16} className="text-slate-400" />
-          <select value={phase} onChange={(e) => setPhase(e.target.value)} className="bg-transparent text-sm focus:outline-none">
-            <option value="all">すべてのフェーズ</option>
-            {phases.map((p) => (
-              <option key={p} value={p}>
-                {p}
-              </option>
-            ))}
-          </select>
-        </div>
-      </div>
-
-      <NeonCard className="p-0 overflow-hidden">
-        <div className="table-grid text-xs text-slate-400 border-b border-slate-800/80">
-          <span className="col-span-3">氏名</span>
-          <span className="col-span-3">ステータス</span>
-          <span className="col-span-3">所属</span>
-          <span className="col-span-2">進捗</span>
-          <span className="col-span-1 text-right">期限</span>
-        </div>
-        <div className="divide-y divide-slate-800/70">
+    <div className="grid lg:grid-cols-[1.3fr_1fr] gap-4">
+      <Card>
+        <CardHeader className="flex items-center justify-between">
+          <CardTitle>入国者一覧</CardTitle>
+          <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2 border border-border rounded-lg px-3 py-2 bg-surface/60">
+              <Search size={14} className="text-muted" />
+              <input
+                placeholder="氏名・実習先で検索"
+                className="bg-transparent text-sm outline-none"
+                value={query}
+                onChange={(e) => setQuery(e.target.value)}
+              />
+            </div>
+            <div className="flex items-center gap-2 border border-border rounded-lg px-3 py-2 bg-surface/60">
+              <Filter size={14} className="text-muted" />
+              <select value={phase} onChange={(e) => setPhase(e.target.value)} className="bg-transparent text-sm outline-none">
+                <option value="all">フェーズ指定なし</option>
+                {phases.map((p) => (
+                  <option key={p} value={p}>
+                    {p}
+                  </option>
+                ))}
+              </select>
+            </div>
+          </div>
+        </CardHeader>
+        <CardContent className="space-y-2">
           {filtered.map((m) => (
-            <div key={m.id} className="table-grid hover:bg-slate-900/60 transition">
-              <div className="col-span-3 flex items-center gap-3">
-                <div className="p-2 rounded-lg bg-slate-900/70 border border-brand-blue/40">
-                  <User className="text-brand-blue" size={18} />
+            <div key={m.id} className="p-3 rounded-lg border border-border bg-surface/70 hover:border-brand-blue/60">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <div className="p-2 rounded-lg bg-surface border border-brand-blue/40">
+                    <User className="text-brand-blue" size={18} />
+                  </div>
+                  <div>
+                    <p className="font-semibold text-white">{m.name}</p>
+                    <p className="text-xs text-muted">{m.company}</p>
+                  </div>
                 </div>
-                <div>
-                  <p className="font-semibold text-white">{m.name}</p>
-                  <p className="text-[11px] text-slate-400">{m.phase}</p>
+                <Badge className="border-brand-blue text-brand-blue">{m.status}</Badge>
+              </div>
+              <div className="grid grid-cols-4 gap-2 mt-2 text-xs text-muted">
+                <p>進捗: {m.completion}%</p>
+                <p>リスク: {m.riskScore}</p>
+                <div className="flex items-center gap-1">
+                  <CalendarClock size={12} className="text-brand-amber" />
+                  <span>期限 {m.visaExpireDate}</span>
                 </div>
-              </div>
-              <p className="col-span-3 text-sm text-slate-300">{m.status}</p>
-              <p className="col-span-3 text-sm text-slate-300">{m.company}</p>
-              <div className="col-span-2">
-                <ProgressBar value={m.completion} />
-                <p className="text-[11px] text-slate-500 mt-1">リスク {m.riskScore}</p>
-              </div>
-              <div className="col-span-1 flex justify-end items-center gap-2">
-                <CalendarClock size={14} className="text-brand-blue" />
-                <StatusBadge status={m.riskScore > 30 ? "high" : m.riskScore > 20 ? "medium" : "low"}>{m.visaExpireDate}</StatusBadge>
+                <Badge className={m.riskScore > 30 ? "border-rose-300 text-rose-200" : "border-brand-amber text-brand-amber"}>{m.phase}</Badge>
               </div>
             </div>
           ))}
-        </div>
-      </NeonCard>
+        </CardContent>
+      </Card>
+
+      {detail && (
+        <Card className="space-y-3">
+          <CardHeader>
+            <CardTitle>詳細 / 対応履歴</CardTitle>
+            <p className="text-sm text-muted">編集ボタンやメモ欄はデモ用です</p>
+          </CardHeader>
+          <CardContent className="space-y-3">
+            <div className="grid grid-cols-2 gap-3 text-sm">
+              <div className="p-3 rounded border border-border bg-surface/70">
+                <p className="text-muted text-xs">氏名</p>
+                <p>{detail.name}</p>
+              </div>
+              <div className="p-3 rounded border border-border bg-surface/70">
+                <p className="text-muted text-xs">在留期限</p>
+                <p>{detail.visaExpireDate}</p>
+              </div>
+              <div className="p-3 rounded border border-border bg-surface/70">
+                <p className="text-muted text-xs">ステータス</p>
+                <p>{detail.status}</p>
+              </div>
+              <div className="p-3 rounded border border-border bg-surface/70">
+                <p className="text-muted text-xs">フェーズ</p>
+                <p>{detail.phase}</p>
+              </div>
+            </div>
+            <div className="space-y-2">
+              <p className="text-sm font-semibold">対応履歴（メモ）</p>
+              <textarea rows={4} className="w-full" placeholder="例: VIZA更新に必要な追加資料を送付済み。AI補足コメントをここに追加可能。"></textarea>
+              <div className="flex justify-end gap-2">
+                <button className="btn-ghost px-3 py-2 rounded-lg">編集（デモ）</button>
+                <button className="btn-primary px-4 py-2 rounded-lg">メモを追記（デモ）</button>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      )}
     </div>
   );
 }

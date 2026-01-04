@@ -1,60 +1,79 @@
 "use client";
-import { Suspense, useState } from "react";
-import { signIn } from "next-auth/react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useState } from "react";
+import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
+import { useAppState } from "@/components/providers/app-state-provider";
+import { Shield, Sparkles } from "lucide-react";
 
-function LoginForm() {
-  const [email, setEmail] = useState("demo@tenku.cloud");
-  const [password, setPassword] = useState("tenku-demo42");
-  const [error, setError] = useState<string | null>(null);
+const DEMO_TENANT = process.env.NEXT_PUBLIC_TENKU_TENANT_CODE ?? "240224";
+const DEMO_EMAIL = process.env.NEXT_PUBLIC_TENKU_DEMO_EMAIL ?? "support@techtas.jp";
+const DEMO_PASSWORD = process.env.NEXT_PUBLIC_TENKU_DEMO_PASSWORD ?? "techtas720";
+
+export default function LoginPage() {
   const router = useRouter();
-  const params = useSearchParams();
+  const { setTenantCode, setEmail, setRole, role } = useAppState();
+  const [tenantCode, updateTenantCode] = useState(DEMO_TENANT);
+  const [email, updateEmail] = useState(DEMO_EMAIL);
+  const [password, setPassword] = useState(DEMO_PASSWORD);
+  const [error, setError] = useState<string | null>(null);
 
-  const callbackUrl = params.get("callbackUrl") || "/dashboard";
-
-  const onSubmit = async (e: React.FormEvent) => {
+  const onSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    const res = await signIn("credentials", { redirect: false, email, password, callbackUrl });
-    if (res?.error) {
-      setError("認証に失敗しました");
+    if (tenantCode === DEMO_TENANT && email === DEMO_EMAIL && password === DEMO_PASSWORD) {
+      setTenantCode(tenantCode);
+      setEmail(email);
+      setError(null);
+      router.push("/dashboard");
     } else {
-      router.push(callbackUrl);
+      setError("デモ用固定値と一致しません");
     }
   };
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-background px-4">
-      <div className="glass-card max-w-md w-full p-8 space-y-6">
-        <div>
-          <p className="text-sm text-muted">TENKU AI Agent</p>
-          <h1 className="text-2xl font-bold text-white">Sign in</h1>
-          <p className="text-sm text-muted">デモ用資格情報でログインしてください</p>
+      <div className="glass-card max-w-md w-full p-8 space-y-6 shadow-glow">
+        <div className="flex items-center gap-3">
+          <div className="h-10 w-10 rounded-lg bg-gradient-to-br from-brand-teal to-brand-blue flex items-center justify-center text-slate-900 font-bold">
+            T
+          </div>
+          <div>
+            <p className="text-sm text-muted">TENKU</p>
+            <h1 className="text-2xl font-bold text-white">ダミーログイン</h1>
+            <p className="text-sm text-muted">管理団体コード + ID + PW を入力</p>
+          </div>
         </div>
         <form className="space-y-4" onSubmit={onSubmit}>
           <div className="space-y-2">
-            <label className="text-sm">Email</label>
-            <input value={email} onChange={(e) => setEmail(e.target.value)} type="email" required />
+            <label className="text-sm">管理団体コード</label>
+            <input value={tenantCode} onChange={(e) => updateTenantCode(e.target.value)} required />
           </div>
           <div className="space-y-2">
-            <label className="text-sm">Password</label>
+            <label className="text-sm">ID（メール）</label>
+            <input value={email} onChange={(e) => updateEmail(e.target.value)} type="email" required />
+          </div>
+          <div className="space-y-2">
+            <label className="text-sm">パスワード</label>
             <input value={password} onChange={(e) => setPassword(e.target.value)} type="password" required />
           </div>
+          <div className="space-y-2">
+            <label className="text-sm flex items-center gap-1 text-muted">
+              <Shield size={14} /> ユーザー種別（将来のRBAC想定）
+            </label>
+            <select value={role} onChange={(e) => setRole(e.target.value as any)} className="w-full">
+              <option value="tenantAdmin">tenantAdmin</option>
+              <option value="tenantStaff">tenantStaff</option>
+              <option value="migrantUser">migrantUser</option>
+            </select>
+          </div>
           {error && <p className="text-rose-400 text-sm">{error}</p>}
-          <Button type="submit" className="w-full">Sign in</Button>
+          <Button type="submit" className="w-full">
+            <Sparkles size={16} /> Sign in (デモ)
+          </Button>
         </form>
         <div className="text-xs text-muted">
-          デモ用: email=demo@tenku.cloud / password=tenku-demo42
+          デモ用固定値: tenantCode={DEMO_TENANT}, email={DEMO_EMAIL}, password={DEMO_PASSWORD}
         </div>
       </div>
     </div>
-  );
-}
-
-export default function LoginPage() {
-  return (
-    <Suspense fallback={<div className="text-center text-muted py-10">Loading...</div>}>
-      <LoginForm />
-    </Suspense>
   );
 }

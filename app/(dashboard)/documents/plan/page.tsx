@@ -1,79 +1,79 @@
 "use client";
-
+import { useMemo, useState } from "react";
 import { documents, tasks } from "@/lib/mockData";
-import NeonCard from "@/components/ui/NeonCard";
-import SectionHeader from "@/components/ui/SectionHeader";
-import ProgressBar from "@/components/ui/ProgressBar";
-import StatusBadge from "@/components/ui/StatusBadge";
-import { Copy, FileOutput, Clock3, LayoutGrid } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Sparkles, Copy, Download, Clock } from "lucide-react";
 
 export default function PlanDocumentsPage() {
-  const planDocs = documents.filter((d) => d.type === "plan");
-  const deadlines = tasks.filter((t) => t.relatedEntity.includes("documents"));
+  const [message, setMessage] = useState("");
+  const list = useMemo(() => documents.filter((d) => d.type === "plan"), []);
+  const reminders = useMemo(() => tasks.filter((t) => t.relatedEntity.includes("plan")), []);
 
-  const handleToast = (msg: string) => {
-    alert(msg);
+  const handleAction = (action: string, name: string) => {
+    setMessage(`${action} : ${name} を処理しました（デモ）`);
+    setTimeout(() => setMessage(""), 2500);
   };
 
   return (
-    <div className="space-y-4">
-      <SectionHeader title="計画認定書類" description="タイプ別カード + 最近使ったテンプレを表示" />
-
-      <div className="grid lg:grid-cols-3 gap-4">
-        {planDocs.map((doc) => (
-          <NeonCard key={doc.id} className="p-4 space-y-3 border border-slate-800/70">
-            <div className="flex items-start justify-between">
-              <div>
-                <p className="text-sm text-slate-400">計画</p>
-                <p className="text-lg font-semibold text-white">{doc.name}</p>
-                <p className="text-xs text-slate-500 mt-1">更新: {doc.lastUpdated} / 担当: {doc.owner}</p>
-              </div>
-              <StatusBadge status={doc.status}>{doc.status}</StatusBadge>
-            </div>
-            <ProgressBar value={doc.completion} />
-            <div className="flex items-center gap-2">
-              <button onClick={() => handleToast("複製しました (ダミー)")} className="btn-ghost text-xs flex items-center gap-1">
-                <Copy size={14} /> 複製
-              </button>
-              <button onClick={() => handleToast("出力しました (モック)")} className="btn-primary text-xs py-1 flex items-center gap-1">
-                <FileOutput size={14} /> 出力
-              </button>
-            </div>
-          </NeonCard>
-        ))}
-      </div>
-
-      <div className="grid lg:grid-cols-2 gap-4">
-        <NeonCard className="p-4">
-          <SectionHeader title="スケジュール連動" description="タスク期限を連動表示" />
-          <div className="space-y-2">
-            {deadlines.map((task) => (
-              <div key={task.id} className="flex items-center justify-between rounded-lg border border-slate-800/70 bg-slate-900/50 px-3 py-2 text-sm">
-                <div className="flex items-center gap-2">
-                  <Clock3 size={14} className="text-brand-blue" />
-                  <span>{task.title}</span>
-                </div>
-                <StatusBadge status={task.severity}>{task.dueDate}</StatusBadge>
-              </div>
-            ))}
-          </div>
-        </NeonCard>
-
-        <NeonCard className="p-4">
-          <SectionHeader title="最近使ったテンプレ" description="カード型で即参照" />
-          <div className="grid grid-cols-1 gap-3">
-            {planDocs.slice(0, 2).map((doc) => (
-              <div key={doc.id} className="rounded-xl border border-slate-800/70 bg-slate-900/50 p-3 flex items-center justify-between">
+    <div className="grid lg:grid-cols-[1.5fr_1fr] gap-4">
+      <Card>
+        <CardHeader className="flex items-center justify-between">
+          <CardTitle>計画認定書類</CardTitle>
+          <Badge className="border-brand-blue text-brand-blue flex items-center gap-1">
+            <Sparkles size={14} />
+            HUD view
+          </Badge>
+        </CardHeader>
+        <CardContent className="space-y-2">
+          {list.map((doc) => (
+            <div key={doc.id} className="p-4 rounded-lg border border-border bg-surface/70">
+              <div className="flex items-center justify-between">
                 <div>
                   <p className="font-semibold text-white">{doc.name}</p>
-                  <p className="text-xs text-slate-500">テンプレ更新日: {doc.lastUpdated}</p>
+                  <p className="text-xs text-muted">最終更新: {doc.lastUpdated}</p>
                 </div>
-                <LayoutGrid className="text-brand-blue" size={18} />
+                <Badge className="border-brand-amber text-brand-amber">{doc.status}</Badge>
               </div>
-            ))}
-          </div>
-        </NeonCard>
-      </div>
+              <div className="flex items-center gap-2 text-xs text-muted mt-2">
+                <span>完成度 {doc.completion}%</span>
+                <span className="text-brand-blue">owner {doc.owner}</span>
+              </div>
+              <div className="flex items-center gap-2 mt-3">
+                <Button size="sm" onClick={() => handleAction("複製", doc.name)}>
+                  <Copy size={14} /> 前回複製
+                </Button>
+                <Button size="sm" variant="ghost" onClick={() => handleAction("出力", doc.name)}>
+                  <Download size={14} /> 出力
+                </Button>
+              </div>
+            </div>
+          ))}
+          {message && <p className="text-xs text-brand-blue mt-2">{message}</p>}
+        </CardContent>
+      </Card>
+
+      <Card className="space-y-3">
+        <CardHeader>
+          <CardTitle>スケジュール連動</CardTitle>
+          <p className="text-sm text-muted">期限接近をダッシュボードと同期</p>
+        </CardHeader>
+        <CardContent className="space-y-2">
+          {reminders.map((task) => (
+            <div key={task.id} className="p-3 rounded-lg border border-border bg-surface/70 flex items-center justify-between">
+              <div>
+                <p className="font-semibold text-white text-sm">{task.title}</p>
+                <p className="text-xs text-muted">関連ID: {task.relatedEntity}</p>
+              </div>
+              <Badge className="border-brand-amber text-brand-amber flex items-center gap-1">
+                <Clock size={12} />
+                {task.dueDate}
+              </Badge>
+            </div>
+          ))}
+        </CardContent>
+      </Card>
     </div>
   );
 }

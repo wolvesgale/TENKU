@@ -4,7 +4,7 @@ import { documents, tasks } from "@/lib/mockData";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { AlertTriangle, Download, Copy } from "lucide-react";
+import { AlertTriangle, Download, Copy, Shield } from "lucide-react";
 
 export default function AuditDocumentsPage() {
   const [message, setMessage] = useState("");
@@ -31,11 +31,23 @@ export default function AuditDocumentsPage() {
               <div className="flex items-center justify-between">
                 <div>
                   <p className="font-semibold text-white">{doc.name}</p>
-                  <p className="text-xs text-muted">最終更新: {doc.lastUpdated}</p>
+                  <p className="text-xs text-muted">最終更新: {doc.lastUpdated} / 期限 {doc.deadline}</p>
                 </div>
-                <Badge className="border-rose-300 text-rose-200">{doc.status}</Badge>
+                <div className="flex flex-col items-end gap-1">
+                  <Badge className="border-rose-300 text-rose-200">{doc.status}</Badge>
+                  <Badge className={doc.riskScore > 25 ? "border-rose-300 text-rose-200" : "border-emerald-400 text-emerald-300"}>
+                    リスク {doc.riskScore}
+                  </Badge>
+                </div>
               </div>
-              <p className="text-xs text-muted mt-1">完成度 {doc.completion}% / owner {doc.owner}</p>
+              <div className="flex items-center gap-2 text-xs text-muted mt-1 flex-wrap">
+                <span>完成度 {doc.completion}%</span>
+                <span className="text-brand-blue">owner {doc.owner}</span>
+                <span className="flex items-center gap-1 text-brand-amber">
+                  <Shield size={12} />
+                  Deadline {doc.deadline}
+                </span>
+              </div>
               <div className="flex items-center gap-2 mt-3">
                 <Button size="sm" onClick={() => handleAction("複製", doc.name)}>
                   <Copy size={14} /> 複製

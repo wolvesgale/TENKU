@@ -19,7 +19,7 @@ export default function DashboardPage() {
     () =>
       documents.map((d) => ({
         ...d,
-        urgency: d.completion < 60 ? "high" : d.completion < 80 ? "medium" : "low",
+        urgency: d.completion < 60 || d.riskScore > 28 ? "high" : d.completion < 80 || d.riskScore > 22 ? "medium" : "low",
       })),
     []
   );
@@ -137,10 +137,13 @@ export default function DashboardPage() {
               <div key={doc.id} className="p-3 rounded-lg border border-border bg-surface/70 space-y-2">
                 <p className="text-sm font-semibold text-white">{doc.name}</p>
                 <p className="text-xs text-muted">更新: {doc.lastUpdated}</p>
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-2 flex-wrap">
                   <Badge className="border-brand-blue text-brand-blue">{doc.type}</Badge>
                   <Badge className={doc.urgency === "high" ? "border-rose-300 text-rose-200" : doc.urgency === "medium" ? "border-brand-amber text-brand-amber" : "border-emerald-400 text-emerald-300"}>
                     {doc.status}
+                  </Badge>
+                  <Badge className={doc.riskScore > 25 ? "border-rose-300 text-rose-200" : "border-emerald-400 text-emerald-300"}>
+                    リスク {doc.riskScore}
                   </Badge>
                 </div>
                 <div className="h-2 bg-surface rounded-full overflow-hidden">
@@ -149,7 +152,7 @@ export default function DashboardPage() {
                     style={{ width: `${doc.completion}%` }}
                   />
                 </div>
-                <p className="text-xs text-muted">完成度 {doc.completion}% / Owner {doc.owner}</p>
+                <p className="text-xs text-muted">完成度 {doc.completion}% / Owner {doc.owner} / 期限 {doc.deadline}</p>
               </div>
             ))}
           </div>

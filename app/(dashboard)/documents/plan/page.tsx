@@ -4,7 +4,7 @@ import { documents, tasks } from "@/lib/mockData";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Sparkles, Copy, Download, Clock } from "lucide-react";
+import { Sparkles, Copy, Download, Clock, ShieldAlert } from "lucide-react";
 
 export default function PlanDocumentsPage() {
   const [message, setMessage] = useState("");
@@ -32,13 +32,22 @@ export default function PlanDocumentsPage() {
               <div className="flex items-center justify-between">
                 <div>
                   <p className="font-semibold text-white">{doc.name}</p>
-                  <p className="text-xs text-muted">最終更新: {doc.lastUpdated}</p>
+                  <p className="text-xs text-muted">最終更新: {doc.lastUpdated} / 期限 {doc.deadline}</p>
                 </div>
-                <Badge className="border-brand-amber text-brand-amber">{doc.status}</Badge>
+                <div className="flex flex-col items-end gap-1">
+                  <Badge className="border-brand-amber text-brand-amber">{doc.status}</Badge>
+                  <Badge className={doc.riskScore > 25 ? "border-rose-300 text-rose-200" : "border-emerald-400 text-emerald-300"}>
+                    リスク {doc.riskScore}
+                  </Badge>
+                </div>
               </div>
               <div className="flex items-center gap-2 text-xs text-muted mt-2">
                 <span>完成度 {doc.completion}%</span>
                 <span className="text-brand-blue">owner {doc.owner}</span>
+                <span className="flex items-center gap-1 text-brand-amber">
+                  <ShieldAlert size={12} />
+                  SLA {doc.deadline}
+                </span>
               </div>
               <div className="flex items-center gap-2 mt-3">
                 <Button size="sm" onClick={() => handleAction("複製", doc.name)}>

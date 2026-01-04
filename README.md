@@ -1,69 +1,63 @@
-# TENKU Demo (Next.js + Tailwind)
+# TENKU AI Agent Demo
 
-TENKUは監理・申請・請求を一元化する未来志向のデモSaaSです。モダンUIとAIアシスタントで運用負荷を下げる体験を示します（データはすべてモック）。
-
-## リポジトリ作成（GitHubが空の場合）
-1. GitHubで新規リポジトリを作成（リポジトリ名: `tenku-demo`）。
-2. ローカルでこのディレクトリをリポジトリに接続:
-   ```bash
-   git remote add origin git@github.com:<your-account>/tenku-demo.git
-   git branch -M main
-   git push -u origin main
-   ```
-3. 以降は通常のPR/CIフローで運用できます。
-
-## デモ用ログイン情報（架空の値）
-- tenantCode: `T-739102`
-- email: `demo@tenku.cloud`
-- password: `tenku-demo42`
-- 役割選択: tenantAdmin / tenantStaff / migrantUser（RBAC拡張を想定したUI）
+Next.js (App Router) + TypeScript + Tailwind + shadcn-style UI + Prisma(Postgres) で TENKU AI Agent のMVPをデプロイ可能な形で構築しています。マルチテナント前提で tenant_id を保持し、制度スイッチ（ALL/TITP/SSW/TA）でUI呼称を切り替えます。
 
 ## セットアップ
 ```bash
 npm install
+# DB を作成 (例: postgres://postgres:postgres@localhost:5432/tenku_demo)
+npx prisma migrate dev --name init
+npm run prisma:seed
 npm run dev
-# http://localhost:3000 にアクセス
 ```
 
-### 環境変数
-`.env.example` を参照して `.env.local` を作成してください。
-- `NEXT_PUBLIC_DEMO_TENANT_CODE`
-- `NEXT_PUBLIC_DEMO_EMAIL`
-- `NEXT_PUBLIC_DEMO_PASSWORD`
-
-APIキーなどの秘密情報はコミットに含めず、環境変数で注入してください。
+## 環境変数
+`.env` を作成して以下を設定:
+- `DATABASE_URL` Postgres接続文字列
+- `NEXTAUTH_URL` (例: http://localhost:3000)
+- `AUTH_SECRET` NextAuth用の秘密鍵
+- `TENKU_DEMO_EMAIL` デモユーザーのメール (seedと合わせる)
+- `TENKU_DEMO_PASSWORD` デモユーザーのパスワード (seedと合わせる)
 
 ## Vercel デプロイ手順
-1. GitHubの `tenku-demo` リポジトリを Vercel にインポート。
-2. Framework: **Next.js**, Root Directory: `/` を選択。
-3. Environment Variables に `.env.example` の値を設定（デモ用固定値）。
-4. Deploy を実行。ビルド後は `https://<project>.vercel.app` で確認できます。
+1. リポジトリを Vercel にインポート
+2. Framework: **Next.js**, Root: `/`
+3. Env設定に `.env.example` の値を入力 (本番用の `AUTH_SECRET`/`DATABASE_URL` を指定)
+4. `npx prisma migrate deploy && npm run prisma:seed` を `postinstall` または Build Step に追加することを推奨（ホストDB接続が必要）
+5. Deploy を実行
 
-## 主要ルート
-- `/login` : 管理団体コード + ID + PW でダミーログイン
-- `/dashboard` : KPI、期限接近、最近更新、リスク高の4ブロック
-- `/companies` : 実習実施先のテーブル + 右サマリー
-- `/migrants` : 入国者テーブル（VISA期限・フェーズ・リスク）
-- `/sending-agencies` : 送出機関テーブル
-- `/documents/plan` : 計画認定（カードグリッド + テンプレ表示）
-- `/documents/procedures` : 各種手続（複製/出力 + テンプレ）
-- `/documents/audit` : 監査（差分チェック + 安全項目サマリ）
-- `/billing` : 監理費請求（内訳 + 複製 UI）
-- `/csv` : D&Dインポート、エクスポート、履歴
-- `/schedule` : タイムライン表示
-- `/templates/monitor` : 書式変更検知（差分 + AI要約）
+## ルート一覧（MVP）
+- `/login` : Credentialsログイン (NextAuth)
+- `/dashboard` : 制度スイッチ + KPI/アラート/最新ログ
+- `/persons` → `/persons/[id]` : 外国人一覧/詳細（在留履歴・Case・Docs・Log）
+- `/companies` → `/companies/[id]`
+- `/orgs` → `/orgs/[id]`
+- `/jobs` → `/jobs/[id]`（求人票PDF生成ボタン）
+- `/cases` → `/cases/[id]`（タスク自動生成ボタン）
+- `/tasks`
+- `/documents`
+- `/logs`
 
-## 主要コンポーネント
-- **Sidebar / Topbar**: 折りたたみ式サイドバーとグローバルトップバー。
-- **AiWidget**: 画面右下のチャットウィジェット。`/app/api/ai/chat` でモック応答。
-- **Mock API & Data**: `lib/mockData.ts` に各マスター/タスク/ドキュメントのモックを集約。`/app/api/ai/chat` はこのデータを参照して応答を生成。
-- **UI Primitives**: `components/ui` にカード、バッジ、プログレスバーなどのパーツを配置し、Tailwindのカラートークンで統一。
+## APIエンドポイント（MVP）
+- 認証: `/api/auth/*`
+- `/api/v1/me`
+- CRUD: `/api/v1/persons`, `/companies`, `/orgs`, `/jobs`, `/cases`
+- `/api/v1/cases/:id/tasks/auto-generate`
+- `/api/v1/jobs/:id/job-offer-pdf`
+- 一覧は `?program=ALL|TITP|SSW|TA` に対応
 
-## デザインガイド
-- ダーク基調にブランドカラー（blue/teal/violet/amber）をアクセントとして控えめに使用。
-- 期限、状態、リスク、進捗が一目で分かるテーブル/カード構成。
+## Prismaテーブル（抜粋）
+TENANT / USER / ORGANIZATION / COMPANY / PERSON / PERSON_STATUS_HISTORY / JOB / CASE / TASK / DOCUMENT / LOG / ALERT / SCHEDULE_EVENT
 
-## セキュリティと本番拡張
-- デモ用固定値は環境変数で管理し、機密情報は含めていません。
-- 入力値はクライアントでのみ扱い、HTMLの危険な埋め込みは行っていません。
-- 本番移行時はRBAC実装、IDプロバイダ連携、実データAPIを差し替えれば拡張できます。
+## デモデータ (seed)
+- tenant1 (TENANT-001)
+- org: Supervisory / Support / Sending / Training 各1
+- company: Orion Robotics, Aster Foods
+- person: 5名 (多国籍架空名)
+- job: 3件
+- case: 5件（主要3タイプを含む）
+- task/doc/log/alert/schedule: 最小限のモック
+
+## 注意
+- すべて架空データで構成し、KIZUNA/絆等の表記はありません。
+- DB接続がない環境ではAPIがエラーになるため、開発時は Postgres を起動してください。

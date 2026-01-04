@@ -1,55 +1,46 @@
 import type { Config } from "tailwindcss";
+import { fontFamily } from "tailwindcss/defaultTheme";
 
 const config: Config = {
-  content: [
-    "./app/**/*.{ts,tsx}",
-    "./components/**/*.{ts,tsx}",
-    "./pages/**/*.{ts,tsx}",
-  ],
+  darkMode: ["class"],
+  content: ["./app/**/*.{ts,tsx}", "./components/**/*.{ts,tsx}", "./pages/**/*.{ts,tsx}"],
   theme: {
+    container: {
+      center: true,
+      padding: "1.5rem",
+      screens: {
+        "2xl": "1320px",
+      },
+    },
     extend: {
       colors: {
-        background: "#0c111b",
+        background: "#0d1117",
         surface: "#111827",
-        panel: "rgba(17, 24, 39, 0.7)",
+        muted: "#9ca3af",
+        border: "#1f2937",
+        ring: "#7dd3fc",
         brand: {
-          blue: "#6ac8ff",
-          teal: "#5cf0d9",
-          violet: "#9b8cff",
-          amber: "#f7c266",
-        },
-        gray: {
-          50: "#f8fafc",
-          100: "#f1f5f9",
-          200: "#e2e8f0",
-          300: "#cbd5e1",
-          400: "#94a3b8",
-          500: "#64748b",
-          600: "#475569",
-          700: "#334155",
-          800: "#1e293b",
-          900: "#0f172a",
+          blue: "#7dd3fc",
+          teal: "#5eead4",
+          violet: "#a78bfa",
+          amber: "#fbbf24",
         },
       },
       boxShadow: {
-        neon: "0 10px 40px rgba(106, 200, 255, 0.25)",
-        inset: "inset 0 0 0 1px rgba(255,255,255,0.05)",
-        ring: "0 0 0 1px rgba(106, 200, 255, 0.4)",
+        card: "0 10px 30px rgba(0,0,0,0.35)",
+        ring: "0 0 0 1px rgba(125, 211, 252, 0.4)",
+      },
+      borderRadius: {
+        lg: "14px",
+        md: "12px",
+        sm: "10px",
       },
       fontFamily: {
-        sans: ["Inter", "var(--font-sans)", "system-ui", "-apple-system", "BlinkMacSystemFont", "Segoe UI"],
-      },
-      keyframes: {
-        pulseGlow: {
-          "0%, 100%": { boxShadow: "0 0 0 0 rgba(62, 243, 195, 0.5)" },
-          "50%": { boxShadow: "0 0 0 10px rgba(62, 243, 195, 0)" },
-        },
-      },
-      animation: {
-        pulseGlow: "pulseGlow 2s infinite",
+        sans: ["Inter", ...fontFamily.sans],
       },
     },
   },
   plugins: [],
 };
+
 export default config;

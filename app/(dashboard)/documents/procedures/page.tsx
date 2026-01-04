@@ -4,7 +4,7 @@ import { documents, tasks } from "@/lib/mockData";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Copy, Download, Timer } from "lucide-react";
+import { Copy, Download, Timer, ShieldCheck } from "lucide-react";
 
 export default function ProcedureDocumentsPage() {
   const [message, setMessage] = useState("");
@@ -29,13 +29,25 @@ export default function ProcedureDocumentsPage() {
               <div className="flex items-center justify-between">
                 <div>
                   <p className="font-semibold text-white">{doc.name}</p>
-                  <p className="text-xs text-muted">最終更新: {doc.lastUpdated}</p>
+                  <p className="text-xs text-muted">最終更新: {doc.lastUpdated} / 期限 {doc.deadline}</p>
                 </div>
-                <Badge className={doc.completion > 80 ? "border-emerald-400 text-emerald-300" : "border-brand-amber text-brand-amber"}>
-                  {doc.status}
-                </Badge>
+                <div className="flex flex-col items-end gap-1">
+                  <Badge className={doc.completion > 80 ? "border-emerald-400 text-emerald-300" : "border-brand-amber text-brand-amber"}>
+                    {doc.status}
+                  </Badge>
+                  <Badge className={doc.riskScore > 24 ? "border-rose-300 text-rose-200" : "border-emerald-400 text-emerald-300"}>
+                    リスク {doc.riskScore}
+                  </Badge>
+                </div>
               </div>
-              <p className="text-xs text-muted mt-1">完成度 {doc.completion}% / owner {doc.owner}</p>
+              <div className="flex items-center flex-wrap gap-2 text-xs text-muted mt-1">
+                <span>完成度 {doc.completion}%</span>
+                <span className="text-brand-blue">owner {doc.owner}</span>
+                <span className="flex items-center gap-1 text-brand-amber">
+                  <ShieldCheck size={12} />
+                  締切 {doc.deadline}
+                </span>
+              </div>
               <div className="flex items-center gap-2 mt-3">
                 <Button size="sm" onClick={() => handleAction("前月複製", doc.name)}>
                   <Copy size={14} /> 前月複製

@@ -30,9 +30,13 @@ export default function DocumentsPage() {
                   <div key={d.id} className="p-2 rounded border border-border bg-surface/70">
                     <p className="font-semibold text-white">{d.name}</p>
                     <p className="text-xs text-muted">最終更新 {d.lastUpdated}</p>
-                    <div className="flex items-center gap-2 text-xs mt-1">
+                    <div className="flex items-center gap-2 text-xs mt-1 flex-wrap">
                       <Badge className="border-brand-blue text-brand-blue">{d.status}</Badge>
+                      <Badge className={d.riskScore > 25 ? "border-rose-300 text-rose-200" : "border-emerald-400 text-emerald-300"}>
+                        リスク {d.riskScore}
+                      </Badge>
                       <span>完成度 {d.completion}%</span>
+                      <span className="text-brand-amber">期限 {d.deadline}</span>
                     </div>
                   </div>
                 ))}

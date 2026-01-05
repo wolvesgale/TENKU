@@ -28,6 +28,9 @@ const links = [
   { href: "/csv", label: "CSV連携", icon: ListChecks },
   { href: "/schedule", label: "スケジュール", icon: Sparkles },
   { href: "/templates/monitor", label: "書式監視", icon: Network },
+  { href: "/applications", label: "申請一覧", icon: FileText },
+  { href: "/training-plans", label: "実習計画", icon: ClipboardList },
+  { href: "/companies", label: "求人管理", icon: Building2 },
 ];
 
 export function Sidebar() {

@@ -6,7 +6,7 @@ export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
 export async function POST(_req: NextRequest, { params }: { params: { id: string } }) {
-  const [{ getServerSession }, { prisma }, { DocumentType }, { put }, { JobOfferPdf }, { renderPdfToBuffer }] =
+  const [{ getServerSession }, { prisma }, _prismaClient, { put }, { JobOfferPdf }, { renderPdfToBuffer }] =
     await Promise.all([
       import("@/lib/auth"),
       import("@/lib/prisma"),
@@ -59,7 +59,7 @@ export async function POST(_req: NextRequest, { params }: { params: { id: string
     data: {
       tenantId: session.user.tenantId,
       createdById: session.user.id,
-      docType: DocumentType.JOB_OFFER_PDF,
+      docType: "JOB_OFFER_PDF",
       url: blob.url,
       version: nextVersion,
       jobId,

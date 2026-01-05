@@ -22,7 +22,12 @@ model Company {
   address     String?
   contactName String?
   contactTel  String?
+  defaultOrgId   String?
+  defaultOrgType String?
   jobs        Job[]
+  persons     Person[]
+  cases       Case[]
+  tasks       Task[]
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 }
@@ -41,6 +46,115 @@ model Job {
   documents            Document[]
   createdAt            DateTime  @default(now())
   updatedAt            DateTime  @updatedAt
+}
+
+model Tenant {
+  id       String @id @default(cuid())
+  name     String
+  code     String
+  persons  Person[]
+  companies Company[]
+  cases    Case[]
+  tasks    Task[]
+  alerts   Alert[]
+  organizations Organization[]
+}
+
+model Organization {
+  id          String  @id @default(cuid())
+  tenantId    String
+  orgType     String
+  displayName String
+  tenant      Tenant @relation(fields: [tenantId], references: [id])
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model Person {
+  id                   String   @id @default(cuid())
+  tenantId             String
+  fullName             String
+  nationality          String?
+  nativeLanguage       String?
+  birthDate            DateTime?
+  currentCompanyId     String?
+  currentProgram       String?
+  residenceCardExpiry  DateTime?
+  passportExpiry       DateTime?
+  metaJson             Json?
+  tenant               Tenant   @relation(fields: [tenantId], references: [id])
+  currentCompany       Company? @relation(fields: [currentCompanyId], references: [id])
+  cases                Case[]
+  tasks                Task[]
+  statusHistory        PersonStatusHistory[]
+  createdAt            DateTime @default(now())
+  updatedAt            DateTime @updatedAt
+}
+
+model PersonStatusHistory {
+  id              String   @id @default(cuid())
+  tenantId        String
+  personId        String
+  program         String
+  residenceStatus String?
+  startDate       DateTime
+  endDate         DateTime?
+  metaJson        Json?
+  person          Person  @relation(fields: [personId], references: [id])
+  tenant          Tenant  @relation(fields: [tenantId], references: [id])
+  createdAt       DateTime @default(now())
+}
+
+model Case {
+  id         String   @id @default(cuid())
+  tenantId   String
+  program    String
+  caseType   String
+  status     String
+  personId   String
+  companyId  String?
+  ownerOrgId String?
+  dueDate    DateTime?
+  metaJson   Json?
+  tenant     Tenant   @relation(fields: [tenantId], references: [id])
+  person     Person   @relation(fields: [personId], references: [id])
+  company    Company? @relation(fields: [companyId], references: [id])
+  tasks      Task[]
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+}
+
+model Task {
+  id        String   @id @default(cuid())
+  tenantId  String
+  caseId    String?
+  personId  String?
+  companyId String?
+  taskType  String
+  status    String
+  dueDate   DateTime?
+  createdBy String?
+  ruleSnapshot Json?
+  tenant    Tenant   @relation(fields: [tenantId], references: [id])
+  case      Case?    @relation(fields: [caseId], references: [id])
+  person    Person?  @relation(fields: [personId], references: [id])
+  company   Company? @relation(fields: [companyId], references: [id])
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Alert {
+  id         String   @id @default(cuid())
+  tenantId   String
+  alertType  String
+  severity   String
+  targetType String
+  targetId   String
+  status     String
+  threshold  String?
+  tenant     Tenant   @relation(fields: [tenantId], references: [id])
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
 }
 
 model Document {

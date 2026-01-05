@@ -16,6 +16,8 @@ npm run dev
 | `NEXT_PUBLIC_TENKU_TENANT_CODE` | デモ用管理団体コード (初期値: `240224`) |
 | `NEXT_PUBLIC_TENKU_DEMO_EMAIL` | デモ用メール ID |
 | `NEXT_PUBLIC_TENKU_DEMO_PASSWORD` | デモ用パスワード |
+| `DATABASE_URL` | PostgreSQL 接続文字列（Prisma 用）。デモでは未接続でもビルド可 |
+| `BLOB_READ_WRITE_TOKEN` | Vercel Blob のトークン（求人票 PDF 出力用） |
 | `OPENAI_API_KEY` | （任意）AI 差し替え用。/api/ai/chat を改修して利用 |
 
 ## Vercel デプロイ手順

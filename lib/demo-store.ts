@@ -4,6 +4,7 @@ export type Program = "TITP" | "SSW" | "TA" | "ALL";
 export type CaseStatus = "OPEN" | "IN_PROGRESS" | "DONE";
 export type TaskStatus = "TODO" | "DOING" | "DONE";
 export type AlertStatus = "OPEN" | "SNOOZED" | "DONE";
+export type ApplicationStatus = "DRAFT" | "SUBMITTED" | "APPROVED" | "REJECTED";
 
 export type Tenant = { id: string; code: string; name: string };
 export type Organization = { id: string; tenantId: string; orgType: string; displayName: string };
@@ -73,6 +74,49 @@ export type Alert = {
   threshold?: string;
   createdAt: string;
   updatedAt: string;
+};
+
+export type JobRecord = {
+  id: string;
+  tenantId: string;
+  companyId: string;
+  title: string;
+  workLocation?: string;
+  salary?: string;
+  notes?: string;
+  occupation?: string;
+  description?: string;
+  benefits?: string;
+  employmentType?: string;
+  requirements?: string;
+  applicationDeadline?: string;
+};
+
+export type Application = {
+  id: string;
+  tenantId: string;
+  personId?: string;
+  companyId?: string;
+  caseId?: string;
+  applicationType: string;
+  status: ApplicationStatus;
+  submittedAt?: string;
+  documentUrl?: string;
+  metadata?: any;
+};
+
+export type TrainingPlan = {
+  id: string;
+  tenantId: string;
+  personId?: string;
+  companyId?: string;
+  orgId?: string;
+  planType: string;
+  status: ApplicationStatus | "DRAFT" | "SUBMITTED" | "APPROVED" | "REJECTED";
+  plannedStart?: string;
+  plannedEnd?: string;
+  documentUrl?: string;
+  metadata?: any;
 };
 
 const tenant: Tenant = { id: "tenant_demo", code: "TENKU_DEMO", name: "TENKU Demo Tenant" };
@@ -212,6 +256,40 @@ const cases: Case[] = [
 
 const tasks: Task[] = [];
 const alerts: Alert[] = [];
+const jobs: JobRecord[] = [
+  {
+    id: "job-001",
+    tenantId: tenant.id,
+    companyId: "cmp-001",
+    title: "ライン作業スタッフ",
+    workLocation: "北海道札幌市",
+    salary: "月給20万円~",
+    occupation: "製造",
+    employmentType: "full_time",
+  },
+];
+const applications: Application[] = [
+  {
+    id: "app-001",
+    tenantId: tenant.id,
+    personId: "prs-001",
+    companyId: "cmp-001",
+    caseId: "case-001",
+    applicationType: "residence_certificate",
+    status: "DRAFT",
+  },
+];
+const trainingPlans: TrainingPlan[] = [
+  {
+    id: "plan-001",
+    tenantId: tenant.id,
+    personId: "prs-002",
+    companyId: "cmp-002",
+    orgId: "org_support",
+    planType: "skill_practice_plan",
+    status: "DRAFT",
+  },
+];
 
 function filterProgram<T extends { program?: string }>(items: T[], program?: Program | string) {
   if (!program || program === "ALL") return items;
@@ -227,6 +305,9 @@ export const store = {
   cases,
   tasks,
   alerts,
+  jobs,
+  applications,
+  trainingPlans,
 };
 
 export function addPerson(input: Omit<Person, "id" | "tenantId">): Person {
@@ -325,6 +406,91 @@ export function listTasks(program?: Program | string) {
   if (!program || program === "ALL") return tasks;
   const personIds = persons.filter((p) => p.currentProgram === program).map((p) => p.id);
   return tasks.filter((t) => (t.personId && personIds.includes(t.personId)) || t.caseId === undefined);
+}
+
+export function addJob(input: Omit<JobRecord, "id" | "tenantId">): JobRecord {
+  const record: JobRecord = { id: randomUUID(), tenantId: tenant.id, ...input };
+  jobs.push(record);
+  return record;
+}
+
+export function updateJob(id: string, data: Partial<JobRecord>): JobRecord | null {
+  const idx = jobs.findIndex((j) => j.id === id);
+  if (idx === -1) return null;
+  jobs[idx] = { ...jobs[idx], ...data };
+  return jobs[idx];
+}
+
+export function listJobs() {
+  return jobs;
+}
+
+export function addApplication(input: Omit<Application, "id" | "tenantId">): Application {
+  const item: Application = { id: randomUUID(), tenantId: tenant.id, ...input };
+  applications.push(item);
+  return item;
+}
+
+export function updateApplication(id: string, data: Partial<Application>): Application | null {
+  const idx = applications.findIndex((a) => a.id === id);
+  if (idx === -1) return null;
+  applications[idx] = { ...applications[idx], ...data };
+  return applications[idx];
+}
+
+export function listApplications() {
+  return applications;
+}
+
+export function addTrainingPlan(input: Omit<TrainingPlan, "id" | "tenantId">): TrainingPlan {
+  const item: TrainingPlan = { id: randomUUID(), tenantId: tenant.id, ...input };
+  trainingPlans.push(item);
+  return item;
+}
+
+export function updateTrainingPlan(id: string, data: Partial<TrainingPlan>): TrainingPlan | null {
+  const idx = trainingPlans.findIndex((t) => t.id === id);
+  if (idx === -1) return null;
+  trainingPlans[idx] = { ...trainingPlans[idx], ...data };
+  return trainingPlans[idx];
+}
+
+export function listTrainingPlans() {
+  return trainingPlans;
+}
+
+export function importJobsFromCsv(csv: string) {
+  const lines = csv
+    .split(/\r?\n/)
+    .map((l) => l.trim())
+    .filter((l) => l.length > 0);
+  if (lines.length < 2) return [];
+  const header = lines[0].split(",").map((h) => h.trim());
+  const created: JobRecord[] = [];
+  for (let i = 1; i < lines.length; i++) {
+    const cols = lines[i].split(",").map((c) => c.trim());
+    const row: Record<string, string> = {};
+    header.forEach((h, idx) => {
+      row[h] = cols[idx] ?? "";
+    });
+    if (!row.title || !row.companyId) continue;
+    created.push(
+      addJob({
+        companyId: row.companyId,
+        title: row.title,
+        workLocation: row.workLocation,
+        salary: row.salary,
+        notes: row.notes,
+        occupation: row.occupation,
+        description: row.description,
+        benefits: row.benefits,
+        employmentType: row.employmentType,
+        requirements: row.requirements,
+        applicationDeadline: row.applicationDeadline,
+      }),
+    );
+  }
+  return created;
 }
 
 export function calculateAlerts() {

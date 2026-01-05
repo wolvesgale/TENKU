@@ -24,42 +24,65 @@ async function main() {
 
   const company = await prisma.company.findFirst({ where: { tenantId: tenant.id } });
 
-  const persons = await prisma.person.createMany({
-    data: [
-      {
-        tenantId: tenant.id,
-        fullName: "Linh Truong",
-        nationality: "ベトナム",
-        nativeLanguage: "Vietnamese",
-        currentProgram: "TITP",
-        residenceCardExpiry: new Date(Date.now() + 1000 * 60 * 60 * 24 * 40),
-        passportExpiry: new Date(Date.now() + 1000 * 60 * 60 * 24 * 200),
-        currentCompanyId: company?.id,
-      },
-      {
-        tenantId: tenant.id,
-        fullName: "Amara Singh",
-        nationality: "フィリピン",
-        nativeLanguage: "Tagalog",
-        currentProgram: "SSW",
-        residenceCardExpiry: new Date(Date.now() + 1000 * 60 * 60 * 24 * 90),
-        passportExpiry: new Date(Date.now() + 1000 * 60 * 60 * 24 * 50),
-        currentCompanyId: company?.id,
-      },
-      {
-        tenantId: tenant.id,
-        fullName: "Rafi Putra",
-        nationality: "インドネシア",
-        nativeLanguage: "Indonesian",
-        currentProgram: "TA",
-        residenceCardExpiry: new Date(Date.now() + 1000 * 60 * 60 * 24 * 25),
-        passportExpiry: new Date(Date.now() + 1000 * 60 * 60 * 24 * 400),
-        currentCompanyId: company?.id,
-      },
-    ],
+  const person1 = await prisma.person.create({
+    data: {
+      tenantId: tenant.id,
+      fullName: "Linh Truong",
+      nationality: "ベトナム",
+      nativeLanguage: "Vietnamese",
+      currentProgram: "TITP",
+      residenceCardExpiry: new Date(Date.now() + 1000 * 60 * 60 * 24 * 40),
+      passportExpiry: new Date(Date.now() + 1000 * 60 * 60 * 24 * 200),
+      currentCompanyId: company?.id,
+    },
   });
 
-  console.log({ tenant, org, companies, persons });
+  const person2 = await prisma.person.create({
+    data: {
+      tenantId: tenant.id,
+      fullName: "Amara Singh",
+      nationality: "フィリピン",
+      nativeLanguage: "Tagalog",
+      currentProgram: "SSW",
+      residenceCardExpiry: new Date(Date.now() + 1000 * 60 * 60 * 24 * 90),
+      passportExpiry: new Date(Date.now() + 1000 * 60 * 60 * 24 * 50),
+      currentCompanyId: company?.id,
+    },
+  });
+
+  const job = await prisma.job.create({
+    data: {
+      tenantId: tenant.id,
+      title: "ライン作業スタッフ",
+      companyId: company?.id ?? "",
+      salary: "月給20万円~",
+      workLocation: "北海道札幌市",
+      occupation: "製造",
+    },
+  });
+
+  const application = await prisma.application.create({
+    data: {
+      tenantId: tenant.id,
+      personId: person1.id,
+      companyId: company?.id,
+      applicationType: "residence_certificate",
+      status: "DRAFT",
+    },
+  });
+
+  const trainingPlan = await prisma.trainingPlan.create({
+    data: {
+      tenantId: tenant.id,
+      personId: person2.id,
+      companyId: company?.id,
+      orgId: org.id,
+      planType: "skill_practice_plan",
+      status: "DRAFT",
+    },
+  });
+
+  console.log({ tenant, org, companies, person1, person2, job, application, trainingPlan });
 }
 
 main()

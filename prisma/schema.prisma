@@ -16,7 +16,7 @@ enum DocumentType {
 }
 
 model Company {
-  id             String   @id @default(cuid())
+  id             String         @id @default(cuid())
   tenantId       String
   name           String
   address        String?
@@ -24,13 +24,15 @@ model Company {
   contactTel     String?
   defaultOrgId   String?
   defaultOrgType String?
-  tenant         Tenant   @relation(fields: [tenantId], references: [id])
+  tenant         Tenant         @relation(fields: [tenantId], references: [id])
   jobs           Job[]
   persons        Person[]
   cases          Case[]
   tasks          Task[]
-  createdAt      DateTime @default(now())
-  updatedAt      DateTime @updatedAt
+  applications   Application[]
+  trainingPlans  TrainingPlan[]
+  createdAt      DateTime       @default(now())
+  updatedAt      DateTime       @updatedAt
 }
 
 model Job {
@@ -40,11 +42,18 @@ model Job {
   workLocation        String?
   salary              String?
   notes               String?
+  occupation          String?
+  description         String?
+  benefits            String?
+  employmentType      String?
+  requirements        String?
+  applicationDeadline DateTime?
   jobOfferVersion     Int        @default(0)
   latestJobOfferDocId String?
   companyId           String
   company             Company    @relation(fields: [companyId], references: [id])
   documents           Document[]
+  tenant              Tenant     @relation(fields: [tenantId], references: [id])
   createdAt           DateTime   @default(now())
   updatedAt           DateTime   @updatedAt
 }
@@ -60,16 +69,20 @@ model Tenant {
   alerts                Alert[]
   organizations         Organization[]
   personStatusHistories PersonStatusHistory[]
+  applications          Application[]
+  trainingPlans         TrainingPlan[]
+  jobs                  Job[]
 }
 
 model Organization {
-  id          String   @id @default(cuid())
-  tenantId    String
-  orgType     String
-  displayName String
-  tenant      Tenant   @relation(fields: [tenantId], references: [id])
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  id            String         @id @default(cuid())
+  tenantId      String
+  orgType       String
+  displayName   String
+  tenant        Tenant         @relation(fields: [tenantId], references: [id])
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+  trainingPlans TrainingPlan[]
 }
 
 model Person {
@@ -89,6 +102,8 @@ model Person {
   cases               Case[]
   tasks               Task[]
   statusHistory       PersonStatusHistory[]
+  applications        Application[]
+  trainingPlans       TrainingPlan[]
   createdAt           DateTime              @default(now())
   updatedAt           DateTime              @updatedAt
 }
@@ -108,22 +123,23 @@ model PersonStatusHistory {
 }
 
 model Case {
-  id         String    @id @default(cuid())
-  tenantId   String
-  program    String
-  caseType   String
-  status     String
-  personId   String
-  companyId  String?
-  ownerOrgId String?
-  dueDate    DateTime?
-  metaJson   Json?
-  tenant     Tenant    @relation(fields: [tenantId], references: [id])
-  person     Person    @relation(fields: [personId], references: [id])
-  company    Company?  @relation(fields: [companyId], references: [id])
-  tasks      Task[]
-  createdAt  DateTime  @default(now())
-  updatedAt  DateTime  @updatedAt
+  id           String        @id @default(cuid())
+  tenantId     String
+  program      String
+  caseType     String
+  status       String
+  personId     String
+  companyId    String?
+  ownerOrgId   String?
+  dueDate      DateTime?
+  metaJson     Json?
+  tenant       Tenant        @relation(fields: [tenantId], references: [id])
+  person       Person        @relation(fields: [personId], references: [id])
+  company      Company?      @relation(fields: [companyId], references: [id])
+  tasks        Task[]
+  applications Application[]
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
 }
 
 model Task {
@@ -157,6 +173,45 @@ model Alert {
   tenant     Tenant   @relation(fields: [tenantId], references: [id])
   createdAt  DateTime @default(now())
   updatedAt  DateTime @updatedAt
+}
+
+model Application {
+  id              String    @id @default(cuid())
+  tenantId        String
+  personId        String?
+  companyId       String?
+  caseId          String?
+  applicationType String
+  status          String    @default("DRAFT")
+  submittedAt     DateTime?
+  documentUrl     String?
+  metadata        Json?
+  tenant          Tenant    @relation(fields: [tenantId], references: [id])
+  person          Person?   @relation(fields: [personId], references: [id])
+  company         Company?  @relation(fields: [companyId], references: [id])
+  case            Case?     @relation(fields: [caseId], references: [id])
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+}
+
+model TrainingPlan {
+  id           String        @id @default(cuid())
+  tenantId     String
+  personId     String?
+  companyId    String?
+  orgId        String?
+  planType     String
+  status       String        @default("DRAFT")
+  plannedStart DateTime?
+  plannedEnd   DateTime?
+  documentUrl  String?
+  metadata     Json?
+  tenant       Tenant        @relation(fields: [tenantId], references: [id])
+  person       Person?       @relation(fields: [personId], references: [id])
+  company      Company?      @relation(fields: [companyId], references: [id])
+  organization Organization? @relation(fields: [orgId], references: [id])
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
 }
 
 model Document {

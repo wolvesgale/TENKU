@@ -61,3 +61,19 @@ npm run dev
 - 機密情報は `.env` に置き、リポジトリに含めないでください（本デモは固定値で動作）。
 - XSS になり得る HTML を埋め込まない UI 設計にしています。
 - すべてのデータはモックであり、実運用時は API / DB へ差し替えてください。
+
+## PDF プレビュー非回帰チェック
+既存の PDF テンプレート／プレビューを壊さないための簡易チェックです。
+
+1. 別ターミナルで開発サーバーを起動（PDF 生成は Node ランタイムが必要）:
+   ```bash
+   npm run dev
+   ```
+2. プレビュー API を叩いて先頭バイトが `%PDF-` か検証:
+   ```bash
+   npm run check:pdf
+   ```
+   - デフォルトのターゲットは `http://localhost:3000/api/v1/pdf/preview?templateId=residence-status-change` です。
+   - 必要に応じて環境変数で上書きできます:  
+     `PDF_PREVIEW_URL="http://localhost:3000/api/v1/pdf/preview?templateId=..."`
+   - API が 200/`application/pdf` を返し、先頭が `%PDF-` で始まらない場合は失敗として終了します。

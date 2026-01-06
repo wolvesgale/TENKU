@@ -12,6 +12,8 @@ export type PdfTemplateDefinition<TData> = {
   render: (data: TData) => React.ReactElement;
 };
 
+export type AnyPdfTemplateDefinition = PdfTemplateDefinition<any>;
+
 export const pdfTemplates: Array<
   | PdfTemplateDefinition<ResidenceStatusChangePdfData>
   | PdfTemplateDefinition<ResidencePeriodExtensionPdfData>
@@ -37,7 +39,7 @@ export const pdfTemplates: Array<
       employerName: "Orion Logistics Hub",
       employerAddress: "北海道札幌市北区5-6-7",
     },
-    render: (data) => <ResidenceStatusChangePdf data={data} />,
+    render: (data: ResidenceStatusChangePdfData) => <ResidenceStatusChangePdf data={data} />,
   },
   {
     id: "residence-period-extension",
@@ -58,7 +60,7 @@ export const pdfTemplates: Array<
       workplace: "宮城県仙台市青葉区2-8-1",
       contactPhone: "080-9876-5432",
     },
-    render: (data) => <ResidencePeriodExtensionPdf data={data} />,
+    render: (data: ResidencePeriodExtensionPdfData) => <ResidencePeriodExtensionPdf data={data} />,
   },
   {
     id: "support-organization-registration",
@@ -77,9 +79,14 @@ export const pdfTemplates: Array<
       supportMenu: "生活オリエンテーション / 日本語学習支援 / 住居確保 / 行政手続き同行",
       trackRecord: "受入実績 120名 / 直近1年 35名",
     },
-    render: (data) => <SupportOrganizationRegistrationPdf data={data} />,
+    render: (data: SupportOrganizationRegistrationPdfData) => <SupportOrganizationRegistrationPdf data={data} />,
   },
 ];
+
+export const pdfTemplateRegistry = Object.fromEntries(pdfTemplates.map((tpl) => [tpl.id, tpl])) as Record<
+  string,
+  AnyPdfTemplateDefinition
+>;
 
 export type PdfTemplateId = (typeof pdfTemplates)[number]["id"];
 

@@ -7,11 +7,11 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Loader2, RefreshCcw, Download } from "lucide-react";
 
-type PreviewerProps = {
-  template: PdfTemplateDefinition<unknown>;
+type PreviewerProps<TData> = {
+  template: PdfTemplateDefinition<TData>;
 };
 
-export function PdfPreviewer({ template }: PreviewerProps) {
+export function PdfPreviewer<TData>({ template }: PreviewerProps<TData>) {
   const [blobUrl, setBlobUrl] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);

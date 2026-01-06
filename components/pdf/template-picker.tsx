@@ -1,21 +1,26 @@
 "use client";
 import { useMemo, useState } from "react";
 import { FileText, Layers, Shuffle } from "lucide-react";
-import { pdfTemplates, type PdfTemplateId } from "@/lib/pdf/templates/registry";
+import { pdfTemplateRegistry, type AnyPdfTemplateDefinition, type PdfTemplateId } from "@/lib/pdf/templates/registry";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { PdfPreviewer } from "./pdf-previewer";
 
-export function TemplatePicker() {
-  const [selectedId, setSelectedId] = useState<PdfTemplateId>(pdfTemplates[0].id);
+const templates = Object.values(pdfTemplateRegistry) as AnyPdfTemplateDefinition[];
 
-  const selected = useMemo(() => pdfTemplates.find((tpl) => tpl.id === selectedId) ?? pdfTemplates[0], [selectedId]);
+export function TemplatePicker() {
+  const [selectedId, setSelectedId] = useState<PdfTemplateId>(templates[0].id);
+
+  const selected = useMemo(
+    () => (pdfTemplateRegistry[selectedId] as AnyPdfTemplateDefinition) ?? templates[0],
+    [selectedId],
+  );
 
   const handleNext = () => {
-    const currentIndex = pdfTemplates.findIndex((tpl) => tpl.id === selectedId);
-    const nextIndex = (currentIndex + 1) % pdfTemplates.length;
-    setSelectedId(pdfTemplates[nextIndex].id);
+    const currentIndex = templates.findIndex((tpl) => tpl.id === selectedId);
+    const nextIndex = (currentIndex + 1) % templates.length;
+    setSelectedId(templates[nextIndex].id);
   };
 
   return (
@@ -32,7 +37,7 @@ export function TemplatePicker() {
           </Button>
         </CardHeader>
         <CardContent className="space-y-3">
-          {pdfTemplates.map((tpl) => (
+          {templates.map((tpl) => (
             <button
               key={tpl.id}
               type="button"

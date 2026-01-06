@@ -664,29 +664,24 @@ export function calculateAlerts() {
 type TaskRule = { taskType: string; dueDateOffsetDays: number };
 
 const DUE_DATE_OFFSETS = {
-  kickoff: 1,
-  preSubmission: -14,
-  finalReview: -3,
-  submission: 0,
-  followUp: 1,
+  collectDocs: -30,
+  fillForm: -14,
+  submit: 0,
+  supportPlanInputs: -30,
+  supportPlanDraft: -21,
 };
 
 const baseTaskRules: TaskRule[] = [
-  { taskType: "case_kickoff", dueDateOffsetDays: DUE_DATE_OFFSETS.kickoff },
-  { taskType: "deadline_watch", dueDateOffsetDays: DUE_DATE_OFFSETS.preSubmission },
-  { taskType: "final_review", dueDateOffsetDays: DUE_DATE_OFFSETS.finalReview },
-  { taskType: "submit_or_file", dueDateOffsetDays: DUE_DATE_OFFSETS.submission },
-  { taskType: "post_submit_log", dueDateOffsetDays: DUE_DATE_OFFSETS.followUp },
+  { taskType: "collect_docs", dueDateOffsetDays: DUE_DATE_OFFSETS.collectDocs },
+  { taskType: "fill_form", dueDateOffsetDays: DUE_DATE_OFFSETS.fillForm },
+  { taskType: "submit", dueDateOffsetDays: DUE_DATE_OFFSETS.submit },
 ];
 
 const caseSpecificRules: Record<string, TaskRule[]> = {
-  imm_change_status_ta_for_ssw: [
-    { taskType: "change_status_document_check", dueDateOffsetDays: DUE_DATE_OFFSETS.preSubmission },
-    { taskType: "change_status_interview_schedule", dueDateOffsetDays: DUE_DATE_OFFSETS.finalReview },
-  ],
-  imm_renew_status_titp: [
-    { taskType: "renew_status_document_check", dueDateOffsetDays: DUE_DATE_OFFSETS.preSubmission },
-    { taskType: "renew_status_interview_schedule", dueDateOffsetDays: DUE_DATE_OFFSETS.finalReview },
+  ssw_support_plan_and_imm: [
+    { taskType: "collect_support_plan_inputs", dueDateOffsetDays: DUE_DATE_OFFSETS.supportPlanInputs },
+    { taskType: "draft_support_plan", dueDateOffsetDays: DUE_DATE_OFFSETS.supportPlanDraft },
+    { taskType: "submit", dueDateOffsetDays: DUE_DATE_OFFSETS.submit },
   ],
 };
 

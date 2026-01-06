@@ -1,4 +1,5 @@
 import React from "react";
+import { pdfTemplateSummaryMap, type PdfTemplateId } from "./manifest";
 import { ResidencePeriodExtensionPdf, type ResidencePeriodExtensionPdfData } from "./residence-period-extension";
 import { ResidenceStatusChangePdf, type ResidenceStatusChangePdfData } from "./residence-status-change";
 import { SupportOrganizationRegistrationPdf, type SupportOrganizationRegistrationPdfData } from "./support-organization-registration";
@@ -20,10 +21,7 @@ export const pdfTemplates: Array<
   | PdfTemplateDefinition<SupportOrganizationRegistrationPdfData>
 > = [
   {
-    id: "residence-status-change",
-    title: "在留資格変更許可申請書",
-    description: "必須項目と申請者情報のみの簡易レイアウト。現状の資格から変更後資格への切替用。",
-    category: "入管手続",
+    ...pdfTemplateSummaryMap["residence-status-change"],
     sampleData: {
       applicationNumber: "CHG-2024-001",
       applicantName: "Linh Truong",
@@ -42,10 +40,7 @@ export const pdfTemplates: Array<
     render: (data: ResidenceStatusChangePdfData) => <ResidenceStatusChangePdf data={data} />,
   },
   {
-    id: "residence-period-extension",
-    title: "在留期間更新許可申請書",
-    description: "在留資格を維持したまま期間延長する想定の最小構成テンプレート。",
-    category: "入管手続",
+    ...pdfTemplateSummaryMap["residence-period-extension"],
     sampleData: {
       applicationNumber: "EXT-2024-002",
       applicantName: "Amara Singh",
@@ -63,10 +58,7 @@ export const pdfTemplates: Array<
     render: (data: ResidencePeriodExtensionPdfData) => <ResidencePeriodExtensionPdf data={data} />,
   },
   {
-    id: "support-organization-registration",
-    title: "登録支援機関登録申請書",
-    description: "支援体制・実績欄を個別フォーマットで配置した登録支援機関向けテンプレート。",
-    category: "登録申請",
+    ...pdfTemplateSummaryMap["support-organization-registration"],
     sampleData: {
       registrationNumber: "RSO-2024-003",
       organizationName: "TENKU支援機構",
@@ -84,12 +76,12 @@ export const pdfTemplates: Array<
 ];
 
 export const pdfTemplateRegistry = Object.fromEntries(pdfTemplates.map((tpl) => [tpl.id, tpl])) as Record<
-  string,
+  PdfTemplateId,
   AnyPdfTemplateDefinition
 >;
 
-export type PdfTemplateId = (typeof pdfTemplates)[number]["id"];
+export type { PdfTemplateId } from "./manifest";
 
-export function getPdfTemplateById(id: PdfTemplateId) {
+export function getPdfTemplateById(id: PdfTemplateId): AnyPdfTemplateDefinition | undefined {
   return pdfTemplates.find((tpl) => tpl.id === id);
 }

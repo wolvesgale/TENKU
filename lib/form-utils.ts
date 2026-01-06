@@ -5,8 +5,8 @@ export type FormFieldSchema<ValueShape extends Record<string, any>> = {
   label: string;
   required?: boolean;
   type: "select" | "date" | "textarea" | "text";
-  options?: SelectOption[];
-  allowedValues?: string[];
+  options?: ReadonlyArray<SelectOption>;
+  allowedValues?: ReadonlyArray<string>;
   validator?: (value: ValueShape[keyof ValueShape], values: ValueShape) => string | undefined;
 };
 

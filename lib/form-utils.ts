@@ -7,6 +7,7 @@ export type FormFieldSchema<ValueShape extends Record<string, any>> = {
   type: "select" | "date" | "textarea" | "text";
   options?: ReadonlyArray<SelectOption>;
   allowedValues?: ReadonlyArray<string>;
+  maxLength?: number;
   validator?: (value: ValueShape[keyof ValueShape], values: ValueShape) => string | undefined;
 };
 
@@ -16,6 +17,7 @@ export const DATE_PATTERN = /^\d{4}-\d{2}-\d{2}$/;
 export const REQUIRED_MESSAGE = "必須項目です";
 export const DATE_FORMAT_MESSAGE = "日付は YYYY-MM-DD 形式で入力してください";
 export const INVALID_SELECTION_MESSAGE = "選択肢から選択してください";
+export const maxLengthMessage = (max: number) => `${max}文字以内で入力してください`;
 
 const isEmptyValue = (value: unknown) => {
   if (value === undefined || value === null) return true;
@@ -39,6 +41,11 @@ export function validateBySchema<ValueShape extends Record<string, any>>(
 
     if (field.type === "date" && value && typeof value === "string" && !DATE_PATTERN.test(value)) {
       errors[field.name] = DATE_FORMAT_MESSAGE;
+      return;
+    }
+
+    if (field.maxLength && typeof value === "string" && value.length > field.maxLength) {
+      errors[field.name] = maxLengthMessage(field.maxLength);
       return;
     }
 

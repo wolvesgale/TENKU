@@ -27,6 +27,7 @@ const links = [
   { href: "/billing", label: "監理費請求", icon: Rocket },
   { href: "/csv", label: "CSV連携", icon: ListChecks },
   { href: "/schedule", label: "スケジュール", icon: Sparkles },
+  { href: "/templates/pdf", label: "PDFテンプレ", icon: FileText },
   { href: "/templates/monitor", label: "書式監視", icon: Network },
   { href: "/applications", label: "申請一覧", icon: FileText },
   { href: "/training-plans", label: "実習計画", icon: ClipboardList },

@@ -62,6 +62,9 @@ export type Task = {
   dueDate?: string;
   createdBy?: string;
   ruleSnapshot?: any;
+  title?: string;
+  severity?: "high" | "medium" | "low";
+  relatedEntity?: string;
 };
 export type Alert = {
   id: string;
@@ -270,7 +273,58 @@ const cases: Case[] = [
   },
 ];
 
-const tasks: Task[] = [];
+const tasks: Task[] = [
+  {
+    id: "tsk-201",
+    tenantId: tenant.id,
+    title: "計画認定: Nova Robotics 2025 改訂",
+    taskType: "plan_revision_review",
+    status: "DOING",
+    dueDate: new Date(Date.now() + 1000 * 60 * 60 * 24 * 6).toISOString(),
+    relatedEntity: "documents/plan",
+    severity: "high",
+  },
+  {
+    id: "tsk-202",
+    tenantId: tenant.id,
+    title: "入国後講習レポート提出 (Orion)",
+    taskType: "post_arrival_orientation",
+    status: "TODO",
+    dueDate: new Date(Date.now() + 1000 * 60 * 60 * 24 * 12).toISOString(),
+    relatedEntity: "companies/cmp-001",
+    severity: "medium",
+  },
+  {
+    id: "tsk-203",
+    tenantId: tenant.id,
+    title: "監査報告ドラフトレビュー",
+    taskType: "audit_report_review",
+    status: "TODO",
+    dueDate: new Date(Date.now() + 1000 * 60 * 60 * 24 * 4).toISOString(),
+    relatedEntity: "documents/audit",
+    severity: "high",
+  },
+  {
+    id: "tsk-204",
+    tenantId: tenant.id,
+    title: "請求書 前月複製の確認",
+    taskType: "billing_clone_check",
+    status: "DOING",
+    dueDate: new Date(Date.now() + 1000 * 60 * 60 * 24 * 2).toISOString(),
+    relatedEntity: "billing",
+    severity: "low",
+  },
+  {
+    id: "tsk-205",
+    tenantId: tenant.id,
+    title: "在留更新手続きタスク発行",
+    taskType: "imm_renew_status_titp",
+    status: "DONE",
+    dueDate: new Date(Date.now() - 1000 * 60 * 60 * 24 * 1).toISOString(),
+    relatedEntity: "cases/case-004",
+    severity: "medium",
+  },
+];
 const alerts: Alert[] = [];
 const jobs: JobRecord[] = [
   {

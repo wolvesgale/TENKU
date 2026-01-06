@@ -2,32 +2,69 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Table, THead, TBody, TR, TH, TD } from "@/components/ui/table";
-import { documents, externalLinks, kpiCards, tasks } from "@/lib/mockData";
+import { dashboardDocuments, dashboardExternalLinks, dashboardKpiCards } from "@/lib/demo-dashboard-data";
 import { Flame, Link2, Radar } from "lucide-react";
-import { useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
+
+type ReminderTask = {
+  id: string;
+  title?: string;
+  taskType: string;
+  status: "TODO" | "DOING" | "DONE" | string;
+  dueDate?: string;
+  severity?: "high" | "medium" | "low";
+  relatedEntity?: string;
+};
+
+const statusBadgeClass = (status: ReminderTask["status"]) => {
+  switch (status) {
+    case "DOING":
+      return "border-brand-blue text-brand-blue";
+    case "TODO":
+      return "border-brand-amber text-brand-amber";
+    default:
+      return "border-emerald-400 text-emerald-300";
+  }
+};
+
+const formatDate = (value?: string) => {
+  if (!value) return "-";
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return value;
+  return date.toISOString().slice(0, 10);
+};
 
 export default function DashboardPage() {
+  const [tasks, setTasks] = useState<ReminderTask[]>([]);
+
+  useEffect(() => {
+    fetch("/api/v1/tasks")
+      .then((r) => r.json())
+      .then((res) => setTasks(res.data ?? []))
+      .catch(() => setTasks([]));
+  }, []);
+
   const reminders = useMemo(
     () =>
       [...tasks]
-        .filter((t) => t.status !== "done")
-        .sort((a, b) => new Date(a.dueDate).getTime() - new Date(b.dueDate).getTime())
+        .filter((t) => t.status !== "DONE")
+        .sort((a, b) => new Date(a.dueDate || "").getTime() - new Date(b.dueDate || "").getTime())
         .slice(0, 5),
-    []
+    [tasks],
   );
   const docSummary = useMemo(
     () =>
-      documents.map((d) => ({
+      dashboardDocuments.map((d) => ({
         ...d,
         urgency: d.completion < 60 || d.riskScore > 28 ? "high" : d.completion < 80 || d.riskScore > 22 ? "medium" : "low",
       })),
-    []
+    [],
   );
 
   return (
     <div className="grid gap-4">
       <div className="grid xl:grid-cols-4 md:grid-cols-2 gap-4">
-        {kpiCards.map((kpi) => (
+        {dashboardKpiCards.map((kpi) => (
           <Card key={kpi.title} className="relative overflow-hidden">
             <div className="absolute inset-0 bg-gradient-to-br from-brand-blue/10 via-transparent to-brand-amber/10 pointer-events-none" />
             <CardHeader>
@@ -53,11 +90,11 @@ export default function DashboardPage() {
               High Priority
             </Badge>
           </CardHeader>
-          <CardContent>
-            <Table>
-              <THead>
-                <TR>
-                  <TH>タスク</TH>
+            <CardContent>
+              <Table>
+                <THead>
+                  <TR>
+                    <TH>タスク</TH>
                   <TH>期限</TH>
                   <TH>状態</TH>
                   <TH>関連</TH>
@@ -66,20 +103,10 @@ export default function DashboardPage() {
               <TBody>
                 {reminders.map((task) => (
                   <TR key={task.id}>
-                    <TD>{task.title}</TD>
-                    <TD>{task.dueDate}</TD>
+                    <TD>{task.title ?? task.taskType}</TD>
+                    <TD>{formatDate(task.dueDate)}</TD>
                     <TD>
-                      <Badge
-                        className={
-                          task.status === "in_progress"
-                            ? "border-brand-blue text-brand-blue"
-                            : task.status === "open"
-                              ? "border-brand-amber text-brand-amber"
-                              : "border-emerald-400 text-emerald-300"
-                        }
-                      >
-                        {task.status}
-                      </Badge>
+                      <Badge className={statusBadgeClass(task.status)}>{task.status}</Badge>
                     </TD>
                     <TD>{task.relatedEntity}</TD>
                   </TR>
@@ -100,7 +127,7 @@ export default function DashboardPage() {
               <p className="text-xs text-muted">監査・計画認定の締切が集中しています。手続き書類の一括出力を推奨。</p>
             </div>
             <div className="space-y-2">
-              {externalLinks.map((link) => (
+              {dashboardExternalLinks.map((link) => (
                 <a
                   key={link.name}
                   href={link.href}

@@ -119,6 +119,22 @@ export type TrainingPlan = {
   metadata?: any;
 };
 
+export type ExpiryThresholds = {
+  residenceCardExpiryDays: number;
+  passportExpiryDays: number;
+};
+
+export type TenantSettings = {
+  tenantId: string;
+  expiryThresholds: ExpiryThresholds;
+  updatedAt: string;
+};
+
+export const DEFAULT_EXPIRY_THRESHOLDS: ExpiryThresholds = {
+  residenceCardExpiryDays: 60,
+  passportExpiryDays: 90,
+};
+
 const tenant: Tenant = { id: "tenant_demo", code: "TENKU_DEMO", name: "TENKU Demo Tenant" };
 const organizations: Organization[] = [
   { id: "org_support", tenantId: tenant.id, orgType: "SUPPORT", displayName: "TENKU支援機関" },
@@ -290,6 +306,9 @@ const trainingPlans: TrainingPlan[] = [
     status: "DRAFT",
   },
 ];
+const tenantSettings: TenantSettings[] = [
+  { tenantId: tenant.id, expiryThresholds: { ...DEFAULT_EXPIRY_THRESHOLDS }, updatedAt: new Date().toISOString() },
+];
 
 function filterProgram<T extends { program?: string }>(items: T[], program?: Program | string) {
   if (!program || program === "ALL") return items;
@@ -308,7 +327,44 @@ export const store = {
   jobs,
   applications,
   trainingPlans,
+  tenantSettings,
 };
+
+function ensureTenantSettings(tenantId: string): TenantSettings {
+  const found = tenantSettings.find((s) => s.tenantId === tenantId);
+  if (found) return found;
+  const created: TenantSettings = {
+    tenantId,
+    expiryThresholds: { ...DEFAULT_EXPIRY_THRESHOLDS },
+    updatedAt: new Date().toISOString(),
+  };
+  tenantSettings.push(created);
+  return created;
+}
+
+export function getTenantSettings(tenantId: string) {
+  return ensureTenantSettings(tenantId);
+}
+
+export function updateTenantSettings(tenantId: string, updates: Partial<ExpiryThresholds>) {
+  const current = ensureTenantSettings(tenantId);
+  const updated: TenantSettings = {
+    ...current,
+    expiryThresholds: { ...current.expiryThresholds, ...updates },
+    updatedAt: new Date().toISOString(),
+  };
+  const idx = tenantSettings.findIndex((s) => s.tenantId === tenantId);
+  if (idx === -1) {
+    tenantSettings.push(updated);
+  } else {
+    tenantSettings[idx] = updated;
+  }
+  return updated;
+}
+
+export function getExpiryThresholds(tenantId: string) {
+  return ensureTenantSettings(tenantId).expiryThresholds;
+}
 
 export function addPerson(input: Omit<Person, "id" | "tenantId">): Person {
   const person: Person = { id: randomUUID(), tenantId: tenant.id, ...input };
@@ -495,24 +551,43 @@ export function importJobsFromCsv(csv: string) {
 
 export function calculateAlerts() {
   const now = Date.now();
+  const expiryThresholds = getExpiryThresholds(tenant.id);
+  const residenceThresholdLabel = `${expiryThresholds.residenceCardExpiryDays}d`;
+  const passportThresholdLabel = `${expiryThresholds.passportExpiryDays}d`;
   persons.forEach((p) => {
     if (p.residenceCardExpiry) {
       const diff = new Date(p.residenceCardExpiry).getTime() - now;
       const days = Math.floor(diff / (1000 * 60 * 60 * 24));
-      if (days <= 60) {
+      if (days <= expiryThresholds.residenceCardExpiryDays) {
         upsertAlert(
-          { alertType: "residence_expiry", targetId: p.id, threshold: "60d" },
-          { tenantId: tenant.id, alertType: "residence_expiry", severity: "high", targetType: "person", targetId: p.id, status: "OPEN", threshold: "60d" },
+          { alertType: "residence_expiry", targetId: p.id, threshold: residenceThresholdLabel },
+          {
+            tenantId: tenant.id,
+            alertType: "residence_expiry",
+            severity: "high",
+            targetType: "person",
+            targetId: p.id,
+            status: "OPEN",
+            threshold: residenceThresholdLabel,
+          },
         );
       }
     }
     if (p.passportExpiry) {
       const diff = new Date(p.passportExpiry).getTime() - now;
       const days = Math.floor(diff / (1000 * 60 * 60 * 24));
-      if (days <= 90) {
+      if (days <= expiryThresholds.passportExpiryDays) {
         upsertAlert(
-          { alertType: "passport_expiry", targetId: p.id, threshold: "90d" },
-          { tenantId: tenant.id, alertType: "passport_expiry", severity: "med", targetType: "person", targetId: p.id, status: "OPEN", threshold: "90d" },
+          { alertType: "passport_expiry", targetId: p.id, threshold: passportThresholdLabel },
+          {
+            tenantId: tenant.id,
+            alertType: "passport_expiry",
+            severity: "med",
+            targetType: "person",
+            targetId: p.id,
+            status: "OPEN",
+            threshold: passportThresholdLabel,
+          },
         );
       }
     }

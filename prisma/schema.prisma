@@ -20,6 +20,12 @@ enum JobStatus {
   CLOSED
 }
 
+enum TaskStatus {
+  TODO
+  DOING
+  DONE
+}
+
 enum CaseProgram {
   ALL
   TITP
@@ -160,17 +166,19 @@ model Case {
 
 model Task {
   id           String    @id @default(cuid())
-  tenantId     String
-  caseId       String?
+  tenantId     String    @map("tenant_id")
+  caseId       String    @map("case_id")
   personId     String?
   companyId    String?
+  title        String
   taskType     String
-  status       String
-  dueDate      DateTime?
+  status       TaskStatus
+  metaJson     Json?     @map("meta_json")
+  dueDate      DateTime? @map("due_date")
   createdBy    String?
   ruleSnapshot Json?
   tenant       Tenant    @relation(fields: [tenantId], references: [id])
-  case         Case?     @relation(fields: [caseId], references: [id])
+  case         Case      @relation(fields: [caseId], references: [id])
   person       Person?   @relation(fields: [personId], references: [id])
   company      Company?  @relation(fields: [companyId], references: [id])
   createdAt    DateTime  @default(now())

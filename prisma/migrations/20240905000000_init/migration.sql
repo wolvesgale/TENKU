@@ -1,2 +1,0 @@
--- Prisma migration placeholder for TENKU AI Agent demo schema
--- This file documents the intended schema; apply via `prisma migrate dev` when a database is configured.

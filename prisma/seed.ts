@@ -58,6 +58,7 @@ async function main() {
       salary: "月給20万円~",
       workLocation: "北海道札幌市",
       occupation: "製造",
+      status: "OPEN",
     },
   });
 

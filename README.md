@@ -31,16 +31,15 @@ npm run dev
 - `/login` : 管理団体コード + ID + PW でダミーログイン（固定値で成功）。将来 RBAC 用のユーザー種別トグル付き。
 - `/dashboard` : KPI / リマインダー / お知らせ・外部リンク / 書類進捗 HUD。
 - `/companies` : 実習実施先一覧 + 詳細/メモ欄。
-- `/migrants` : 入国者一覧 + フェーズフィルタ + 詳細/メモ欄。
-- `/sending-agencies` : 送出機関一覧 + 詳細/メモ欄。
-- `/documents/plan` : 計画認定書類一覧、複製/出力ボタン、期限連動表示。
-- `/documents/procedures` : 各種手続書類一覧、前月複製/出力、スケジュール連動。
-- `/documents/audit` : 監査・報告・記録の一覧、複製/出力、期限連動。
+- `/persons` : 人材（在留カード/パスポート期限）一覧と詳細。
+- `/cases` : 案件一覧。タスク自動生成の対象。
+- `/applications` : 申請一覧。案件紐付けのあるモック申請を表示。
+- `/training-plans` : 実習計画一覧。
+- `/tasks` : 案件・在留関連タスクの一覧。
 - `/billing` : 監理費請求 UI（新規作成・前月複製、内訳モック）。
-- `/csv` : インポート/エクスポートタブ、入力ルール、インポート履歴。ファイル選択でプレビュー。
-- `/schedule` : ガント風のスケジュール表示 + アラートバッジ。
-- `/templates/monitor` : 行政書式の監視リスト、差分チェック（モック）、AI 要約/更新案の枠。
-- `/api/mock/*` : モックデータ API（companies, sending-agencies, migrants, tasks, documents, templates, schedule）。
+- `/templates/pdf` : PDF テンプレプレビューと出力。
+- `/residence-center` : 在留期限アラートと案件リンクの簡易ハブ。
+- `/api/v1/*` : companies / persons / cases / tasks などのデモ API。
 - `/api/ai/chat` : ルールベースの AI 応答（期限や不足項目を返す）。
 
 ## デモ用ログイン情報
@@ -48,18 +47,15 @@ npm run dev
 - ID: `support@techtas.jp`
 - パスワード: `techtas720`
 
-## モックデータ
-`/lib/mockData.ts` に以下を 5 件以上ずつ収録。
-- companies / sendingAgencies / migrants（進捗・リスク・期限）
-- tasks（期限・重要度・関連エンティティ）
-- documents（type/status/lastUpdated/completion）
-- templateMonitors（監視対象 URL, 差分有無, AI 要約）
+## デモデータ
+- `/lib/demo-store.ts` : テナント・企業・人材・案件・タスク・アラートなどのデモ用ストア。`/api/v1/*` が参照。
+- `/lib/demo-dashboard-data.ts` : ダッシュボードの KPI / 書類サマリー / 外部リンクの静的データ。
 
 ## 重要コンポーネント
 - `components/layout/sidebar.tsx` : SF/HUD テーマのサイドナビ。
 - `components/layout/topbar.tsx` : テナント・ユーザー種別表示、通知プレースホルダー。
 - `components/ui/ai-widget.tsx` : 右下のチャットウィジェット。/api/ai/chat へ POST し、OpenAI 等に差し替え可能。
-- `app/api/mock/[resource]/route.ts` : モックデータの API ルーター。
+- `app/api/v1/*` : デモストアを元にしたシンプルな JSON API。
 
 ## セキュリティと注意点
 - 機密情報は `.env` に置き、リポジトリに含めないでください（本デモは固定値で動作）。

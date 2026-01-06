@@ -607,26 +607,33 @@ export function calculateAlerts() {
   return alerts;
 }
 
-const baseRules = [
-  { taskType: "case_kickoff", offsetDays: 1 },
-  { taskType: "deadline_watch", offsetDays: -14 },
-  { taskType: "final_review", offsetDays: -3 },
-  { taskType: "submit_or_file", offsetDays: 0 },
-  { taskType: "post_submit_log", offsetDays: 1 },
+type TaskRule = { taskType: string; dueDateOffsetDays: number };
+
+const DUE_DATE_OFFSETS = {
+  kickoff: 1,
+  preSubmission: -14,
+  finalReview: -3,
+  submission: 0,
+  followUp: 1,
+};
+
+const baseTaskRules: TaskRule[] = [
+  { taskType: "case_kickoff", dueDateOffsetDays: DUE_DATE_OFFSETS.kickoff },
+  { taskType: "deadline_watch", dueDateOffsetDays: DUE_DATE_OFFSETS.preSubmission },
+  { taskType: "final_review", dueDateOffsetDays: DUE_DATE_OFFSETS.finalReview },
+  { taskType: "submit_or_file", dueDateOffsetDays: DUE_DATE_OFFSETS.submission },
+  { taskType: "post_submit_log", dueDateOffsetDays: DUE_DATE_OFFSETS.followUp },
 ];
 
-const caseSpecific: Record<string, { taskType: string; offsetDays: number }[]> = {
-  titp_plan_application: [
-    { taskType: "titp_plan_application", offsetDays: -7 },
-    { taskType: "imm_renew_status_titp", offsetDays: -30 },
+const caseSpecificRules: Record<string, TaskRule[]> = {
+  imm_change_status_ta_for_ssw: [
+    { taskType: "change_status_document_check", dueDateOffsetDays: DUE_DATE_OFFSETS.preSubmission },
+    { taskType: "change_status_interview_schedule", dueDateOffsetDays: DUE_DATE_OFFSETS.finalReview },
   ],
-  imm_renew_status_titp: [{ taskType: "imm_renew_status_titp", offsetDays: -60 }],
-  ssw_support_plan_and_imm: [{ taskType: "ssw_support_plan_and_imm", offsetDays: -20 }],
-  ssw_periodic_notification: [{ taskType: "ssw_periodic_notification", offsetDays: -14 }],
-  ssw_regular_interview: [{ taskType: "ssw_regular_interview", offsetDays: -10 }],
-  imm_change_status_ta_for_ssw: [{ taskType: "imm_change_status_ta_for_ssw", offsetDays: -25 }],
-  ta_progress_management: [{ taskType: "ta_progress_management", offsetDays: -15 }],
-  imm_change_status_ssw_from_ta: [{ taskType: "imm_change_status_ssw_from_ta", offsetDays: -35 }],
+  imm_renew_status_titp: [
+    { taskType: "renew_status_document_check", dueDateOffsetDays: DUE_DATE_OFFSETS.preSubmission },
+    { taskType: "renew_status_interview_schedule", dueDateOffsetDays: DUE_DATE_OFFSETS.finalReview },
+  ],
 };
 
 function calcDate(base: string | undefined, offsetDays: number) {
@@ -639,10 +646,10 @@ function calcDate(base: string | undefined, offsetDays: number) {
 export function autoGenerateTasks(caseId: string) {
   const target = cases.find((c) => c.id === caseId);
   if (!target) return [];
-  const ruleSet = [...baseRules, ...(caseSpecific[target.caseType] ?? [])];
+  const ruleSet = [...baseTaskRules, ...(caseSpecificRules[target.caseType] ?? [])];
   const created: Task[] = [];
   ruleSet.forEach((rule) => {
-    const dueDate = calcDate(target.dueDate, rule.offsetDays);
+    const dueDate = calcDate(target.dueDate, rule.dueDateOffsetDays);
     const exists = tasks.find(
       (t) => t.caseId === caseId && t.taskType === rule.taskType && t.dueDate === dueDate && t.tenantId === tenant.id,
     );
@@ -654,7 +661,7 @@ export function autoGenerateTasks(caseId: string) {
       taskType: rule.taskType,
       status: "TODO",
       dueDate,
-      ruleSnapshot: { caseType: target.caseType, offsetDays: rule.offsetDays },
+      ruleSnapshot: { caseType: target.caseType, dueDateOffsetDays: rule.dueDateOffsetDays },
     });
     created.push(task);
   });

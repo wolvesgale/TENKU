@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { renderPdfToBuffer } from "@/lib/pdf/render";
+import { ensurePdfSetup } from "@/lib/pdf/setup";
 import { getPdfTemplateById, type PdfTemplateId } from "@/lib/pdf/templates/registry";
 
 export const runtime = "nodejs";
@@ -7,6 +8,7 @@ export const dynamic = "force-dynamic";
 
 export async function GET(req: NextRequest) {
   try {
+    ensurePdfSetup();
     const { searchParams } = new URL(req.url);
     const templateId = searchParams.get("templateId") as PdfTemplateId | null;
     if (!templateId) {

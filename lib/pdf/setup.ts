@@ -3,11 +3,16 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { Font } from "@react-pdf/renderer";
 
-const DEFAULT_FONT_FAMILY = "NotoSansJP";
-const FONT_PACKAGE = "@openfonts/noto-sans-jp_japanese";
-let registeredFontFamily = DEFAULT_FONT_FAMILY;
+export const PDF_FONT_FAMILY = "NotoSansJP";
+const FONT_FILES = {
+  normal: "NotoSansJP-Regular.otf",
+  bold: "NotoSansJP-Bold.otf",
+};
+
+let registeredFontFamily = PDF_FONT_FAMILY;
 let hyphenationRegistered = false;
 let fontsRegistered = false;
+let lastErrorMessage: string | null = null;
 
 type RegisteredFont = { src: string; fontWeight: number };
 
@@ -23,7 +28,7 @@ function findFontFilesDir(): { dir: string | null; searched: string[] } {
 
   const searched: string[] = [];
   for (const root of searchRoots) {
-    const dir = path.join(root, "node_modules", FONT_PACKAGE, "files");
+    const dir = path.join(root, "public", "fonts");
     searched.push(dir);
     if (fs.existsSync(dir)) {
       return { dir, searched };
@@ -34,41 +39,35 @@ function findFontFilesDir(): { dir: string | null; searched: string[] } {
 
 function resolveNotoSansFonts(): RegisteredFont[] {
   try {
-    let filesDir: string | null = null;
-    const checkedPaths: string[] = [];
-
-    try {
-      // Use runtime require to avoid bundler path remapping
-      const nodeRequire = eval("require") as NodeRequire;
-      const pkgJsonPath = nodeRequire.resolve(`${FONT_PACKAGE}/package.json`);
-      filesDir = path.join(path.dirname(pkgJsonPath), "files");
-      checkedPaths.push(filesDir);
-    } catch (error) {
-      console.warn("[pdf] Failed to resolve Noto Sans JP package via require", error);
-    }
+    const searchResult = findFontFilesDir();
+    const filesDir = searchResult.dir;
+    const checkedPaths = searchResult.searched;
 
     if (!filesDir || !fs.existsSync(filesDir)) {
-      const searchResult = findFontFilesDir();
-      filesDir = filesDir ?? searchResult.dir;
-      checkedPaths.push(...searchResult.searched);
-    }
-
-    if (!filesDir || !fs.existsSync(filesDir)) {
-      console.warn(`[pdf] Noto Sans JP font directory could not be located. searched: ${checkedPaths.join(", ")}`);
+      const message = `[pdf] Noto Sans JP font directory could not be located. searched: ${checkedPaths.join(", ")}`;
+      console.warn(message);
+      lastErrorMessage = message;
       return [];
     }
 
-    const files = fs.readdirSync(filesDir, { withFileTypes: true }).filter((entry) => entry.isFile()).map((entry) => entry.name);
+    const regularPath = path.join(filesDir, FONT_FILES.normal);
+    const boldPath = path.join(filesDir, FONT_FILES.bold);
 
-    const pickFont = (weight: 400 | 700) => {
-      const filename = files.find((file) => new RegExp(`-${weight}(?:-.*)?\\.woff$`, "i").test(file));
-      if (!filename) return null;
-      return { src: path.join(filesDir, filename), fontWeight: weight };
-    };
+    if (!fs.existsSync(regularPath) || !fs.existsSync(boldPath)) {
+      const message = `[pdf] Noto Sans JP font files missing. checked: ${regularPath}, ${boldPath}`;
+      console.warn(message);
+      lastErrorMessage = message;
+      return [];
+    }
 
-    return [pickFont(400), pickFont(700)].filter(Boolean) as RegisteredFont[];
+    return [
+      { src: regularPath, fontWeight: 400 },
+      { src: boldPath, fontWeight: 700 },
+    ];
   } catch (error) {
-    console.warn("[pdf] Failed to resolve Noto Sans JP fonts from npm package", error);
+    const message = `[pdf] Failed to resolve Noto Sans JP fonts: ${String(error)}`;
+    console.warn(message);
+    lastErrorMessage = message;
     return [];
   }
 }
@@ -78,19 +77,27 @@ export function getPdfFontFamily() {
   return registeredFontFamily;
 }
 
+export function getPdfFontStatus() {
+  return { fontFamily: registeredFontFamily, ok: fontsRegistered, message: lastErrorMessage };
+}
+
 export function ensurePdfSetup() {
   const fonts = resolveNotoSansFonts();
   if (fonts.length > 0) {
-    if (!fontsRegistered || registeredFontFamily !== DEFAULT_FONT_FAMILY) {
-      Font.register({ family: DEFAULT_FONT_FAMILY, fonts });
-      registeredFontFamily = DEFAULT_FONT_FAMILY;
+    if (!fontsRegistered || registeredFontFamily !== PDF_FONT_FAMILY) {
+      Font.register({ family: PDF_FONT_FAMILY, fonts });
+      registeredFontFamily = PDF_FONT_FAMILY;
       fontsRegistered = true;
+      lastErrorMessage = null;
     }
   } else {
     // Graceful fallback to avoid breaking preview generation
     registeredFontFamily = "Helvetica";
     fontsRegistered = false;
-    console.warn("[pdf] Falling back to built-in Helvetica because Noto Sans JP fonts were not found");
+    if (!lastErrorMessage) {
+      lastErrorMessage = "[pdf] Falling back to built-in Helvetica because Noto Sans JP fonts were not found";
+    }
+    console.warn(lastErrorMessage);
   }
 
   if (!hyphenationRegistered) {

@@ -1,12 +1,13 @@
 import { Font } from "@react-pdf/renderer";
+import path from "path";
 
 let initialized = false;
 
 export function ensurePdfSetup() {
   if (initialized) return;
 
-  const regularSrc = new URL("../../public/fonts/NotoSansJP-Regular.ttf", import.meta.url).toString();
-  const boldSrc = new URL("../../public/fonts/NotoSansJP-Bold.ttf", import.meta.url).toString();
+  const regularSrc = path.resolve(process.cwd(), "public/fonts/NotoSansJP-Regular.ttf");
+  const boldSrc = path.resolve(process.cwd(), "public/fonts/NotoSansJP-Bold.ttf");
 
   Font.register({ family: "NotoSansJP", src: regularSrc });
   Font.register({ family: "NotoSansJP", src: boldSrc, fontWeight: 700 });

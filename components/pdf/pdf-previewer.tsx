@@ -1,7 +1,5 @@
 "use client";
 import { useEffect, useMemo, useState } from "react";
-import { pdf } from "@react-pdf/renderer";
-import { ensurePdfSetup } from "@/lib/pdf/setup";
 import type { PdfTemplateDefinition } from "@/lib/pdf/templates/registry";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -18,12 +16,24 @@ export function PdfPreviewer<TData>({ template }: PreviewerProps<TData>) {
 
   const templateKey = useMemo(() => `${template.id}-${template.title}`, [template.id, template.title]);
 
+  const fetchPreviewBlob = async () => {
+    const res = await fetch("/api/v1/pdf/preview", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ templateId: template.id }),
+    });
+    if (!res.ok) {
+      const text = await res.text();
+      throw new Error(text || res.statusText);
+    }
+    return res.blob();
+  };
+
   const generatePreview = async () => {
     setLoading(true);
     setError(null);
     try {
-      ensurePdfSetup();
-      const blob = await pdf(template.render(template.sampleData as never)).toBlob();
+      const blob = await fetchPreviewBlob();
       const url = URL.createObjectURL(blob);
       setBlobUrl((prev) => {
         if (prev) URL.revokeObjectURL(prev);
@@ -38,14 +48,18 @@ export function PdfPreviewer<TData>({ template }: PreviewerProps<TData>) {
   };
 
   const handleDownload = async () => {
-    if (!blobUrl) {
-      await generatePreview();
+    try {
+      const blob = await fetchPreviewBlob();
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = `${template.id}.pdf`;
+      link.click();
+      URL.revokeObjectURL(url);
+    } catch (err) {
+      console.error(err);
+      setError(err instanceof Error ? err.message : "エクスポートに失敗しました");
     }
-    if (!blobUrl) return;
-    const link = document.createElement("a");
-    link.href = blobUrl;
-    link.download = `${template.id}.pdf`;
-    link.click();
   };
 
   useEffect(() => {

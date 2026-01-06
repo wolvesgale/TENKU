@@ -15,6 +15,11 @@ enum DocumentType {
   OTHER
 }
 
+enum JobStatus {
+  OPEN
+  CLOSED
+}
+
 model Company {
   id             String         @id @default(cuid())
   tenantId       String
@@ -38,26 +43,18 @@ model Company {
 }
 
 model Job {
-  id                  String     @id @default(cuid())
-  tenantId            String
-  title               String
-  workLocation        String?
-  salary              String?
-  notes               String?
-  occupation          String?
-  description         String?
-  benefits            String?
-  employmentType      String?
-  requirements        String?
-  applicationDeadline DateTime?
-  jobOfferVersion     Int        @default(0)
-  latestJobOfferDocId String?
-  companyId           String
-  company             Company    @relation(fields: [companyId], references: [id])
-  documents           Document[]
-  tenant              Tenant     @relation(fields: [tenantId], references: [id])
-  createdAt           DateTime   @default(now())
-  updatedAt           DateTime   @updatedAt
+  id             String      @id @default(cuid())
+  tenantId       String      @map("tenant_id")
+  companyId      String      @map("company_id")
+  jobTitle       String      @map("job_title")
+  jobDescription String?     @map("job_description")
+  status         JobStatus
+  metaJson       Json?       @map("meta_json")
+  company        Company     @relation(fields: [companyId], references: [id])
+  tenant         Tenant      @relation(fields: [tenantId], references: [id])
+  documents      Document[]
+  createdAt      DateTime    @default(now())
+  updatedAt      DateTime    @updatedAt
 }
 
 model Tenant {

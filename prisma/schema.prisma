@@ -20,6 +20,13 @@ enum JobStatus {
   CLOSED
 }
 
+enum CaseProgram {
+  ALL
+  TITP
+  SSW
+  TA
+}
+
 model Company {
   id             String         @id @default(cuid())
   tenantId       String
@@ -133,17 +140,17 @@ model PersonStatusHistory {
 
 model Case {
   id           String        @id @default(cuid())
-  tenantId     String
-  program      String
-  caseType     String
+  tenantId     String        @map("tenant_id")
+  program      CaseProgram
+  caseType     String        @map("case_type")
   status       String
-  personId     String
-  companyId    String?
-  ownerOrgId   String?
-  dueDate      DateTime?
-  metaJson     Json?
+  personId     String?       @map("person_id")
+  companyId    String?       @map("company_id")
+  ownerOrgId   String?       @map("owner_org_id")
+  dueDate      DateTime?     @map("due_date")
+  metaJson     Json?         @map("meta_json")
   tenant       Tenant        @relation(fields: [tenantId], references: [id])
-  person       Person        @relation(fields: [personId], references: [id])
+  person       Person?       @relation(fields: [personId], references: [id])
   company      Company?      @relation(fields: [companyId], references: [id])
   tasks        Task[]
   applications Application[]

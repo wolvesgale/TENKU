@@ -43,18 +43,28 @@ model Company {
 }
 
 model Job {
-  id             String      @id @default(cuid())
-  tenantId       String      @map("tenant_id")
-  companyId      String      @map("company_id")
-  jobTitle       String      @map("job_title")
-  jobDescription String?     @map("job_description")
-  status         JobStatus
-  metaJson       Json?       @map("meta_json")
-  company        Company     @relation(fields: [companyId], references: [id])
-  tenant         Tenant      @relation(fields: [tenantId], references: [id])
-  documents      Document[]
-  createdAt      DateTime    @default(now())
-  updatedAt      DateTime    @updatedAt
+  id                  String     @id @default(cuid())
+  tenantId            String     @map("tenant_id")
+  companyId           String     @map("company_id")
+  title               String     @map("job_title")
+  workLocation        String?    @map("work_location")
+  salary              String?
+  notes               String?
+  occupation          String?
+  description         String?    @map("job_description")
+  benefits            String?
+  employmentType      String?    @map("employment_type")
+  requirements        String?
+  applicationDeadline DateTime?  @map("application_deadline")
+  jobOfferVersion     Int        @default(0) @map("job_offer_version")
+  latestJobOfferDocId String?    @map("latest_job_offer_doc_id")
+  status              JobStatus
+  metaJson            Json?      @map("meta_json")
+  company             Company    @relation(fields: [companyId], references: [id])
+  tenant              Tenant     @relation(fields: [tenantId], references: [id])
+  documents           Document[]
+  createdAt           DateTime   @default(now()) @map("created_at")
+  updatedAt           DateTime   @updatedAt @map("updated_at")
 }
 
 model Tenant {

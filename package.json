@@ -10,6 +10,7 @@
     "postinstall": "prisma generate"
   },
   "dependencies": {
+    "@openfonts/noto-sans-jp_japanese": "1.44.5",
     "@prisma/client": "5.17.0",
     "@react-pdf/renderer": "^3.4.0",
     "@vercel/blob": "^1.0.4",

@@ -4,34 +4,24 @@ import { usePathname } from "next/navigation";
 import {
   Home,
   Building2,
-  Landmark,
   ListChecks,
   FileText,
-  Notebook,
-  Users,
   Rocket,
-  Sparkles,
   ClipboardList,
-  Network,
+  Users,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const links = [
   { href: "/dashboard", label: "Dashboard", icon: Home },
   { href: "/companies", label: "実習実施先", icon: Building2 },
-  { href: "/migrants", label: "入国者", icon: Users },
-  { href: "/sending-agencies", label: "送出機関", icon: Landmark },
-  { href: "/documents/plan", label: "計画認定書類", icon: ClipboardList },
-  { href: "/documents/procedures", label: "手続書類", icon: FileText },
-  { href: "/documents/audit", label: "監査/報告", icon: Notebook },
-  { href: "/billing", label: "監理費請求", icon: Rocket },
-  { href: "/csv", label: "CSV連携", icon: ListChecks },
-  { href: "/schedule", label: "スケジュール", icon: Sparkles },
-  { href: "/templates/pdf", label: "PDFテンプレ", icon: FileText },
-  { href: "/templates/monitor", label: "書式監視", icon: Network },
+  { href: "/persons", label: "人材一覧", icon: Users },
+  { href: "/cases", label: "案件", icon: ClipboardList },
   { href: "/applications", label: "申請一覧", icon: FileText },
   { href: "/training-plans", label: "実習計画", icon: ClipboardList },
-  { href: "/companies", label: "求人管理", icon: Building2 },
+  { href: "/tasks", label: "タスク", icon: ListChecks },
+  { href: "/billing", label: "監理費請求", icon: Rocket },
+  { href: "/templates/pdf", label: "PDFテンプレ", icon: FileText },
 ];
 
 export function Sidebar() {

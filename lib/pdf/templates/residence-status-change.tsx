@@ -1,14 +1,16 @@
 import React from "react";
 import { Document, Page, Text, View, StyleSheet } from "@react-pdf/renderer";
 
+const baseText = { fontFamily: "NotoSansJP" };
+
 const styles = StyleSheet.create({
-  page: { padding: 28, fontSize: 10 },
-  title: { fontSize: 16, marginBottom: 12 },
+  page: { padding: 28, fontSize: 10, ...baseText },
+  title: { fontSize: 16, marginBottom: 12, ...baseText },
   section: { borderWidth: 1, borderColor: "#ddd", padding: 10, marginBottom: 10 },
-  sectionTitle: { fontSize: 12, marginBottom: 6 },
+  sectionTitle: { fontSize: 12, marginBottom: 6, ...baseText },
   row: { flexDirection: "row", marginBottom: 6 },
-  label: { width: 160, color: "#333" },
-  value: { flex: 1 },
+  label: { width: 160, color: "#333", ...baseText },
+  value: { flex: 1, ...baseText },
 });
 
 export type ResidenceStatusChangePdfData = {

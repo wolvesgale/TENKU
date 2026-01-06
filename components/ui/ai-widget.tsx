@@ -1,7 +1,7 @@
 "use client";
 import { useEffect, useRef, useState } from "react";
-import { MessageCircle, Send, Sparkles } from "lucide-react";
-import { aiShortcuts, tasks } from "@/lib/mockData";
+import { Send, Sparkles } from "lucide-react";
+import { aiShortcuts } from "@/lib/ai/presets";
 
 type ChatMessage = { role: "user" | "assistant"; content: string };
 

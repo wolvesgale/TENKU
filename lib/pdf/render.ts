@@ -1,3 +1,4 @@
+import { Readable } from "node:stream";
 import { pdf } from "@react-pdf/renderer";
 import React from "react";
 import { ensurePdfSetup } from "./setup";
@@ -19,6 +20,14 @@ async function readableStreamToBuffer(stream: ReadableStream<Uint8Array>): Promi
   return Buffer.concat(buffers);
 }
 
+async function nodeStreamToBuffer(stream: Readable): Promise<Buffer> {
+  const chunks: Buffer[] = [];
+  for await (const chunk of stream) {
+    chunks.push(Buffer.isBuffer(chunk) ? chunk : Buffer.from(chunk));
+  }
+  return Buffer.concat(chunks);
+}
+
 /**
  * @react-pdf/renderer の出力を Buffer に正規化する
  */
@@ -32,10 +41,21 @@ async function normalizeToBuffer(val: unknown): Promise<Buffer> {
   // 3) ArrayBuffer
   if (val instanceof ArrayBuffer) return Buffer.from(new Uint8Array(val));
 
-  // 4) ReadableStream (Web Streams)
+  // 4) Node.js Readable stream
+  if (val instanceof Readable) {
+    return nodeStreamToBuffer(val);
+  }
+
+  // 5) ReadableStream (Web Streams)
   if (val && typeof val === "object" && "getReader" in val) {
     // 型安全のためにキャスト（getReader があるなら Web ReadableStream 想定）
     return readableStreamToBuffer(val as ReadableStream<Uint8Array>);
+  }
+
+  // 6) Response-like objects
+  if (val && typeof val === "object" && "arrayBuffer" in val && typeof (val as any).arrayBuffer === "function") {
+    const arrayBuffer = await (val as { arrayBuffer: () => Promise<ArrayBuffer> }).arrayBuffer();
+    return Buffer.from(new Uint8Array(arrayBuffer));
   }
 
   throw new Error(`renderPdfToBuffer: Unsupported buffer type: ${Object.prototype.toString.call(val)}`);

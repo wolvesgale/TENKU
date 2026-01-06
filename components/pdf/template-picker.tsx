@@ -1,19 +1,19 @@
 "use client";
 import { useMemo, useState } from "react";
 import { FileText, Layers, Shuffle } from "lucide-react";
-import { pdfTemplateRegistry, type AnyPdfTemplateDefinition, type PdfTemplateId } from "@/lib/pdf/templates/registry";
+import { pdfTemplateManifest, type PdfTemplateId, type PdfTemplateSummary } from "@/lib/pdf/templates/manifest";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { PdfPreviewer } from "./pdf-previewer";
 
-const templates = Object.values(pdfTemplateRegistry) as AnyPdfTemplateDefinition[];
+const templates = pdfTemplateManifest;
 
 export function TemplatePicker() {
   const [selectedId, setSelectedId] = useState<PdfTemplateId>(templates[0].id);
 
   const selected = useMemo(
-    () => (pdfTemplateRegistry[selectedId] as AnyPdfTemplateDefinition) ?? templates[0],
+    () => templates.find((tpl) => tpl.id === selectedId) ?? templates[0],
     [selectedId],
   );
 

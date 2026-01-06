@@ -1,19 +1,21 @@
 import React from "react";
 import { Document, Page, Text, View, StyleSheet } from "@react-pdf/renderer";
+import { getPdfFontFamily } from "@/lib/pdf/setup";
 
-const baseText = { fontFamily: "NotoSansJP" };
-
-const styles = StyleSheet.create({
-  page: { padding: 28, fontSize: 10, ...baseText },
-  title: { fontSize: 16, marginBottom: 12, ...baseText },
-  grid: { flexDirection: "row", gap: 8 },
-  section: { borderWidth: 1, borderColor: "#ddd", padding: 10, marginBottom: 10, flex: 1 },
-  sectionTitle: { fontSize: 12, marginBottom: 6, ...baseText },
-  row: { flexDirection: "row", marginBottom: 6 },
-  label: { width: 160, color: "#333", ...baseText },
-  value: { flex: 1, ...baseText },
-  note: { fontSize: 9, color: "#555", ...baseText },
-});
+const createStyles = (fontFamily: string) => {
+  const baseText = { fontFamily };
+  return StyleSheet.create({
+    page: { padding: 28, fontSize: 10, ...baseText },
+    title: { fontSize: 16, marginBottom: 12, ...baseText },
+    grid: { flexDirection: "row", gap: 8 },
+    section: { borderWidth: 1, borderColor: "#ddd", padding: 10, marginBottom: 10, flex: 1 },
+    sectionTitle: { fontSize: 12, marginBottom: 6, ...baseText },
+    row: { flexDirection: "row", marginBottom: 6 },
+    label: { width: 160, color: "#333", ...baseText },
+    value: { flex: 1, ...baseText },
+    note: { fontSize: 9, color: "#555", ...baseText },
+  });
+};
 
 export type SupportOrganizationRegistrationPdfData = {
   registrationNumber: string;
@@ -29,6 +31,8 @@ export type SupportOrganizationRegistrationPdfData = {
 };
 
 export function SupportOrganizationRegistrationPdf({ data }: { data: SupportOrganizationRegistrationPdfData }) {
+  const styles = createStyles(getPdfFontFamily());
+
   return (
     <Document>
       <Page size="A4" style={styles.page}>

@@ -1,57 +1,28 @@
 import fs from "node:fs";
 import path from "node:path";
-import { fileURLToPath } from "node:url";
 import { Font } from "@react-pdf/renderer";
 
 export const PDF_FONT_FAMILY = "NotoSansJP";
 const FONT_FILES = {
-  normal: "NotoSansJP-Regular.otf",
-  bold: "NotoSansJP-Bold.otf",
+  normal: "NotoSansJP-Regular.ttf",
+  bold: "NotoSansJP-Bold.ttf",
 };
+
+const FONT_DIR = path.join(process.cwd(), "public", "fonts");
 
 let registeredFontFamily = PDF_FONT_FAMILY;
 let hyphenationRegistered = false;
 let fontsRegistered = false;
 let lastErrorMessage: string | null = null;
+let initialized = false;
 
-type RegisteredFont = { src: string; fontWeight: number };
+type RegisteredFont = { src: Buffer | Uint8Array; fontWeight: number };
 
-function findFontFilesDir(): { dir: string | null; searched: string[] } {
-  const moduleDir = path.dirname(fileURLToPath(import.meta.url));
-  const searchRoots = new Set<string>([process.cwd(), moduleDir]);
-
-  let currentDir = moduleDir;
-  for (let i = 0; i < 5; i += 1) {
-    currentDir = path.dirname(currentDir);
-    searchRoots.add(currentDir);
-  }
-
-  const searched: string[] = [];
-  for (const root of searchRoots) {
-    const dir = path.join(root, "public", "fonts");
-    searched.push(dir);
-    if (fs.existsSync(dir)) {
-      return { dir, searched };
-    }
-  }
-  return { dir: null, searched };
-}
-
-function resolveNotoSansFonts(): RegisteredFont[] {
+function loadFontBuffers(): RegisteredFont[] {
   try {
-    const searchResult = findFontFilesDir();
-    const filesDir = searchResult.dir;
-    const checkedPaths = searchResult.searched;
-
-    if (!filesDir || !fs.existsSync(filesDir)) {
-      const message = `[pdf] Noto Sans JP font directory could not be located. searched: ${checkedPaths.join(", ")}`;
-      console.warn(message);
-      lastErrorMessage = message;
-      return [];
-    }
-
-    const regularPath = path.join(filesDir, FONT_FILES.normal);
-    const boldPath = path.join(filesDir, FONT_FILES.bold);
+    const checkedPaths = [FONT_DIR];
+    const regularPath = path.join(FONT_DIR, FONT_FILES.normal);
+    const boldPath = path.join(FONT_DIR, FONT_FILES.bold);
 
     if (!fs.existsSync(regularPath) || !fs.existsSync(boldPath)) {
       const message = `[pdf] Noto Sans JP font files missing. checked: ${regularPath}, ${boldPath}`;
@@ -60,9 +31,19 @@ function resolveNotoSansFonts(): RegisteredFont[] {
       return [];
     }
 
+    const regular = fs.readFileSync(regularPath);
+    const bold = fs.readFileSync(boldPath);
+
+    if (!regular || !bold) {
+      const message = `[pdf] Failed to read font files. checked: ${checkedPaths.join(", ")}`;
+      console.warn(message);
+      lastErrorMessage = message;
+      return [];
+    }
+
     return [
-      { src: regularPath, fontWeight: 400 },
-      { src: boldPath, fontWeight: 700 },
+      { src: regular, fontWeight: 400 },
+      { src: bold, fontWeight: 700 },
     ];
   } catch (error) {
     const message = `[pdf] Failed to resolve Noto Sans JP fonts: ${String(error)}`;
@@ -82,14 +63,17 @@ export function getPdfFontStatus() {
 }
 
 export function ensurePdfSetup() {
-  const fonts = resolveNotoSansFonts();
+  if (initialized) return;
+
+  const fonts = loadFontBuffers();
   if (fonts.length > 0) {
-    if (!fontsRegistered || registeredFontFamily !== PDF_FONT_FAMILY) {
-      Font.register({ family: PDF_FONT_FAMILY, fonts });
-      registeredFontFamily = PDF_FONT_FAMILY;
-      fontsRegistered = true;
-      lastErrorMessage = null;
-    }
+    Font.register({
+      family: PDF_FONT_FAMILY,
+      fonts: fonts.map((font) => ({ ...font, format: "truetype" })) as any,
+    });
+    registeredFontFamily = PDF_FONT_FAMILY;
+    fontsRegistered = true;
+    lastErrorMessage = null;
   } else {
     // Graceful fallback to avoid breaking preview generation
     registeredFontFamily = "Helvetica";
@@ -98,6 +82,12 @@ export function ensurePdfSetup() {
       lastErrorMessage = "[pdf] Falling back to built-in Helvetica because Noto Sans JP fonts were not found";
     }
     console.warn(lastErrorMessage);
+  }
+
+  if (!hyphenationRegistered) {
+    // ハイフネーションを無効化して日本語表示を安定化
+    Font.registerHyphenationCallback((word) => [word]);
+    hyphenationRegistered = true;
   }
 
   if (!hyphenationRegistered) {

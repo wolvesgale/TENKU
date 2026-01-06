@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { renderPdfToBuffer } from "@/lib/pdf/render";
-import { ensurePdfSetup } from "@/lib/pdf/setup";
+import { ensurePdfSetup, getPdfFontStatus } from "@/lib/pdf/setup";
 import { getPdfTemplateById, type PdfTemplateId } from "@/lib/pdf/templates/registry";
 
 export const runtime = "nodejs";
@@ -9,6 +9,7 @@ export const dynamic = "force-dynamic";
 export async function GET(req: NextRequest) {
   try {
     ensurePdfSetup();
+    const fontStatus = getPdfFontStatus();
     const { searchParams } = new URL(req.url);
     const templateId = searchParams.get("templateId") as PdfTemplateId | null;
     if (!templateId) {
@@ -41,6 +42,8 @@ export async function GET(req: NextRequest) {
         "Content-Disposition": `${disposition}; filename="${filename}"`,
         "Cache-Control": "no-store",
         "Content-Length": pdfBuffer.byteLength.toString(),
+        "x-pdf-font": fontStatus.ok ? "loaded" : "fallback",
+        ...(fontStatus.message ? { "x-pdf-font-message": fontStatus.message } : {}),
       },
     });
   } catch (error) {

@@ -1,45 +1,62 @@
 import { useEffect, useMemo, useState } from "react";
 import { FormFieldSchema, ValidationErrors, validateBySchema } from "@/lib/form-utils";
 
-export type ApplicationFormValues = {
-  applicationType: string;
+export type TrainingPlanFormValues = {
+  planType: string;
   personId: string;
   companyId: string;
+  plannedStart: string;
+  plannedEnd: string;
   status: string;
-  submittedAt: string;
-  dueDate: string;
-  memo: string;
+  description: string;
 };
 
-export type ApplicationFieldSchema = FormFieldSchema<ApplicationFormValues>;
+export type TrainingPlanFieldSchema = FormFieldSchema<TrainingPlanFormValues>;
 
-export type ApplicationFormProps = {
-  initialValues: ApplicationFormValues;
-  onSubmit: (values: ApplicationFormValues) => Promise<void>;
-  isSubmitting?: boolean;
-  schema?: ApplicationFieldSchema[];
-  selectOptions?: Partial<Record<keyof ApplicationFormValues, { value: string; label: string }[]>>;
-};
+export const TRAINING_PLAN_STATUS_OPTIONS = [
+  { value: "DRAFT", label: "DRAFT" },
+  { value: "SUBMITTED", label: "SUBMITTED" },
+  { value: "APPROVED", label: "APPROVED" },
+] as const;
 
-const defaultSchema: ApplicationFieldSchema[] = [
-  { name: "applicationType", label: "申請タイプ", type: "select", required: true },
-  { name: "personId", label: "申請者", type: "select", required: true },
-  { name: "companyId", label: "企業", type: "select", required: true },
-  { name: "status", label: "ステータス", type: "select", required: true },
-  { name: "dueDate", label: "提出期限", type: "date", required: true },
-  { name: "submittedAt", label: "申請日", type: "date" },
-  { name: "memo", label: "備考", type: "textarea" },
+const TRAINING_PLAN_STATUS_VALUES = TRAINING_PLAN_STATUS_OPTIONS.map((option) => option.value);
+
+const defaultSchema: TrainingPlanFieldSchema[] = [
+  { name: "planType", label: "プラン名/種別", type: "text", required: true },
+  { name: "personId", label: "対象者", type: "select", required: true },
+  { name: "companyId", label: "実習実施者", type: "select", required: true },
+  { name: "plannedStart", label: "開始日", type: "date", required: true },
+  { name: "plannedEnd", label: "終了日", type: "date", required: true },
+  {
+    name: "status",
+    label: "ステータス",
+    type: "select",
+    required: true,
+    allowedValues: TRAINING_PLAN_STATUS_VALUES,
+    options: TRAINING_PLAN_STATUS_OPTIONS,
+  },
+  { name: "description", label: "職種/作業", type: "textarea", required: true },
 ];
 
-export function ApplicationForm({
+export type TrainingPlanFormProps = {
+  initialValues: TrainingPlanFormValues;
+  onSubmit: (values: TrainingPlanFormValues) => Promise<void>;
+  isSubmitting?: boolean;
+  schema?: TrainingPlanFieldSchema[];
+  selectOptions?: Partial<Record<keyof TrainingPlanFormValues, { value: string; label: string }[]>>;
+  onCancel?: () => void;
+};
+
+export function TrainingPlanForm({
   initialValues,
   onSubmit,
   isSubmitting,
   schema = defaultSchema,
   selectOptions,
-}: ApplicationFormProps) {
-  const [values, setValues] = useState<ApplicationFormValues>(initialValues);
-  const [errors, setErrors] = useState<ValidationErrors<ApplicationFormValues>>({});
+  onCancel,
+}: TrainingPlanFormProps) {
+  const [values, setValues] = useState<TrainingPlanFormValues>(initialValues);
+  const [errors, setErrors] = useState<ValidationErrors<TrainingPlanFormValues>>({});
   const [submitting, setSubmitting] = useState(false);
 
   useEffect(() => {
@@ -55,6 +72,10 @@ export function ApplicationForm({
     [schema, selectOptions],
   );
 
+  const updateValue = (name: keyof TrainingPlanFormValues, value: string) => {
+    setValues((prev) => ({ ...prev, [name]: value }));
+  };
+
   const handleSubmit = async () => {
     const validation = validateBySchema(values, mergedSchema);
     setErrors(validation);
@@ -66,10 +87,6 @@ export function ApplicationForm({
     } finally {
       setSubmitting(false);
     }
-  };
-
-  const updateValue = (name: keyof ApplicationFormValues, value: string) => {
-    setValues((prev) => ({ ...prev, [name]: value }));
   };
 
   return (
@@ -97,6 +114,14 @@ export function ApplicationForm({
                   </option>
                 ))}
               </select>
+            )}
+            {field.type === "text" && (
+              <input
+                type="text"
+                className="w-full border px-2 py-1 rounded"
+                value={values[field.name]}
+                onChange={(e) => updateValue(field.name, e.target.value)}
+              />
             )}
             {field.type === "date" && (
               <input
@@ -126,6 +151,16 @@ export function ApplicationForm({
         >
           {isSubmitting || submitting ? "送信中..." : "保存"}
         </button>
+        {onCancel && (
+          <button
+            className="px-3 py-1 bg-gray-200 rounded disabled:opacity-50"
+            onClick={onCancel}
+            disabled={isSubmitting || submitting}
+            type="button"
+          >
+            戻る
+          </button>
+        )}
       </div>
     </div>
   );

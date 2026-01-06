@@ -8,21 +8,25 @@ const FONT_FILES = {
   bold: "NotoSansJP-Bold.ttf",
 };
 
-const FONT_DIR = path.join(process.cwd(), "public", "fonts");
-
 let registeredFontFamily = PDF_FONT_FAMILY;
 let hyphenationRegistered = false;
 let fontsRegistered = false;
 let lastErrorMessage: string | null = null;
 let initialized = false;
 
-type RegisteredFont = { src: Buffer | Uint8Array; fontWeight: number };
+type RegisteredFont = { src: string; fontWeight: number };
 
-function loadFontBuffers(): RegisteredFont[] {
+function buildFontPaths(): { regularPath: string; boldPath: string } {
+  const baseDir = path.join(process.cwd(), "public", "fonts");
+  return {
+    regularPath: path.join(baseDir, FONT_FILES.normal),
+    boldPath: path.join(baseDir, FONT_FILES.bold),
+  };
+}
+
+function loadFontPaths(): RegisteredFont[] {
   try {
-    const checkedPaths = [FONT_DIR];
-    const regularPath = path.join(FONT_DIR, FONT_FILES.normal);
-    const boldPath = path.join(FONT_DIR, FONT_FILES.bold);
+    const { regularPath, boldPath } = buildFontPaths();
 
     if (!fs.existsSync(regularPath) || !fs.existsSync(boldPath)) {
       const message = `[pdf] Noto Sans JP font files missing. checked: ${regularPath}, ${boldPath}`;
@@ -31,19 +35,9 @@ function loadFontBuffers(): RegisteredFont[] {
       return [];
     }
 
-    const regular = fs.readFileSync(regularPath);
-    const bold = fs.readFileSync(boldPath);
-
-    if (!regular || !bold) {
-      const message = `[pdf] Failed to read font files. checked: ${checkedPaths.join(", ")}`;
-      console.warn(message);
-      lastErrorMessage = message;
-      return [];
-    }
-
     return [
-      { src: regular, fontWeight: 400 },
-      { src: bold, fontWeight: 700 },
+      { src: regularPath, fontWeight: 400 },
+      { src: boldPath, fontWeight: 700 },
     ];
   } catch (error) {
     const message = `[pdf] Failed to resolve Noto Sans JP fonts: ${String(error)}`;
@@ -63,14 +57,12 @@ export function getPdfFontStatus() {
 }
 
 export function ensurePdfSetup() {
+  if (typeof window !== "undefined") return;
   if (initialized) return;
 
-  const fonts = loadFontBuffers();
+  const fonts = loadFontPaths();
   if (fonts.length > 0) {
-    Font.register({
-      family: PDF_FONT_FAMILY,
-      fonts: fonts.map((font) => ({ ...font, format: "truetype" })) as any,
-    });
+    Font.register({ family: PDF_FONT_FAMILY, fonts });
     registeredFontFamily = PDF_FONT_FAMILY;
     fontsRegistered = true;
     lastErrorMessage = null;

@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { addCase, listCases, store } from "@/lib/demo-store";
+import { addCase, autoGenerateTasks, listCases, store } from "@/lib/demo-store";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -27,5 +27,6 @@ export async function POST(req: NextRequest) {
     dueDate: body.dueDate,
     metaJson: body.metaJson,
   });
-  return NextResponse.json({ data: created }, { status: 201 });
+  const tasks = autoGenerateTasks(created.id);
+  return NextResponse.json({ data: { ...created, tasks } }, { status: 201 });
 }

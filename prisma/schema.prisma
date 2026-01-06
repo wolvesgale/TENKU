@@ -94,8 +94,8 @@ model Person {
   birthDate           DateTime?
   currentCompanyId    String?
   currentProgram      String?
-  residenceCardExpiry DateTime?
-  passportExpiry      DateTime?
+  residenceCardExpiry DateTime?            @map("residence_card_expiry")
+  passportExpiry      DateTime?            @map("passport_expiry")
   metaJson            Json?
   tenant              Tenant                @relation(fields: [tenantId], references: [id])
   currentCompany      Company?              @relation(fields: [currentCompanyId], references: [id])

@@ -90,5 +90,9 @@ export function ensurePdfSetup() {
     hyphenationRegistered = true;
   }
 
-  initialized = true;
+  if (!hyphenationRegistered) {
+    // ハイフネーションを無効化して日本語表示を安定化
+    Font.registerHyphenationCallback((word) => [word]);
+    hyphenationRegistered = true;
+  }
 }

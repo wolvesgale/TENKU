@@ -1,14 +1,18 @@
 import React from "react";
 import { Document, Page, Text, View, StyleSheet } from "@react-pdf/renderer";
+import { getPdfFontFamily } from "@/lib/pdf/setup";
 
-const styles = StyleSheet.create({
-  page: { padding: 28, fontSize: 10 },
-  title: { fontSize: 16, marginBottom: 12 },
-  row: { flexDirection: "row", marginBottom: 6 },
-  label: { width: 120, color: "#333" },
-  value: { flex: 1 },
-  box: { borderWidth: 1, borderColor: "#ddd", padding: 10, marginTop: 10 },
-});
+const createStyles = (fontFamily: string) => {
+  const baseText = { fontFamily };
+  return StyleSheet.create({
+    page: { padding: 28, fontSize: 10, ...baseText },
+    title: { fontSize: 16, marginBottom: 12, ...baseText },
+    row: { flexDirection: "row", marginBottom: 6 },
+    label: { width: 120, color: "#333", ...baseText },
+    value: { flex: 1, ...baseText },
+    box: { borderWidth: 1, borderColor: "#ddd", padding: 10, marginTop: 10 },
+  });
+};
 
 export type JobOfferPdfData = {
   jobTitle: string;
@@ -23,6 +27,8 @@ export type JobOfferPdfData = {
 };
 
 export function JobOfferPdf({ data }: { data: JobOfferPdfData }) {
+  const styles = createStyles(getPdfFontFamily());
+
   return (
     <Document>
       <Page size="A4" style={styles.page}>

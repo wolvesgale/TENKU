@@ -20,10 +20,12 @@ model Company {
   tenantId       String
   name           String
   address        String?
+  industry       String?
   contactName    String?
   contactTel     String?
   defaultOrgId   String?
   defaultOrgType String?
+  metaJson       Json?          @map("meta_json")
   tenant         Tenant         @relation(fields: [tenantId], references: [id])
   jobs           Job[]
   persons        Person[]
@@ -94,8 +96,8 @@ model Person {
   birthDate           DateTime?
   currentCompanyId    String?
   currentProgram      String?
-  residenceCardExpiry DateTime?            @map("residence_card_expiry")
-  passportExpiry      DateTime?            @map("passport_expiry")
+  residenceCardExpiry DateTime?             @map("residence_card_expiry")
+  passportExpiry      DateTime?             @map("passport_expiry")
   metaJson            Json?
   tenant              Tenant                @relation(fields: [tenantId], references: [id])
   currentCompany      Company?              @relation(fields: [currentCompanyId], references: [id])

@@ -12,7 +12,7 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
-const links = [
+export const sidebarLinks = [
   { href: "/dashboard", label: "Dashboard", icon: Home },
   { href: "/companies", label: "実習実施先", icon: Building2 },
   { href: "/persons", label: "人材一覧", icon: Users },
@@ -38,7 +38,7 @@ export function Sidebar() {
         </div>
       </div>
       <nav className="space-y-1">
-        {links.map((link) => {
+        {sidebarLinks.map((link) => {
           const active = pathname?.startsWith(link.href);
           const Icon = link.icon;
           return (

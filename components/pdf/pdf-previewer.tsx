@@ -31,7 +31,7 @@ export function PdfPreviewer<TData>({ template }: PreviewerProps<TData>) {
       });
     } catch (err) {
       console.error(err);
-      setError("プレビュー生成に失敗しました");
+      setError(err instanceof Error ? err.message : "プレビュー生成に失敗しました");
     } finally {
       setLoading(false);
     }

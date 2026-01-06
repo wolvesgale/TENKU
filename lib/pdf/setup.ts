@@ -5,8 +5,11 @@ let initialized = false;
 export function ensurePdfSetup() {
   if (initialized) return;
 
-  Font.register({ family: "NotoSansJP", src: "/fonts/NotoSansJP-Regular.ttf" });
-  Font.register({ family: "NotoSansJP", src: "/fonts/NotoSansJP-Bold.ttf", fontWeight: 700 });
+  const regularSrc = new URL("../../public/fonts/NotoSansJP-Regular.ttf", import.meta.url).toString();
+  const boldSrc = new URL("../../public/fonts/NotoSansJP-Bold.ttf", import.meta.url).toString();
+
+  Font.register({ family: "NotoSansJP", src: regularSrc });
+  Font.register({ family: "NotoSansJP", src: boldSrc, fontWeight: 700 });
 
   // ハイフネーションを無効化して日本語表示を安定化
   Font.registerHyphenationCallback((word) => [word]);

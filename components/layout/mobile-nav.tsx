@@ -25,11 +25,11 @@ export function MobileNav() {
         <div className="fixed inset-0 z-40 md:hidden">
           <button
             type="button"
-            className="absolute inset-0 bg-black/60"
+            className="absolute inset-0 z-40 bg-black/70"
             onClick={() => setOpen(false)}
             aria-label="Close navigation menu"
           />
-          <div className="absolute left-0 top-0 h-full w-72 bg-surface border-r border-border p-5 flex flex-col gap-4 shadow-ambient">
+          <div className="absolute left-0 top-0 z-50 h-full w-72 bg-slate-950 border border-slate-800 p-5 flex flex-col gap-4 shadow-xl">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
                 <div className="h-11 w-11 rounded-lg bg-gradient-to-br from-brand-teal/70 to-brand-blue/70 flex items-center justify-center text-slate-900 font-bold shadow-glow">

@@ -3,6 +3,7 @@ import { Bell, Shield, Sparkle, UserCheck } from "lucide-react";
 import { useAppState } from "@/components/providers/app-state-provider";
 import { useRouter } from "next/navigation";
 import { useMemo } from "react";
+import { MobileNav } from "@/components/layout/mobile-nav";
 
 export function Topbar() {
   const router = useRouter();
@@ -16,7 +17,8 @@ export function Topbar() {
   return (
     <header className="sticky top-0 z-20 h-16 px-4 border-b border-border bg-surface/80 backdrop-blur-xl flex items-center justify-between shadow-ambient">
       <div className="flex items-center gap-3">
-        <div className="px-3 py-1 rounded-full border border-border text-[12px] text-muted uppercase tracking-wide">TENKU</div>
+        <MobileNav />
+        <div className="px-3 py-1 rounded-full border border-border text-[12px] text-muted uppercase tracking-wide">TENKU_Cloud</div>
         <div className="flex items-center gap-2">
           <Shield size={16} className="text-brand-blue" />
           <span className="text-sm text-muted">Tenant</span>

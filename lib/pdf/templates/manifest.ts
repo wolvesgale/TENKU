@@ -1,4 +1,10 @@
-export type PdfTemplateId = "residence-status-change" | "residence-period-extension" | "support-organization-registration";
+export type PdfTemplateId =
+  | "residence-status-change"
+  | "residence-period-extension"
+  | "support-organization-registration"
+  | "person"
+  | "monitoring-log"
+  | "minor-change-notice";
 
 export type PdfTemplateSummary = {
   id: PdfTemplateId;
@@ -25,6 +31,24 @@ export const pdfTemplateManifest: PdfTemplateSummary[] = [
     title: "登録支援機関登録申請書",
     description: "支援体制・実績欄を個別フォーマットで配置した登録支援機関向けテンプレート。",
     category: "登録申請",
+  },
+  {
+    id: "person",
+    title: "外国人管理票",
+    description: "外国人の基本情報と配属情報をまとめた管理票テンプレート。",
+    category: "外国人管理",
+  },
+  {
+    id: "monitoring-log",
+    title: "巡回・監査ログ",
+    description: "巡回監査ログの内容を一覧化するテンプレート。",
+    category: "監査",
+  },
+  {
+    id: "minor-change-notice",
+    title: "残業時間軽微変更届",
+    description: "月間残業時間の超過者一覧を提出用に整理したテンプレート。",
+    category: "監査",
   },
 ];
 

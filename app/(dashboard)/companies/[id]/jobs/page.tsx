@@ -21,22 +21,22 @@ export default function CompanyJobsPage({ params }: { params: { id: string } }) 
           求人を追加
         </Link>
       </div>
-      <table className="min-w-full border text-sm">
+      <table className="min-w-full border border-slate-800 text-sm">
         <thead>
-          <tr className="bg-gray-50">
-            <th className="border px-2 py-1 text-left">求人タイトル</th>
-            <th className="border px-2 py-1">職種</th>
-            <th className="border px-2 py-1">勤務地</th>
-            <th className="border px-2 py-1">給与</th>
+          <tr className="bg-slate-900 text-slate-100">
+            <th className="border border-slate-800 px-2 py-1 text-left">求人タイトル</th>
+            <th className="border border-slate-800 px-2 py-1">職種</th>
+            <th className="border border-slate-800 px-2 py-1">勤務地</th>
+            <th className="border border-slate-800 px-2 py-1">給与</th>
           </tr>
         </thead>
         <tbody>
           {jobs.map((j) => (
-            <tr key={j.id} className="hover:bg-gray-50">
-              <td className="border px-2 py-1">{j.title}</td>
-              <td className="border px-2 py-1 text-center">{j.occupation ?? "-"}</td>
-              <td className="border px-2 py-1 text-center">{j.workLocation ?? "-"}</td>
-              <td className="border px-2 py-1 text-center">{j.salary ?? "-"}</td>
+            <tr key={j.id} className="hover:bg-slate-900/40">
+              <td className="border border-slate-800 px-2 py-1">{j.title}</td>
+              <td className="border border-slate-800 px-2 py-1 text-center">{j.occupation ?? "-"}</td>
+              <td className="border border-slate-800 px-2 py-1 text-center">{j.workLocation ?? "-"}</td>
+              <td className="border border-slate-800 px-2 py-1 text-center">{j.salary ?? "-"}</td>
             </tr>
           ))}
         </tbody>

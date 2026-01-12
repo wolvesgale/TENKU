@@ -27,7 +27,15 @@ export default function CompanyDetail({ params }: { params: { id: string } }) {
         </Link>
       </div>
       <div className="grid md:grid-cols-2 gap-4">
-        <div className="border p-3 rounded">
+        <div className="border border-slate-800 p-3 rounded bg-slate-950/40">
+          <h2 className="font-semibold mb-2">企業情報</h2>
+          <p>業種: {company.industry ?? "-"}</p>
+          <p>担当者: {company.contactName ?? "-"}</p>
+          <p>担当者電話: {company.contactTel ?? "-"}</p>
+          <p>担当者メール: {company.contactEmail ?? "-"}</p>
+          <p>備考: {company.notes ?? "-"}</p>
+        </div>
+        <div className="border border-slate-800 p-3 rounded bg-slate-950/40">
           <h2 className="font-semibold mb-2">所属者</h2>
           <ul className="space-y-1 text-sm">
             {persons.map((p) => (
@@ -39,7 +47,7 @@ export default function CompanyDetail({ params }: { params: { id: string } }) {
             ))}
           </ul>
         </div>
-        <div className="border p-3 rounded">
+        <div className="border border-slate-800 p-3 rounded bg-slate-950/40 md:col-span-2">
           <h2 className="font-semibold mb-2">案件</h2>
           <ul className="space-y-1 text-sm">
             {cases.map((c) => (

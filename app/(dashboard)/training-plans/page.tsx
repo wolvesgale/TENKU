@@ -19,28 +19,28 @@ export default function TrainingPlansPage() {
           新規作成
         </Link>
       </div>
-      <table className="min-w-full border text-sm">
+      <table className="min-w-full border border-slate-800 text-sm">
         <thead>
-          <tr className="bg-gray-50">
-            <th className="border px-2 py-1 text-left">プラン名/種別</th>
-            <th className="border px-2 py-1">対象者</th>
-            <th className="border px-2 py-1">受入企業</th>
-            <th className="border px-2 py-1">期間</th>
-            <th className="border px-2 py-1">ステータス</th>
-            <th className="border px-2 py-1">詳細</th>
+          <tr className="bg-slate-900 text-slate-100">
+            <th className="border border-slate-800 px-2 py-1 text-left">プラン名/種別</th>
+            <th className="border border-slate-800 px-2 py-1">対象者</th>
+            <th className="border border-slate-800 px-2 py-1">受入企業</th>
+            <th className="border border-slate-800 px-2 py-1">期間</th>
+            <th className="border border-slate-800 px-2 py-1">ステータス</th>
+            <th className="border border-slate-800 px-2 py-1">詳細</th>
           </tr>
         </thead>
         <tbody>
           {items.map((p) => (
-            <tr key={p.id} className="hover:bg-gray-50">
-              <td className="border px-2 py-1">{p.planType}</td>
-              <td className="border px-2 py-1 text-center">{p.personId ?? "-"}</td>
-              <td className="border px-2 py-1 text-center">{p.companyId ?? "-"}</td>
-              <td className="border px-2 py-1 text-center">
+            <tr key={p.id} className="hover:bg-slate-900/40">
+              <td className="border border-slate-800 px-2 py-1">{p.planType}</td>
+              <td className="border border-slate-800 px-2 py-1 text-center">{p.personId ?? "-"}</td>
+              <td className="border border-slate-800 px-2 py-1 text-center">{p.companyId ?? "-"}</td>
+              <td className="border border-slate-800 px-2 py-1 text-center">
                 {(p.plannedStart?.slice?.(0,10) ?? "-") + " ~ " + (p.plannedEnd?.slice?.(0,10) ?? "-")}
               </td>
-              <td className="border px-2 py-1 text-center">{p.status}</td>
-              <td className="border px-2 py-1 text-center">
+              <td className="border border-slate-800 px-2 py-1 text-center">{p.status}</td>
+              <td className="border border-slate-800 px-2 py-1 text-center">
                 <Link className="text-blue-600" href={`/training-plans/${p.id}`}>
                   編集
                 </Link>

@@ -17,20 +17,20 @@ export default function CompaniesPage() {
           新規登録
         </Link>
       </div>
-      <table className="min-w-full border text-sm">
+      <table className="min-w-full border border-slate-800 text-sm">
         <thead>
-          <tr className="bg-gray-50">
-            <th className="border px-2 py-1 text-left">企業名</th>
-            <th className="border px-2 py-1">所在地</th>
-            <th className="border px-2 py-1">詳細</th>
+          <tr className="bg-slate-900 text-slate-100">
+            <th className="border border-slate-800 px-2 py-1 text-left">企業名</th>
+            <th className="border border-slate-800 px-2 py-1">所在地</th>
+            <th className="border border-slate-800 px-2 py-1">詳細</th>
           </tr>
         </thead>
         <tbody>
           {items.map((c) => (
             <tr key={c.id}>
-              <td className="border px-2 py-1">{c.name}</td>
-              <td className="border px-2 py-1">{c.address ?? "-"}</td>
-              <td className="border px-2 py-1 text-center">
+              <td className="border border-slate-800 px-2 py-1">{c.name}</td>
+              <td className="border border-slate-800 px-2 py-1">{c.address ?? "-"}</td>
+              <td className="border border-slate-800 px-2 py-1 text-center">
                 <Link className="text-blue-600" href={`/companies/${c.id}`}>
                   詳細
                 </Link>

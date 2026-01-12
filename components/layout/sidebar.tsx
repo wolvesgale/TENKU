@@ -12,10 +12,14 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
-const links = [
-  { href: "/dashboard", label: "Dashboard", icon: Home },
+export const sidebarLinks = [
+  { href: "/dashboard", label: "ダッシュボード", icon: Home },
   { href: "/companies", label: "実習実施先", icon: Building2 },
-  { href: "/persons", label: "人材一覧", icon: Users },
+  { href: "/persons", label: "外国人一覧", icon: Users },
+  { href: "/supervisors", label: "監理団体", icon: Building2 },
+  { href: "/sending-orgs", label: "送り出し機関", icon: Building2 },
+  { href: "/monitoring-logs", label: "巡回・監査ログ", icon: ClipboardList },
+  { href: "/minor-change-notices", label: "軽微変更届", icon: FileText },
   { href: "/cases", label: "案件", icon: ClipboardList },
   { href: "/applications", label: "申請一覧", icon: FileText },
   { href: "/training-plans", label: "実習計画", icon: ClipboardList },
@@ -33,12 +37,12 @@ export function Sidebar() {
           T
         </div>
         <div>
-          <p className="text-[11px] uppercase tracking-wide text-muted">TENKU</p>
-          <p className="font-semibold text-white">Command Board</p>
+          <p className="text-[11px] uppercase tracking-wide text-muted">TENKU_CLOUD</p>
+          <p className="font-semibold text-white">管理者画面</p>
         </div>
       </div>
       <nav className="space-y-1">
-        {links.map((link) => {
+        {sidebarLinks.map((link) => {
           const active = pathname?.startsWith(link.href);
           const Icon = link.icon;
           return (

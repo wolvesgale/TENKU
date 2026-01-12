@@ -37,7 +37,7 @@ export default function LoginPage() {
             T
           </div>
           <div>
-            <p className="text-sm text-muted">TENKU</p>
+            <p className="text-sm text-muted">TENKU_CLOUD</p>
             <h1 className="text-2xl font-bold text-white">ダミーログイン</h1>
             <p className="text-sm text-muted">管理団体コード + ID + PW を入力</p>
           </div>

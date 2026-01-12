@@ -22,6 +22,9 @@ export type ExternalLink = {
   href: string;
 };
 
+export const dashboardDemoNote = "※現在の数値はデモ用の参考表示（DBと未同期）";
+export const dashboardDemoBadgeLabel = "デモ";
+
 export const dashboardDocuments: DashboardDocument[] = [
   {
     id: "doc-301",

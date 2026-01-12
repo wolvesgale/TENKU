@@ -34,24 +34,24 @@ export default function CasesPage({ searchParams }: { searchParams?: { program?:
           </Link>
         </div>
       </div>
-      <table className="min-w-full border text-sm">
+      <table className="min-w-full border border-slate-800 text-sm">
         <thead>
-          <tr className="bg-gray-50">
-            <th className="border px-2 py-1 text-left">案件種別</th>
-            <th className="border px-2 py-1">制度</th>
-            <th className="border px-2 py-1">ステータス</th>
-            <th className="border px-2 py-1">期限</th>
-            <th className="border px-2 py-1">詳細</th>
+          <tr className="bg-slate-900 text-slate-100">
+            <th className="border border-slate-800 px-2 py-1 text-left">案件種別</th>
+            <th className="border border-slate-800 px-2 py-1">制度</th>
+            <th className="border border-slate-800 px-2 py-1">ステータス</th>
+            <th className="border border-slate-800 px-2 py-1">期限</th>
+            <th className="border border-slate-800 px-2 py-1">詳細</th>
           </tr>
         </thead>
         <tbody>
           {items.map((c) => (
             <tr key={c.id}>
-              <td className="border px-2 py-1">{c.caseType}</td>
-              <td className="border px-2 py-1 text-center">{programLabels[c.program ?? "ALL"] ?? c.program}</td>
-              <td className="border px-2 py-1 text-center">{c.status}</td>
-              <td className="border px-2 py-1 text-center">{c.dueDate?.slice(0, 10) ?? "-"}</td>
-              <td className="border px-2 py-1 text-center">
+              <td className="border border-slate-800 px-2 py-1">{c.caseType}</td>
+              <td className="border border-slate-800 px-2 py-1 text-center">{programLabels[c.program ?? "ALL"] ?? c.program}</td>
+              <td className="border border-slate-800 px-2 py-1 text-center">{c.status}</td>
+              <td className="border border-slate-800 px-2 py-1 text-center">{c.dueDate?.slice(0, 10) ?? "-"}</td>
+              <td className="border border-slate-800 px-2 py-1 text-center">
                 <Link className="text-blue-600" href={`/cases/${c.id}`}>
                   詳細
                 </Link>

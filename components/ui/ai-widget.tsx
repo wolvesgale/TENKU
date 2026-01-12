@@ -8,7 +8,7 @@ type ChatMessage = { role: "user" | "assistant"; content: string };
 export function AiWidget() {
   const [open, setOpen] = useState(true);
   const [messages, setMessages] = useState<ChatMessage[]>([
-    { role: "assistant", content: "TENKU AIです。期限が近いタスクや不足項目を確認できます。" },
+    { role: "assistant", content: "TENKU_CLOUD AIです。期限が近いタスクや不足項目を確認できます。" },
   ]);
   const [input, setInput] = useState("");
   const bottomRef = useRef<HTMLDivElement | null>(null);

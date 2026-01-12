@@ -35,26 +35,29 @@ export default function PersonsPage({ searchParams }: { searchParams?: { program
           <Link className="px-3 py-1 rounded bg-blue-600 text-white" href="/persons/new">
             新規登録
           </Link>
+          <Link className="px-3 py-1 rounded bg-slate-700 text-white" href="/persons/upload">
+            CSVアップロード
+          </Link>
         </div>
       </div>
-      <table className="min-w-full border text-sm">
+      <table className="min-w-full border border-slate-800 text-sm">
         <thead>
-          <tr className="bg-gray-50">
-            <th className="border px-2 py-1 text-left">氏名</th>
-            <th className="border px-2 py-1">制度</th>
-            <th className="border px-2 py-1">在留期限</th>
-            <th className="border px-2 py-1">パスポ期限</th>
-            <th className="border px-2 py-1">詳細</th>
+          <tr className="bg-slate-900 text-slate-100">
+            <th className="border border-slate-800 px-2 py-1 text-left">氏名</th>
+            <th className="border border-slate-800 px-2 py-1">制度</th>
+            <th className="border border-slate-800 px-2 py-1">在留期限</th>
+            <th className="border border-slate-800 px-2 py-1">パスポ期限</th>
+            <th className="border border-slate-800 px-2 py-1">詳細</th>
           </tr>
         </thead>
         <tbody>
           {items.map((p) => (
-            <tr key={p.id} className="hover:bg-gray-50">
-              <td className="border px-2 py-1">{p.fullName}</td>
-              <td className="border px-2 py-1 text-center">{programLabels[p.currentProgram ?? "ALL"] ?? p.currentProgram}</td>
-              <td className="border px-2 py-1 text-center">{p.residenceCardExpiry?.slice(0, 10) ?? "-"}</td>
-              <td className="border px-2 py-1 text-center">{p.passportExpiry?.slice(0, 10) ?? "-"}</td>
-              <td className="border px-2 py-1 text-center">
+            <tr key={p.id} className="hover:bg-slate-900/40">
+              <td className="border border-slate-800 px-2 py-1">{p.fullName}</td>
+              <td className="border border-slate-800 px-2 py-1 text-center">{programLabels[p.currentProgram ?? "ALL"] ?? p.currentProgram}</td>
+              <td className="border border-slate-800 px-2 py-1 text-center">{p.residenceCardExpiry?.slice(0, 10) ?? "-"}</td>
+              <td className="border border-slate-800 px-2 py-1 text-center">{p.passportExpiry?.slice(0, 10) ?? "-"}</td>
+              <td className="border border-slate-800 px-2 py-1 text-center">
                 <Link className="text-blue-600" href={`/persons/${p.id}`}>
                   詳細
                 </Link>

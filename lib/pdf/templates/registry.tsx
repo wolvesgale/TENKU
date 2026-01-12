@@ -3,6 +3,9 @@ import { pdfTemplateSummaryMap, type PdfTemplateId } from "./manifest";
 import { ResidencePeriodExtensionPdf, type ResidencePeriodExtensionPdfData } from "./residence-period-extension";
 import { ResidenceStatusChangePdf, type ResidenceStatusChangePdfData } from "./residence-status-change";
 import { SupportOrganizationRegistrationPdf, type SupportOrganizationRegistrationPdfData } from "./support-organization-registration";
+import { PersonPdf, type PersonPdfData } from "./person";
+import { MonitoringLogPdf, type MonitoringLogPdfData } from "./monitoring-log";
+import { MinorChangeNoticePdf, type MinorChangeNoticePdfData } from "./minor-change-notice";
 
 export type PdfTemplateDefinition<TData> = {
   id: string;
@@ -19,6 +22,9 @@ export const pdfTemplates: Array<
   | PdfTemplateDefinition<ResidenceStatusChangePdfData>
   | PdfTemplateDefinition<ResidencePeriodExtensionPdfData>
   | PdfTemplateDefinition<SupportOrganizationRegistrationPdfData>
+  | PdfTemplateDefinition<PersonPdfData>
+  | PdfTemplateDefinition<MonitoringLogPdfData>
+  | PdfTemplateDefinition<MinorChangeNoticePdfData>
 > = [
   {
     ...pdfTemplateSummaryMap["residence-status-change"],
@@ -61,7 +67,7 @@ export const pdfTemplates: Array<
     ...pdfTemplateSummaryMap["support-organization-registration"],
     sampleData: {
       registrationNumber: "RSO-2024-003",
-      organizationName: "TENKU支援機構",
+      organizationName: "TENKU_CLOUD支援機構",
       representative: "Shun Aoki",
       address: "東京都千代田区丸の内1-1-1",
       contactPhone: "03-1234-5678",
@@ -72,6 +78,54 @@ export const pdfTemplates: Array<
       trackRecord: "受入実績 120名 / 直近1年 35名",
     },
     render: (data: SupportOrganizationRegistrationPdfData) => <SupportOrganizationRegistrationPdf data={data} />,
+  },
+  {
+    ...pdfTemplateSummaryMap["person"],
+    sampleData: {
+      personId: "prs-001",
+      fullName: "Linh Truong",
+      nationality: "ベトナム",
+      foreignerId: "FR-0001",
+      residenceCardNumber: "VN1234567",
+      residenceCardExpiry: "2025-03-20",
+      passportNumber: "TR1234567",
+      assignmentCompany: "Orion Logistics",
+      specialty: "物流・倉庫管理",
+      address: "北海道札幌市中央区1-2-3",
+      memo: "特記事項なし。",
+    },
+    render: (data: PersonPdfData) => <PersonPdf data={data} />,
+  },
+  {
+    ...pdfTemplateSummaryMap["monitoring-log"],
+    sampleData: {
+      logId: "mlog-001",
+      date: "2024-10-10",
+      logType: "巡回",
+      personName: "Linh Truong",
+      companyName: "Orion Logistics",
+      supervisorName: "TENKU_CLOUD 監理団体",
+      overtimeHours: 30,
+      workingTimeSystem: "通常",
+      changeMemo: "繁忙期のため一時的に残業増。",
+      memo: "生活状況・勤務環境に問題なし。",
+    },
+    render: (data: MonitoringLogPdfData) => <MonitoringLogPdf data={data} />,
+  },
+  {
+    ...pdfTemplateSummaryMap["minor-change-notice"],
+    sampleData: {
+      noticeId: "mcn-001",
+      month: "2024-10",
+      companyName: "Aster Foods",
+      supervisorName: "TENKU_CLOUD 監理団体",
+      sendingOrgName: "SkyBridge HR",
+      changeMemo: "繁忙期のため一時的に残業が増加。",
+      details: [
+        { foreignerId: "FR-0002", personName: "Amara Singh", overtimeHours: 48, reason: "繁忙期のため" },
+      ],
+    },
+    render: (data: MinorChangeNoticePdfData) => <MinorChangeNoticePdf data={data} />,
   },
 ];
 

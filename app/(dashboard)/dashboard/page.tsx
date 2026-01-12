@@ -2,7 +2,7 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Table, THead, TBody, TR, TH, TD } from "@/components/ui/table";
-import { dashboardDocuments, dashboardExternalLinks, dashboardKpiCards } from "@/lib/demo-dashboard-data";
+import { dashboardDemoBadgeLabel, dashboardDemoNote, dashboardDocuments, dashboardExternalLinks, dashboardKpiCards } from "@/lib/demo-dashboard-data";
 import { Flame, Link2, Radar } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 
@@ -63,6 +63,14 @@ export default function DashboardPage() {
 
   return (
     <div className="grid gap-4">
+      <div className="flex flex-wrap items-center justify-between gap-2">
+        <div>
+          <h1 className="text-2xl font-semibold text-white">管理者画面</h1>
+          <p className="text-sm text-muted">{dashboardDemoNote}</p>
+        </div>
+        <Badge className="border-brand-amber text-brand-amber">{dashboardDemoBadgeLabel}</Badge>
+      </div>
+
       <div className="grid xl:grid-cols-4 md:grid-cols-2 gap-4">
         {dashboardKpiCards.map((kpi) => (
           <Card key={kpi.title} className="relative overflow-hidden">
@@ -73,6 +81,7 @@ export default function DashboardPage() {
             </CardHeader>
             <CardContent>
               <p className={`text-sm ${kpi.trend === "up" ? "text-emerald-300" : "text-rose-300"}`}>{kpi.change} vs last month</p>
+              <p className="text-xs text-muted mt-2">{dashboardDemoNote}</p>
             </CardContent>
           </Card>
         ))}
@@ -90,25 +99,25 @@ export default function DashboardPage() {
               High Priority
             </Badge>
           </CardHeader>
-            <CardContent>
-              <Table>
-                <THead>
-                  <TR>
-                    <TH>タスク</TH>
-                  <TH>期限</TH>
-                  <TH>状態</TH>
-                  <TH>関連</TH>
+          <CardContent>
+            <Table>
+              <THead>
+                <TR className="bg-slate-900 text-slate-100">
+                  <TH className="px-2 py-2 text-left">タスク</TH>
+                  <TH className="px-2 py-2 text-left">期限</TH>
+                  <TH className="px-2 py-2 text-left">状態</TH>
+                  <TH className="px-2 py-2 text-left">関連</TH>
                 </TR>
               </THead>
               <TBody>
                 {reminders.map((task) => (
                   <TR key={task.id}>
-                    <TD>{task.title ?? task.taskType}</TD>
-                    <TD>{formatDate(task.dueDate)}</TD>
-                    <TD>
+                    <TD className="px-2 py-2">{task.title ?? task.taskType}</TD>
+                    <TD className="px-2 py-2">{formatDate(task.dueDate)}</TD>
+                    <TD className="px-2 py-2">
                       <Badge className={statusBadgeClass(task.status)}>{task.status}</Badge>
                     </TD>
-                    <TD>{task.relatedEntity}</TD>
+                    <TD className="px-2 py-2">{task.relatedEntity}</TD>
                   </TR>
                 ))}
               </TBody>

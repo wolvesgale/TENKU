@@ -36,7 +36,7 @@ export function MobileNav() {
                   T
                 </div>
                 <div>
-                  <p className="text-[11px] uppercase tracking-wide text-muted">TENKU</p>
+                  <p className="text-[11px] uppercase tracking-wide text-muted">TENKU_Cloud</p>
                   <p className="font-semibold text-white">Command Board</p>
                 </div>
               </div>

@@ -18,7 +18,7 @@ export function Topbar() {
     <header className="sticky top-0 z-20 h-16 px-4 border-b border-border bg-surface/80 backdrop-blur-xl flex items-center justify-between shadow-ambient">
       <div className="flex items-center gap-3">
         <MobileNav />
-        <div className="px-3 py-1 rounded-full border border-border text-[12px] text-muted uppercase tracking-wide">TENKU</div>
+        <div className="px-3 py-1 rounded-full border border-border text-[12px] text-muted uppercase tracking-wide">TENKU_Cloud</div>
         <div className="flex items-center gap-2">
           <Shield size={16} className="text-brand-blue" />
           <span className="text-sm text-muted">Tenant</span>

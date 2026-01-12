@@ -15,8 +15,9 @@ export async function POST(req: NextRequest) {
     address: body.address,
     defaultOrgId: body.defaultOrgId,
     defaultOrgType: body.defaultOrgType,
+    industry: body.industry,
     contactName: body.contactName,
     contactTel: body.contactTel,
-  } as any);
+  });
   return NextResponse.json({ data: created }, { status: 201 });
 }

@@ -35,6 +35,9 @@ export default function PersonsPage({ searchParams }: { searchParams?: { program
           <Link className="px-3 py-1 rounded bg-blue-600 text-white" href="/persons/new">
             新規登録
           </Link>
+          <Link className="px-3 py-1 rounded bg-slate-700 text-white" href="/persons/upload">
+            CSVアップロード
+          </Link>
         </div>
       </div>
       <table className="min-w-full border text-sm">

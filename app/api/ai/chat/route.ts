@@ -45,7 +45,7 @@ function buildReply(message: string) {
   }
 
   if (lower.includes("デモ") || lower.includes("demo") || lower.includes("流れ")) {
-    return `TENKUデモの基本的な流れは以下の通りです：
+    return `TENKU_Cloudデモの基本的な流れは以下の通りです：
   1. 企業や外国人（実習生・特定技能者）を登録します。
   2. 対象者の在留期限やパスポート期限を入力・管理します。
   3. 必要に応じて申請案件（在留資格認定・変更・更新、技能実習計画認定など）を作成します。
@@ -54,7 +54,7 @@ function buildReply(message: string) {
   6. アラート一覧やダッシュボードで期限の近いものを確認し、対応状況を管理します。`;
   }
 
-  return "TENKUモックAIです。期限・不足項目・スケジュールの確認ができます。「次にやることは？」や「デモの流れは？」などを入力してください。";
+  return "TENKU_CloudモックAIです。期限・不足項目・スケジュールの確認ができます。「次にやることは？」や「デモの流れは？」などを入力してください。";
 }
 
 export async function POST(req: Request) {

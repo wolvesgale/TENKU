@@ -5,9 +5,10 @@ export type CaseStatus = "OPEN" | "IN_PROGRESS" | "DONE";
 export type TaskStatus = "TODO" | "DOING" | "DONE";
 export type AlertStatus = "OPEN" | "SNOOZED" | "DONE";
 export type ApplicationStatus = "DRAFT" | "SUBMITTED" | "APPROVED" | "REJECTED";
+export type OrganizationType = "SUPPORT" | "SENDING";
 
 export type Tenant = { id: string; code: string; name: string };
-export type Organization = { id: string; tenantId: string; orgType: string; displayName: string };
+export type Organization = { id: string; tenantId: string; orgType: OrganizationType; displayName: string };
 export type Company = {
   id: string;
   tenantId: string;
@@ -15,10 +16,40 @@ export type Company = {
   address?: string;
   defaultOrgId?: string;
   defaultOrgType?: string;
+  industry?: string;
+  contactName?: string;
+  contactTel?: string;
 };
 export type Person = {
   id: string;
   tenantId: string;
+  foreignerId?: string;
+  nickname?: string;
+  nameKanji?: string;
+  nameKana?: string;
+  nameRoma?: string;
+  gender?: string;
+  displayLanguage?: string;
+  residenceCardNumber?: string;
+  residenceStart?: string;
+  dormAddress?: string;
+  arrivalDate?: string;
+  assignmentDate?: string;
+  employmentContractPeriod?: string;
+  sendingOrgId?: string;
+  certNumber1?: string;
+  certDate1?: string;
+  certNumber2?: string;
+  certDate2?: string;
+  certNumber3?: string;
+  certDate3?: string;
+  changeCertNumber?: string;
+  changeCertDate?: string;
+  traineeNoticeNumber?: string;
+  traineeNoticeDate?: string;
+  handlerName?: string;
+  nextProcedure?: string;
+  notes?: string;
   fullName: string;
   nationality?: string;
   nativeLanguage?: string;
@@ -122,6 +153,31 @@ export type TrainingPlan = {
   metadata?: any;
 };
 
+export type MonitoringLog = {
+  id: string;
+  tenantId: string;
+  date: string;
+  personId?: string;
+  companyId?: string;
+  supervisorId?: string;
+  logType: "巡回" | "監査";
+  overtimeHours?: number;
+  memo?: string;
+  createdAt: string;
+  updatedAt: string;
+};
+
+export type MinorChangeNotice = {
+  id: string;
+  tenantId: string;
+  month: string;
+  companyId: string;
+  supervisorId: string;
+  details: any;
+  createdAt: string;
+  updatedAt: string;
+};
+
 export type ExpiryThresholds = {
   residenceCardExpiryDays: number;
   passportExpiryDays: number;
@@ -138,71 +194,187 @@ export const DEFAULT_EXPIRY_THRESHOLDS: ExpiryThresholds = {
   passportExpiryDays: 90,
 };
 
-const tenant: Tenant = { id: "tenant_demo", code: "TENKU_DEMO", name: "TENKU Demo Tenant" };
+const tenant: Tenant = { id: "tenant_demo", code: "TENKU_CLOUD_DEMO", name: "TENKU_Cloud Demo Tenant" };
 const organizations: Organization[] = [
-  { id: "org_support", tenantId: tenant.id, orgType: "SUPPORT", displayName: "TENKU支援機関" },
+  { id: "org_support", tenantId: tenant.id, orgType: "SUPPORT", displayName: "TENKU_Cloud 監理団体" },
   { id: "org_sending", tenantId: tenant.id, orgType: "SENDING", displayName: "SkyBridge HR" },
 ];
 const companies: Company[] = [
-  { id: "cmp-001", tenantId: tenant.id, name: "Orion Logistics", address: "北海道 札幌市", defaultOrgId: "org_support", defaultOrgType: "SUPPORT" },
-  { id: "cmp-002", tenantId: tenant.id, name: "Aster Foods", address: "宮城県 仙台市", defaultOrgId: "org_support", defaultOrgType: "SUPPORT" },
-  { id: "cmp-003", tenantId: tenant.id, name: "Nova Robotics", address: "愛知県 名古屋市", defaultOrgId: "org_support", defaultOrgType: "SUPPORT" },
+  {
+    id: "cmp-001",
+    tenantId: tenant.id,
+    name: "Orion Logistics",
+    address: "北海道 札幌市",
+    defaultOrgId: "org_support",
+    defaultOrgType: "SUPPORT",
+    industry: "物流",
+    contactName: "佐藤 彩",
+    contactTel: "011-123-4567",
+  },
+  {
+    id: "cmp-002",
+    tenantId: tenant.id,
+    name: "Aster Foods",
+    address: "宮城県 仙台市",
+    defaultOrgId: "org_support",
+    defaultOrgType: "SUPPORT",
+    industry: "食品製造",
+    contactName: "田中 健",
+    contactTel: "022-987-6543",
+  },
+  {
+    id: "cmp-003",
+    tenantId: tenant.id,
+    name: "Nova Robotics",
+    address: "愛知県 名古屋市",
+    defaultOrgId: "org_support",
+    defaultOrgType: "SUPPORT",
+    industry: "製造",
+    contactName: "山本 瑞希",
+    contactTel: "052-555-1212",
+  },
 ];
 const persons: Person[] = [
   {
     id: "prs-001",
     tenantId: tenant.id,
     fullName: "Linh Truong",
+    foreignerId: "FR-0001",
+    nameKanji: "リン・チュオン",
+    nameKana: "リン チュオン",
+    nameRoma: "Linh Truong",
+    gender: "女性",
+    displayLanguage: "日本語",
     nationality: "ベトナム",
     nativeLanguage: "Vietnamese",
     currentProgram: "TITP",
     currentCompanyId: "cmp-001",
+    sendingOrgId: "org_sending",
     residenceCardExpiry: new Date(Date.now() + 1000 * 60 * 60 * 24 * 40).toISOString(),
     passportExpiry: new Date(Date.now() + 1000 * 60 * 60 * 24 * 200).toISOString(),
+    residenceCardNumber: "VN1234567",
+    residenceStart: new Date(Date.now() - 1000 * 60 * 60 * 24 * 200).toISOString(),
+    dormAddress: "北海道札幌市中央区1-2-3",
+    arrivalDate: new Date(Date.now() - 1000 * 60 * 60 * 24 * 240).toISOString(),
+    assignmentDate: new Date(Date.now() - 1000 * 60 * 60 * 24 * 190).toISOString(),
+    employmentContractPeriod: "2024/04/01〜2027/03/31",
+    traineeNoticeNumber: "TRA-2024-001",
+    traineeNoticeDate: new Date(Date.now() - 1000 * 60 * 60 * 24 * 180).toISOString(),
+    handlerName: "伊藤 玲奈",
+    nextProcedure: "技能検定（基礎級）申請",
+    metaJson: { specialty: "物流", taskDetail: "検品・仕分け", passportNumber: "TR1234567" },
   },
   {
     id: "prs-002",
     tenantId: tenant.id,
     fullName: "Amara Singh",
+    foreignerId: "FR-0002",
+    nameKanji: "アマラ・シン",
+    nameKana: "アマラ シン",
+    nameRoma: "Amara Singh",
+    gender: "女性",
+    displayLanguage: "日本語",
     nationality: "フィリピン",
     nativeLanguage: "Tagalog",
     currentProgram: "SSW",
     currentCompanyId: "cmp-002",
+    sendingOrgId: "org_sending",
     residenceCardExpiry: new Date(Date.now() + 1000 * 60 * 60 * 24 * 20).toISOString(),
     passportExpiry: new Date(Date.now() + 1000 * 60 * 60 * 24 * 100).toISOString(),
+    residenceCardNumber: "PH9876543",
+    residenceStart: new Date(Date.now() - 1000 * 60 * 60 * 24 * 300).toISOString(),
+    dormAddress: "宮城県仙台市青葉区2-3-4",
+    arrivalDate: new Date(Date.now() - 1000 * 60 * 60 * 24 * 340).toISOString(),
+    assignmentDate: new Date(Date.now() - 1000 * 60 * 60 * 24 * 280).toISOString(),
+    employmentContractPeriod: "2023/11/01〜2026/10/31",
+    traineeNoticeNumber: "TRA-2023-091",
+    traineeNoticeDate: new Date(Date.now() - 1000 * 60 * 60 * 24 * 260).toISOString(),
+    handlerName: "鈴木 直人",
+    nextProcedure: "在留期間更新準備",
   },
   {
     id: "prs-003",
     tenantId: tenant.id,
     fullName: "Rafi Putra",
+    foreignerId: "FR-0003",
+    nameKanji: "ラフィ・プトラ",
+    nameKana: "ラフィ プトラ",
+    nameRoma: "Rafi Putra",
+    gender: "男性",
+    displayLanguage: "英語",
     nationality: "インドネシア",
     nativeLanguage: "Indonesian",
     currentProgram: "TA",
     currentCompanyId: "cmp-003",
+    sendingOrgId: "org_sending",
     residenceCardExpiry: new Date(Date.now() + 1000 * 60 * 60 * 24 * 90).toISOString(),
     passportExpiry: new Date(Date.now() + 1000 * 60 * 60 * 24 * 30).toISOString(),
+    residenceCardNumber: "ID5566778",
+    residenceStart: new Date(Date.now() - 1000 * 60 * 60 * 24 * 120).toISOString(),
+    dormAddress: "愛知県名古屋市中村区5-6-7",
+    arrivalDate: new Date(Date.now() - 1000 * 60 * 60 * 24 * 140).toISOString(),
+    assignmentDate: new Date(Date.now() - 1000 * 60 * 60 * 24 * 110).toISOString(),
+    employmentContractPeriod: "2024/01/15〜2027/01/14",
+    traineeNoticeNumber: "TRA-2024-021",
+    traineeNoticeDate: new Date(Date.now() - 1000 * 60 * 60 * 24 * 100).toISOString(),
+    handlerName: "高橋 陽菜",
+    nextProcedure: "技能検定（随時）申請",
   },
   {
     id: "prs-004",
     tenantId: tenant.id,
     fullName: "Munkh Bileg",
+    foreignerId: "FR-0004",
+    nameKanji: "ムンフ・ビレグ",
+    nameKana: "ムンフ ビレグ",
+    nameRoma: "Munkh Bileg",
+    gender: "男性",
+    displayLanguage: "日本語",
     nationality: "モンゴル",
     nativeLanguage: "Mongolian",
     currentProgram: "TITP",
     currentCompanyId: "cmp-001",
+    sendingOrgId: "org_sending",
     residenceCardExpiry: new Date(Date.now() + 1000 * 60 * 60 * 24 * 10).toISOString(),
     passportExpiry: new Date(Date.now() + 1000 * 60 * 60 * 24 * 400).toISOString(),
+    residenceCardNumber: "MN0099887",
+    residenceStart: new Date(Date.now() - 1000 * 60 * 60 * 24 * 500).toISOString(),
+    dormAddress: "北海道札幌市北区8-9-10",
+    arrivalDate: new Date(Date.now() - 1000 * 60 * 60 * 24 * 520).toISOString(),
+    assignmentDate: new Date(Date.now() - 1000 * 60 * 60 * 24 * 480).toISOString(),
+    employmentContractPeriod: "2022/10/01〜2025/09/30",
+    traineeNoticeNumber: "TRA-2022-045",
+    traineeNoticeDate: new Date(Date.now() - 1000 * 60 * 60 * 24 * 470).toISOString(),
+    handlerName: "小林 芽依",
+    nextProcedure: "在留期間更新手続き",
   },
   {
     id: "prs-005",
     tenantId: tenant.id,
     fullName: "Sara Kim",
+    foreignerId: "FR-0005",
+    nameKanji: "サラ・キム",
+    nameKana: "サラ キム",
+    nameRoma: "Sara Kim",
+    gender: "女性",
+    displayLanguage: "韓国語",
     nationality: "韓国",
     nativeLanguage: "Korean",
     currentProgram: "SSW",
     currentCompanyId: "cmp-002",
+    sendingOrgId: "org_sending",
     residenceCardExpiry: new Date(Date.now() + 1000 * 60 * 60 * 24 * 75).toISOString(),
     passportExpiry: new Date(Date.now() + 1000 * 60 * 60 * 24 * 15).toISOString(),
+    residenceCardNumber: "KR0011223",
+    residenceStart: new Date(Date.now() - 1000 * 60 * 60 * 24 * 150).toISOString(),
+    dormAddress: "宮城県仙台市宮城野区10-11-12",
+    arrivalDate: new Date(Date.now() - 1000 * 60 * 60 * 24 * 200).toISOString(),
+    assignmentDate: new Date(Date.now() - 1000 * 60 * 60 * 24 * 160).toISOString(),
+    employmentContractPeriod: "2024/02/01〜2027/01/31",
+    traineeNoticeNumber: "TRA-2024-034",
+    traineeNoticeDate: new Date(Date.now() - 1000 * 60 * 60 * 24 * 140).toISOString(),
+    handlerName: "渡辺 優斗",
+    nextProcedure: "特定技能評価試験準備",
   },
 ];
 
@@ -360,6 +532,53 @@ const trainingPlans: TrainingPlan[] = [
     status: "DRAFT",
   },
 ];
+const monitoringLogs: MonitoringLog[] = [
+  {
+    id: "mlog-001",
+    tenantId: tenant.id,
+    date: new Date(Date.now() - 1000 * 60 * 60 * 24 * 10).toISOString(),
+    personId: "prs-001",
+    companyId: "cmp-001",
+    supervisorId: "org_support",
+    logType: "巡回",
+    overtimeHours: 30,
+    memo: "職場環境良好。寮の衛生状況も問題なし。",
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
+  },
+  {
+    id: "mlog-002",
+    tenantId: tenant.id,
+    date: new Date(Date.now() - 1000 * 60 * 60 * 24 * 5).toISOString(),
+    personId: "prs-002",
+    companyId: "cmp-002",
+    supervisorId: "org_support",
+    logType: "監査",
+    overtimeHours: 48,
+    memo: "繁忙期のため残業増。軽微変更届の対象。",
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
+  },
+];
+const minorChangeNotices: MinorChangeNotice[] = [
+  {
+    id: "mcn-001",
+    tenantId: tenant.id,
+    month: new Date(new Date().getFullYear(), new Date().getMonth(), 1).toISOString(),
+    companyId: "cmp-002",
+    supervisorId: "org_support",
+    details: [
+      {
+        foreignerId: "FR-0002",
+        personName: "Amara Singh",
+        overtimeHours: 48,
+        reason: "繁忙期の受注増加により残業が増加。",
+      },
+    ],
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
+  },
+];
 const tenantSettings: TenantSettings[] = [
   { tenantId: tenant.id, expiryThresholds: { ...DEFAULT_EXPIRY_THRESHOLDS }, updatedAt: new Date().toISOString() },
 ];
@@ -382,6 +601,8 @@ export const store = {
   applications,
   trainingPlans,
   tenantSettings,
+  monitoringLogs,
+  minorChangeNotices,
 };
 
 function ensureTenantSettings(tenantId: string): TenantSettings {
@@ -444,6 +665,26 @@ export function updateCompany(id: string, data: Partial<Company>): Company | nul
   if (idx === -1) return null;
   companies[idx] = { ...companies[idx], ...data };
   return companies[idx];
+}
+
+export function addOrganization(input: Omit<Organization, "id" | "tenantId">): Organization {
+  const org: Organization = { id: randomUUID(), tenantId: tenant.id, ...input };
+  organizations.push(org);
+  return org;
+}
+
+export function updateOrganization(id: string, data: Partial<Organization>): Organization | null {
+  const idx = organizations.findIndex((o) => o.id === id);
+  if (idx === -1) return null;
+  organizations[idx] = { ...organizations[idx], ...data };
+  return organizations[idx];
+}
+
+export function deleteOrganization(id: string): boolean {
+  const idx = organizations.findIndex((o) => o.id === id);
+  if (idx === -1) return false;
+  organizations.splice(idx, 1);
+  return true;
 }
 
 export function addStatus(personId: string, input: Omit<PersonStatusHistory, "id" | "tenantId" | "personId">) {
@@ -569,6 +810,128 @@ export function listTrainingPlans() {
   return trainingPlans;
 }
 
+const OVERTIME_THRESHOLD_STANDARD = 45;
+const OVERTIME_THRESHOLD_FLEX = 42;
+
+function ensureMinorChangeNotice({
+  month,
+  companyId,
+  supervisorId,
+  detail,
+}: {
+  month: string;
+  companyId: string;
+  supervisorId: string;
+  detail: { foreignerId?: string; personName?: string; overtimeHours?: number; reason?: string };
+}) {
+  const monthKey = new Date(month).toISOString().slice(0, 7);
+  const existing = minorChangeNotices.find(
+    (n) => n.companyId === companyId && n.supervisorId === supervisorId && n.month.slice(0, 7) === monthKey,
+  );
+  if (existing) {
+    const current = Array.isArray(existing.details) ? existing.details : [];
+    existing.details = [...current, detail];
+    existing.updatedAt = new Date().toISOString();
+    return existing;
+  }
+  const notice: MinorChangeNotice = {
+    id: randomUUID(),
+    tenantId: tenant.id,
+    month: new Date(monthKey + "-01T00:00:00.000Z").toISOString(),
+    companyId,
+    supervisorId,
+    details: [detail],
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
+  };
+  minorChangeNotices.push(notice);
+  return notice;
+}
+
+export function addMonitoringLog(input: Omit<MonitoringLog, "id" | "tenantId" | "createdAt" | "updatedAt">) {
+  const log: MonitoringLog = {
+    id: randomUUID(),
+    tenantId: tenant.id,
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
+    ...input,
+  };
+  monitoringLogs.push(log);
+
+  const overtimeThreshold = log.memo?.includes("変形") ? OVERTIME_THRESHOLD_FLEX : OVERTIME_THRESHOLD_STANDARD;
+  if (typeof log.overtimeHours === "number" && log.overtimeHours >= overtimeThreshold) {
+    const person = persons.find((p) => p.id === log.personId);
+    ensureMinorChangeNotice({
+      month: log.date,
+      companyId: log.companyId ?? "",
+      supervisorId: log.supervisorId ?? "",
+      detail: {
+        foreignerId: person?.foreignerId,
+        personName: person?.fullName,
+        overtimeHours: log.overtimeHours,
+        reason: "理由未入力",
+      },
+    });
+  }
+  return log;
+}
+
+export function updateMonitoringLog(id: string, data: Partial<MonitoringLog>) {
+  const idx = monitoringLogs.findIndex((log) => log.id === id);
+  if (idx === -1) return null;
+  monitoringLogs[idx] = { ...monitoringLogs[idx], ...data, updatedAt: new Date().toISOString() };
+  return monitoringLogs[idx];
+}
+
+export function deleteMonitoringLog(id: string) {
+  const idx = monitoringLogs.findIndex((log) => log.id === id);
+  if (idx === -1) return false;
+  monitoringLogs.splice(idx, 1);
+  return true;
+}
+
+export function listMonitoringLogs(filter?: { personId?: string; companyId?: string }) {
+  return monitoringLogs.filter((log) => {
+    if (filter?.personId && log.personId !== filter.personId) return false;
+    if (filter?.companyId && log.companyId !== filter.companyId) return false;
+    return true;
+  });
+}
+
+export function listMinorChangeNotices() {
+  return minorChangeNotices;
+}
+
+export function addMinorChangeNotice(input: Omit<MinorChangeNotice, "id" | "tenantId" | "createdAt" | "updatedAt">) {
+  const notice: MinorChangeNotice = {
+    id: randomUUID(),
+    tenantId: tenant.id,
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
+    ...input,
+  };
+  minorChangeNotices.push(notice);
+  return notice;
+}
+
+export function updateMinorChangeNotice(id: string, data: Partial<MinorChangeNotice>) {
+  const idx = minorChangeNotices.findIndex((notice) => notice.id === id);
+  if (idx === -1) return null;
+  minorChangeNotices[idx] = { ...minorChangeNotices[idx], ...data, updatedAt: new Date().toISOString() };
+  return minorChangeNotices[idx];
+}
+
+export function deleteMinorChangeNotice(id: string) {
+  const idx = minorChangeNotices.findIndex((notice) => notice.id === id);
+  if (idx === -1) return false;
+  minorChangeNotices.splice(idx, 1);
+  return true;
+}
+
+export function listOrganizationsByType(orgType: OrganizationType) {
+  return organizations.filter((org) => org.orgType === orgType);
+}
+
 export function importJobsFromCsv(csv: string) {
   const lines = csv
     .split(/\r?\n/)
@@ -599,6 +962,47 @@ export function importJobsFromCsv(csv: string) {
         applicationDeadline: row.applicationDeadline,
       }),
     );
+  }
+  return created;
+}
+
+export function importPersonsFromCsv(csv: string) {
+  const lines = csv
+    .split(/\r?\n/)
+    .map((l) => l.trim())
+    .filter((l) => l.length > 0);
+  if (lines.length < 2) return [];
+  const header = lines[0].split(",").map((h) => h.trim());
+  const created: Person[] = [];
+  for (let i = 1; i < lines.length; i++) {
+    const cols = lines[i].split(",").map((c) => c.trim());
+    const row: Record<string, string> = {};
+    header.forEach((h, idx) => {
+      row[h] = cols[idx] ?? "";
+    });
+    if (!row["外国人ID"] || !row["氏名"]) continue;
+    const person = addPerson({
+      foreignerId: row["外国人ID"],
+      fullName: row["氏名"],
+      nationality: row["国籍"],
+      nameKanji: row["氏名（漢字）"],
+      nameKana: row["氏名（カナ）"],
+      nameRoma: row["氏名（ローマ字）"],
+      gender: row["性別"],
+      displayLanguage: row["表示言語"],
+      residenceCardNumber: row["在留カード番号"],
+      residenceStart: row["在留開始日"],
+      dormAddress: row["寮住所"],
+      arrivalDate: row["来日日"],
+      assignmentDate: row["配属日"],
+      employmentContractPeriod: row["雇用契約期間"],
+      traineeNoticeNumber: row["実習実施者届出受理番号"],
+      handlerName: row["担当者"],
+      nextProcedure: row["次の手続き"],
+      notes: row["メモ"],
+      currentProgram: row["制度"] || "TITP",
+    });
+    created.push(person);
   }
   return created;
 }

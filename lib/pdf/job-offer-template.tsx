@@ -32,7 +32,7 @@ export function JobOfferPdf({ data }: { data: JobOfferPdfData }) {
   return (
     <Document>
       <Page size="A4" style={styles.page}>
-        <Text style={styles.title}>求人票（TENKU） v{data.version}</Text>
+        <Text style={styles.title}>求人票（TENKU_Cloud） v{data.version}</Text>
 
         <View style={styles.box}>
           <View style={styles.row}>

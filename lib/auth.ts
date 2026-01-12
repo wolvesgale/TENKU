@@ -20,7 +20,7 @@ export async function getServerSession(): Promise<Session | null> {
       id: process.env.NEXT_PUBLIC_TENKU_DEMO_EMAIL ?? "demo-user",
       tenantId,
       email: process.env.NEXT_PUBLIC_TENKU_DEMO_EMAIL,
-      name: "TENKU Demo User",
+      name: "TENKU_Cloud Demo User",
     },
   };
 }

@@ -6,7 +6,7 @@ export function cn(...inputs: ClassValue[]) {
 }
 
 export const programLabels: Record<string, string> = {
-  ALL: "All",
+  ALL: "全て",
   TITP: "TITP",
   SSW: "SSW",
   TA: "TA",

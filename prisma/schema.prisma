@@ -26,6 +26,11 @@ enum TaskStatus {
   DONE
 }
 
+enum OrganizationType {
+  SUPPORT
+  SENDING
+}
+
 enum CaseProgram {
   ALL
   TITP
@@ -51,6 +56,7 @@ model Company {
   tasks          Task[]
   applications   Application[]
   trainingPlans  TrainingPlan[]
+  monitoringLogs MonitoringLog[]
   createdAt      DateTime       @default(now())
   updatedAt      DateTime       @updatedAt
 }
@@ -99,17 +105,46 @@ model Tenant {
 model Organization {
   id            String         @id @default(cuid())
   tenantId      String
-  orgType       String
+  orgType       OrganizationType
   displayName   String
   tenant        Tenant         @relation(fields: [tenantId], references: [id])
   createdAt     DateTime       @default(now())
   updatedAt     DateTime       @updatedAt
   trainingPlans TrainingPlan[]
+  monitoringLogs MonitoringLog[] @relation("SupervisorOrg")
+  sendingPersons Person[]        @relation("SendingOrg")
 }
 
 model Person {
   id                  String                @id @default(cuid())
   tenantId            String
+  foreignerId         String?
+  nickname            String?
+  nameKanji           String?
+  nameKana            String?
+  nameRoma            String?
+  gender              String?
+  displayLanguage     String?
+  residenceCardNumber String?
+  residenceStart      DateTime?
+  dormAddress         String?
+  arrivalDate         DateTime?
+  assignmentDate      DateTime?
+  employmentContractPeriod String?
+  sendingOrgId        String?
+  certNumber1         String?
+  certDate1           DateTime?
+  certNumber2         String?
+  certDate2           DateTime?
+  certNumber3         String?
+  certDate3           DateTime?
+  changeCertNumber    String?
+  changeCertDate      DateTime?
+  traineeNoticeNumber String?
+  traineeNoticeDate   DateTime?
+  handlerName         String?
+  nextProcedure       String?
+  notes               String?
   fullName            String
   nationality         String?
   nativeLanguage      String?
@@ -121,11 +156,13 @@ model Person {
   metaJson            Json?
   tenant              Tenant                @relation(fields: [tenantId], references: [id])
   currentCompany      Company?              @relation(fields: [currentCompanyId], references: [id])
+  sendingOrg          Organization?         @relation("SendingOrg", fields: [sendingOrgId], references: [id])
   cases               Case[]
   tasks               Task[]
   statusHistory       PersonStatusHistory[]
   applications        Application[]
   trainingPlans       TrainingPlan[]
+  monitoringLogs      MonitoringLog[]
   createdAt           DateTime              @default(now())
   updatedAt           DateTime              @updatedAt
 }
@@ -249,4 +286,32 @@ model Document {
   job         Job?         @relation(fields: [jobId], references: [id])
   createdAt   DateTime     @default(now())
   updatedAt   DateTime     @updatedAt
+}
+
+model MonitoringLog {
+  id           String        @id @default(cuid())
+  tenantId     String
+  date         DateTime
+  personId     String?
+  companyId    String?
+  supervisorId String?
+  logType      String
+  overtimeHours Int?
+  memo         String?
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+  person       Person?       @relation(fields: [personId], references: [id])
+  company      Company?      @relation(fields: [companyId], references: [id])
+  supervisor   Organization? @relation("SupervisorOrg", fields: [supervisorId], references: [id])
+}
+
+model MinorChangeNotice {
+  id           String   @id @default(cuid())
+  tenantId     String
+  month        DateTime
+  companyId    String
+  supervisorId String
+  details      Json
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
 }

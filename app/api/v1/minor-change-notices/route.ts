@@ -10,12 +10,17 @@ export async function GET() {
 
 export async function POST(req: NextRequest) {
   const body = await req.json();
+  const details = Array.isArray(body.details) ? (body.details as Array<{ overtimeHours?: number; reason?: string }>) : [];
+  const invalidDetail = details.find((detail) => detail.overtimeHours === undefined || detail.reason === undefined || detail.reason === "");
+  if (!body.month || !body.companyId || !body.supervisorId || details.length === 0 || invalidDetail) {
+    return NextResponse.json({ error: "invalid_payload" }, { status: 400 });
+  }
   const created = addMinorChangeNotice({
     month: body.month,
     companyId: body.companyId,
     supervisorId: body.supervisorId,
     sendingOrgId: body.sendingOrgId,
-    details: body.details,
+    details,
   });
   return NextResponse.json({ data: created }, { status: 201 });
 }

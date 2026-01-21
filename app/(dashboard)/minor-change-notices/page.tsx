@@ -106,7 +106,12 @@ export default function MinorChangeNoticesPage() {
 
   return (
     <div className="space-y-4 p-4">
-      <h1 className="text-xl font-semibold">軽微変更届一覧</h1>
+      <div className="flex items-center justify-between">
+        <h1 className="text-xl font-semibold">軽微変更届一覧</h1>
+        <Link className="px-3 py-1 bg-blue-600 text-white rounded" href="/minor-change-notices/new">
+          新規作成
+        </Link>
+      </div>
       <div className="border border-slate-800 rounded p-4 space-y-3 bg-slate-950/40">
         <h2 className="text-lg font-semibold">軽微変更届（残業超過）PDF生成</h2>
         <div className="grid gap-3 md:grid-cols-3">

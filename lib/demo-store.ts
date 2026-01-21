@@ -981,6 +981,12 @@ export function listMonitoringLogs(filter?: { personId?: string; companyId?: str
   });
 }
 
+export function getMonitoringLogs(filter?: { personId?: string; companyId?: string; month?: string }) {
+  const base = listMonitoringLogs(filter);
+  if (!filter?.month) return base;
+  return base.filter((log) => log.date?.slice(0, 7) === filter.month);
+}
+
 export function listMinorChangeNotices() {
   return minorChangeNotices;
 }

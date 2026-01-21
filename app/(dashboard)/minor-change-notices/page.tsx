@@ -35,6 +35,7 @@ export default function MinorChangeNoticesPage() {
     reason: "繁忙期の受注増加により残業が増加。",
   });
   const [pdfUrl, setPdfUrl] = useState<string | null>(null);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   useEffect(() => {
     fetch("/api/v1/minor-change-notices").then((r) => r.json()).then((res) => setNotices(res.data ?? []));
@@ -75,33 +76,58 @@ export default function MinorChangeNoticesPage() {
     if (!form.personId || !form.companyId || !form.supervisorId) return;
     const person = persons.find((p) => p.id === form.personId);
     const log = logs.find((l) => l.id === form.logId);
-    const createdRes = await fetch("/api/v1/minor-change-notices", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        month: log?.date ?? new Date().toISOString(),
-        companyId: form.companyId,
-        supervisorId: form.supervisorId,
-        sendingOrgId: form.sendingOrgId,
-        details: [
-          {
-            foreignerId: person?.foreignerId,
-            personName: person?.fullName,
-            overtimeHours: log?.overtimeHours,
-            reason: form.reason,
-            changeMemo: log?.changeMemo,
-          },
-        ],
-      }),
-    });
-    const created = await createdRes.json();
-    const pdfRes = await fetch(`/api/v1/minor-change-notices/${created.data.id}/pdf`);
-    const pdfData = await pdfRes.json();
-    if (pdfData.url) {
-      setPdfUrl(pdfData.url);
-      window.open(pdfData.url, "_blank", "noopener,noreferrer");
+    setErrorMessage(null);
+    try {
+      const createdRes = await fetch("/api/v1/minor-change-notices", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          month: log?.date ?? new Date().toISOString(),
+          companyId: form.companyId,
+          supervisorId: form.supervisorId,
+          sendingOrgId: form.sendingOrgId,
+          details: [
+            {
+              foreignerId: person?.foreignerId,
+              personName: person?.fullName,
+              overtimeHours: log?.overtimeHours,
+              reason: form.reason,
+              changeMemo: log?.changeMemo,
+            },
+          ],
+        }),
+      });
+      if (!createdRes.ok) {
+        const message = await createdRes.text();
+        console.error("[minor-change-notice] Save failed", message);
+        setErrorMessage("保存に失敗しました。");
+        return;
+      }
+      const created = await createdRes.json();
+      const pdfRes = await fetch(`/api/v1/minor-change-notices/${created.data.id}/pdf`);
+      if (!pdfRes.ok) {
+        const message = await pdfRes.text();
+        console.error("[minor-change-notice] PDF failed", message);
+        setErrorMessage("PDF生成に失敗しました。");
+        return;
+      }
+      const contentType = pdfRes.headers.get("content-type") ?? "";
+      if (contentType.includes("application/pdf")) {
+        const blob = await pdfRes.blob();
+        const url = window.URL.createObjectURL(blob);
+        setPdfUrl(url);
+        window.open(url, "_blank", "noopener,noreferrer");
+      } else {
+        const data = await pdfRes.json();
+        console.error("[minor-change-notice] PDF unexpected response", data);
+        setErrorMessage("PDF生成に失敗しました。");
+        return;
+      }
+      fetch("/api/v1/minor-change-notices").then((r) => r.json()).then((res) => setNotices(res.data ?? []));
+    } catch (error) {
+      console.error("[minor-change-notice] Unexpected error", error);
+      setErrorMessage("PDF生成に失敗しました。入力内容を確認してください。");
     }
-    fetch("/api/v1/minor-change-notices").then((r) => r.json()).then((res) => setNotices(res.data ?? []));
   };
 
   return (
@@ -208,6 +234,7 @@ export default function MinorChangeNoticesPage() {
               選択: {selectedPerson.fullName} / {companyName(form.companyId)} / {supervisorName(form.supervisorId)} / {sendingOrgName(form.sendingOrgId)}
             </span>
           ) : null}
+          {errorMessage ? <span className="text-xs text-rose-300">{errorMessage}</span> : null}
         </div>
       </div>
       <table className="min-w-full border border-slate-800 text-sm">

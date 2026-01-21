@@ -32,6 +32,7 @@ export default function MinorChangeNoticeNewPage() {
   const [selectedPersonId, setSelectedPersonId] = useState("");
   const [details, setDetails] = useState<DetailRow[]>([]);
   const [submitting, setSubmitting] = useState(false);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   useEffect(() => {
     const params = new URLSearchParams();
@@ -46,9 +47,9 @@ export default function MinorChangeNoticeNewPage() {
     return options.monitoringLogs.filter((log) => log.date?.slice(0, 7) === month);
   }, [month, options.monitoringLogs]);
 
-  const addPersonDetail = () => {
-    if (!selectedPersonId) return;
-    const person = options.persons.find((p) => p.id === selectedPersonId);
+  const addPersonDetail = (personId: string) => {
+    if (!personId) return;
+    const person = options.persons.find((p) => p.id === personId);
     if (!person) return;
     const latestLog = logsForMonth
       .filter((log) => log.personId === person.id)
@@ -71,31 +72,72 @@ export default function MinorChangeNoticeNewPage() {
     setDetails((prev) => prev.map((row, idx) => (idx === index ? { ...row, ...patch } : row)));
   };
 
+  const parseError = async (res: Response) => {
+    const contentType = res.headers.get("content-type") ?? "";
+    if (contentType.includes("application/json")) {
+      return res.json();
+    }
+    const text = await res.text();
+    return { message: text || "リクエストに失敗しました。" };
+  };
+
   const saveAndGenerate = async () => {
     if (!month || !companyId || !supervisorId || details.length === 0) return;
     setSubmitting(true);
-    const res = await fetch("/api/v1/minor-change-notices", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        month: `${month}-01`,
-        companyId,
-        supervisorId,
-        details: details.map((detail) => ({
-          foreignerId: detail.foreignerId,
-          personName: detail.personName,
-          overtimeHours: detail.overtimeHours,
-          reason: detail.reason,
-        })),
-      }),
-    });
-    const data = await res.json();
-    setSubmitting(false);
-    if (!data?.data?.id) return;
-    const pdfRes = await fetch(`/api/v1/minor-change-notices/${data.data.id}/pdf`);
-    const pdfData = await pdfRes.json();
-    if (pdfData.url) window.open(pdfData.url, "_blank", "noopener,noreferrer");
-    router.push("/minor-change-notices");
+    setErrorMessage(null);
+    try {
+      const res = await fetch("/api/v1/minor-change-notices", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          month: `${month}-01`,
+          companyId,
+          supervisorId,
+          details: details.map((detail) => ({
+            foreignerId: detail.foreignerId,
+            personName: detail.personName,
+            overtimeHours: detail.overtimeHours,
+            reason: detail.reason,
+          })),
+        }),
+      });
+      if (!res.ok) {
+        const data = await parseError(res);
+        console.error("[minor-change-notice] Save failed", data);
+        setErrorMessage(`保存に失敗しました。${data.message ?? ""}`.trim());
+        return;
+      }
+      const data = await res.json();
+      if (!data?.data?.id) {
+        setErrorMessage("保存に失敗しました。");
+        return;
+      }
+      const pdfRes = await fetch(`/api/v1/minor-change-notices/${data.data.id}/pdf`);
+      if (!pdfRes.ok) {
+        const data = await parseError(pdfRes);
+        console.error("[minor-change-notice] PDF failed", data);
+        setErrorMessage(`PDF生成に失敗しました。${data.message ?? ""}`.trim());
+        return;
+      }
+      const contentType = pdfRes.headers.get("content-type") ?? "";
+      if (contentType.includes("application/pdf")) {
+        const blob = await pdfRes.blob();
+        const url = window.URL.createObjectURL(blob);
+        window.open(url, "_blank", "noopener,noreferrer");
+        window.URL.revokeObjectURL(url);
+      } else {
+        const data = await pdfRes.json();
+        console.error("[minor-change-notice] PDF unexpected response", data);
+        setErrorMessage("PDF生成に失敗しました。");
+        return;
+      }
+      router.push("/minor-change-notices");
+    } catch (error) {
+      console.error("[minor-change-notice] Unexpected error", error);
+      setErrorMessage("PDF生成に失敗しました。入力内容を確認してください。");
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   return (
@@ -137,7 +179,15 @@ export default function MinorChangeNoticeNewPage() {
       <div className="flex flex-wrap items-end gap-2">
         <label className="text-sm text-slate-200">
           対象外国人
-          <select className={inputClassName} value={selectedPersonId} onChange={(e) => setSelectedPersonId(e.target.value)}>
+          <select
+            className={inputClassName}
+            value={selectedPersonId}
+            onChange={(e) => {
+              const value = e.target.value;
+              setSelectedPersonId(value);
+              addPersonDetail(value);
+            }}
+          >
             <option value="">選択</option>
             {options.persons.map((p) => (
               <option key={p.id} value={p.id}>
@@ -146,9 +196,6 @@ export default function MinorChangeNoticeNewPage() {
             ))}
           </select>
         </label>
-        <button className="px-3 py-1 bg-blue-600 text-white rounded" onClick={addPersonDetail}>
-          対象外国人を追加
-        </button>
       </div>
       <div className="space-y-2">
         {details.map((detail, index) => (
@@ -172,6 +219,7 @@ export default function MinorChangeNoticeNewPage() {
       >
         {submitting ? "保存中..." : "保存してPDF生成"}
       </button>
+      {errorMessage ? <p className="text-sm text-rose-300">{errorMessage}</p> : null}
     </div>
   );
 }

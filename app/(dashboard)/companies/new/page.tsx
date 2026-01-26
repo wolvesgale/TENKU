@@ -19,7 +19,7 @@ export default function NewCompanyPage() {
 
   return (
     <div className="p-4 space-y-4">
-      <h1 className="text-xl font-semibold">企業登録</h1>
+      <h1 className="text-xl font-semibold">法人情報の登録</h1>
       <CompanyForm onSubmit={submit} submitting={saving} />
     </div>
   );

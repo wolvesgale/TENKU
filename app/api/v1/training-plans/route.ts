@@ -20,6 +20,11 @@ export async function POST(req: NextRequest) {
     plannedEnd: body.plannedEnd,
     documentUrl: body.documentUrl,
     metadata: body.metadata,
+    category: body.category,
+    jobCode: body.jobCode,
+    jobName: body.jobName,
+    workName: body.workName,
+    freeEditOverrides: body.freeEditOverrides ?? {},
   });
   return NextResponse.json({ data: created }, { status: 201 });
 }

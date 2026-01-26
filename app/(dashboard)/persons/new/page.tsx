@@ -19,7 +19,7 @@ export default function NewPersonPage() {
 
   return (
     <div className="p-4 space-y-4">
-      <h1 className="text-xl font-semibold">外国人登録</h1>
+      <h1 className="text-xl font-semibold">実習生登録</h1>
       <PersonForm onSubmit={submit} submitting={saving} />
     </div>
   );

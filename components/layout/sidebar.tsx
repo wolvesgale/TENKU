@@ -1,31 +1,15 @@
 "use client";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import {
-  Home,
-  Building2,
-  ListChecks,
-  FileText,
-  Rocket,
-  ClipboardList,
-  Users,
-} from "lucide-react";
+import { Home, Building2, ClipboardList, Users } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 export const sidebarLinks = [
-  { href: "/dashboard", label: "Dashboard", icon: Home },
-  { href: "/companies", label: "実習実施先", icon: Building2 },
-  { href: "/persons", label: "外国人一覧", icon: Users },
-  { href: "/supervisors", label: "監理団体", icon: Building2 },
-  { href: "/sending-orgs", label: "送り出し機関", icon: Building2 },
-  { href: "/monitoring-logs", label: "巡回・監査ログ", icon: ClipboardList },
-  { href: "/minor-change-notices", label: "軽微変更届", icon: FileText },
-  { href: "/cases", label: "案件", icon: ClipboardList },
-  { href: "/applications", label: "申請一覧", icon: FileText },
-  { href: "/training-plans", label: "実習計画", icon: ClipboardList },
-  { href: "/tasks", label: "タスク", icon: ListChecks },
-  { href: "/billing", label: "監理費請求", icon: Rocket },
-  { href: "/templates/pdf", label: "PDFテンプレ", icon: FileText },
+  { href: "/", label: "デモホーム", icon: Home },
+  { href: "/organization", label: "監理団体情報", icon: Building2 },
+  { href: "/companies", label: "法人（実習実施者）", icon: Building2 },
+  { href: "/persons", label: "実習生", icon: Users },
+  { href: "/training-plans", label: "技能実習計画", icon: ClipboardList },
 ];
 
 export function Sidebar() {

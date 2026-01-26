@@ -12,8 +12,7 @@ pnpm-debug.log*
 .prisma
 public/fonts
 
-# never commit binaries for this demo flow
-*.pdf
+# never commit binaries for this demo flow (画像のみ除外。OTIT テンプレ PDF はコミット済みのため許可)
 *.png
 *.jpg
 *.jpeg

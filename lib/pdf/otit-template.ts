@@ -4,10 +4,9 @@ import { PDFDocument, rgb } from "pdf-lib";
 import fontkit from "@pdf-lib/fontkit";
 import type { Company, DemoOrganizationProfile, Person, TrainingPlan } from "@/lib/demo-store";
 
-const TEMPLATE_URL = "https://www.otit.go.jp/upload/docs/240819-200-1.pdf";
+const LOCAL_TEMPLATE_PATH = path.join(process.cwd(), "240819-200-1.pdf");
 const FONT_URL = "https://github.com/googlefonts/noto-cjk/raw/main/Sans/OTF/Japanese/NotoSansJP-Regular.otf";
 const CACHE_ROOT = path.join(process.cwd(), ".cache");
-const TEMPLATE_PATH = path.join(CACHE_ROOT, "templates", "otit", "240819-200-1.pdf");
 const FONT_PATH = path.join(CACHE_ROOT, "fonts", "NotoSansJP-Regular.otf");
 const FIELD_MAP_PATH = path.join(process.cwd(), "data", "pdf", "otit", "240819-200-1.fields.json");
 
@@ -19,7 +18,7 @@ type FieldMapEntry = {
   fontSize: number;
 };
 
-const ensureCachedFile = async (url: string, targetPath: string) => {
+const ensureCachedFont = async (url: string, targetPath: string) => {
   try {
     await fs.access(targetPath);
     return;
@@ -138,14 +137,17 @@ export async function generateTrainingPlanPdf({
   person?: Person;
   trainingPlan: TrainingPlan;
 }) {
-  await ensureCachedFile(TEMPLATE_URL, TEMPLATE_PATH);
-  await ensureCachedFile(FONT_URL, FONT_PATH);
+  let templateBytes: Buffer;
+  try {
+    templateBytes = await fs.readFile(LOCAL_TEMPLATE_PATH);
+  } catch {
+    throw new Error(
+      `テンプレPDF(${LOCAL_TEMPLATE_PATH})が見つかりません。ファイルがリポジトリに存在するか確認してください。`,
+    );
+  }
 
-  const [templateBytes, fontBytes, fieldMap] = await Promise.all([
-    fs.readFile(TEMPLATE_PATH),
-    fs.readFile(FONT_PATH),
-    loadFieldMap(),
-  ]);
+  await ensureCachedFont(FONT_URL, FONT_PATH);
+  const [fontBytes, fieldMap] = await Promise.all([fs.readFile(FONT_PATH), loadFieldMap()]);
 
   const pdfDoc = await PDFDocument.load(templateBytes);
   pdfDoc.registerFontkit(fontkit);

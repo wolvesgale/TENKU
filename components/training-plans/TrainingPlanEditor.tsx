@@ -335,16 +335,11 @@ export function TrainingPlanEditor({
         </div>
 
         <div className="flex gap-2">
-          <button
-            type="button"
-            className="px-4 py-2 bg-blue-600 text-white rounded disabled:opacity-60"
-            onClick={submit}
-            disabled={submitting}
-          >
+          <button type="button" className="btn-primary disabled:opacity-60" onClick={submit} disabled={submitting}>
             {submitting ? "保存中..." : submitLabel}
           </button>
           {onCancel && (
-            <button type="button" className="px-4 py-2 bg-gray-200 rounded" onClick={onCancel} disabled={submitting}>
+            <button type="button" className="btn-ghost" onClick={onCancel} disabled={submitting}>
               戻る
             </button>
           )}
@@ -358,22 +353,20 @@ export function TrainingPlanEditor({
         </div>
         <div className="space-y-4">
           {previewFields.map((section) => (
-            <div key={section.title} className="border rounded p-3 bg-white">
-              <h3 className="font-semibold mb-2 text-sm">{section.title}</h3>
-              <div className="space-y-2">
-                {section.fields.map((field) => (
-                  <div key={field.key} className="grid gap-2 md:grid-cols-[160px_1fr_1fr] items-center">
-                    <span className="text-xs text-gray-500">{field.label}</span>
-                    <span className="text-sm break-words">{mergedValues[field.key] || "-"}</span>
-                    <input
-                      className="border px-2 py-1 rounded text-sm"
-                      placeholder="加筆修正（任意）"
-                      value={values.freeEditOverrides[field.key] ?? ""}
-                      onChange={(e) => updateOverride(field.key, e.target.value)}
-                    />
-                  </div>
-                ))}
-              </div>
+            <div key={section.title} className="glass-card p-4 space-y-2">
+              <h3 className="font-semibold text-sm text-gray-100 mb-1">{section.title}</h3>
+              {section.fields.map((field) => (
+                <div key={field.key} className="grid gap-2 md:grid-cols-[180px_2fr_1fr] items-start">
+                  <span className="text-xs text-muted">{field.label}</span>
+                  <span className="text-sm break-all text-gray-100">{mergedValues[field.key] || "—"}</span>
+                  <input
+                    className="bg-transparent border border-border px-2 py-1 rounded text-sm text-gray-100"
+                    placeholder="加筆修正（任意）"
+                    value={values.freeEditOverrides[field.key] ?? ""}
+                    onChange={(e) => updateOverride(field.key, e.target.value)}
+                  />
+                </div>
+              ))}
             </div>
           ))}
         </div>

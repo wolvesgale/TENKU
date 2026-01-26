@@ -11,3 +11,14 @@ yarn-error.log*
 pnpm-debug.log*
 .prisma
 public/fonts
+
+# never commit binaries for this demo flow
+*.pdf
+*.png
+*.jpg
+*.jpeg
+*.webp
+
+# runtime cache
+.cache/
+tmp/

@@ -19,16 +19,16 @@ export default function CompaniesPage() {
       </div>
       <table className="min-w-full border text-sm">
         <thead>
-          <tr className="bg-gray-50">
-            <th className="border px-2 py-1 text-left">法人名</th>
-            <th className="border px-2 py-1">事業所名</th>
-            <th className="border px-2 py-1">所在地</th>
-            <th className="border px-2 py-1">詳細</th>
+          <tr className="bg-surface/80">
+            <th className="border px-2 py-1 text-left text-gray-100">法人名</th>
+            <th className="border px-2 py-1 text-gray-100">事業所名</th>
+            <th className="border px-2 py-1 text-gray-100">所在地</th>
+            <th className="border px-2 py-1 text-gray-100">詳細</th>
           </tr>
         </thead>
         <tbody>
           {items.map((c) => (
-            <tr key={c.id}>
+            <tr key={c.id} className="hover:bg-white/10">
               <td className="border px-2 py-1">{c.name}</td>
               <td className="border px-2 py-1">{c.workplaceName ?? "-"}</td>
               <td className="border px-2 py-1">{c.address ?? "-"}</td>

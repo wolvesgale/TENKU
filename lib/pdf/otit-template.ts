@@ -5,6 +5,7 @@ import fontkit from "@pdf-lib/fontkit";
 import type { Company, DemoOrganizationProfile, Person, TrainingPlan } from "@/lib/demo-store";
 
 const LOCAL_TEMPLATE_PATH = path.join(process.cwd(), "240819-200-1.pdf");
+const TEMPLATE_REMOTE_URL = "https://raw.githubusercontent.com/wolvesgale/TENKU/main/240819-200-1.pdf";
 const FONT_URL = "https://github.com/googlefonts/noto-cjk/raw/main/Sans/OTF/Japanese/NotoSansJP-Regular.otf";
 const CACHE_ROOT = path.join(process.cwd(), ".cache");
 const FONT_PATH = path.join(CACHE_ROOT, "fonts", "NotoSansJP-Regular.otf");
@@ -31,6 +32,20 @@ const ensureCachedFont = async (url: string, targetPath: string) => {
     const arrayBuffer = await res.arrayBuffer();
     await fs.writeFile(targetPath, Buffer.from(arrayBuffer));
   }
+};
+
+const getTemplateBytes = async (): Promise<Buffer> => {
+  try {
+    return await fs.readFile(LOCAL_TEMPLATE_PATH);
+  } catch {
+    // fallback to remote
+  }
+  const res = await fetch(TEMPLATE_REMOTE_URL);
+  if (!res.ok) {
+    throw new Error(`テンプレPDFの取得に失敗しました: ${res.status} ${res.statusText}`);
+  }
+  const arrayBuffer = await res.arrayBuffer();
+  return Buffer.from(arrayBuffer);
 };
 
 const loadFieldMap = async (): Promise<FieldMapEntry[]> => {
@@ -137,14 +152,7 @@ export async function generateTrainingPlanPdf({
   person?: Person;
   trainingPlan: TrainingPlan;
 }) {
-  let templateBytes: Buffer;
-  try {
-    templateBytes = await fs.readFile(LOCAL_TEMPLATE_PATH);
-  } catch {
-    throw new Error(
-      `テンプレPDF(${LOCAL_TEMPLATE_PATH})が見つかりません。ファイルがリポジトリに存在するか確認してください。`,
-    );
-  }
+  const templateBytes = await getTemplateBytes();
 
   await ensureCachedFont(FONT_URL, FONT_PATH);
   const [fontBytes, fieldMap] = await Promise.all([fs.readFile(FONT_PATH), loadFieldMap()]);

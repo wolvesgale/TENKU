@@ -31,17 +31,17 @@ export default function PersonsPage() {
       </div>
       <table className="min-w-full border text-sm">
         <thead>
-          <tr className="bg-gray-50">
-            <th className="border px-2 py-1 text-left">氏名（漢字）</th>
-            <th className="border px-2 py-1">氏名（ローマ字）</th>
-            <th className="border px-2 py-1">国籍</th>
-            <th className="border px-2 py-1">生年月日</th>
-            <th className="border px-2 py-1">詳細</th>
+          <tr className="bg-surface/80">
+            <th className="border px-2 py-1 text-left text-gray-100">氏名（漢字）</th>
+            <th className="border px-2 py-1 text-gray-100">氏名（ローマ字）</th>
+            <th className="border px-2 py-1 text-gray-100">国籍</th>
+            <th className="border px-2 py-1 text-gray-100">生年月日</th>
+            <th className="border px-2 py-1 text-gray-100">詳細</th>
           </tr>
         </thead>
         <tbody>
           {items.map((p) => (
-            <tr key={p.id} className="hover:bg-gray-50">
+            <tr key={p.id} className="hover:bg-white/10">
               <td className="border px-2 py-1">{p.nameKanji ?? "-"}</td>
               <td className="border px-2 py-1">{p.nameRomaji ?? "-"}</td>
               <td className="border px-2 py-1 text-center">{p.nationality ?? "-"}</td>

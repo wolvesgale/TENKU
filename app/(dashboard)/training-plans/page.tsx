@@ -43,17 +43,17 @@ export default function TrainingPlansPage() {
       </div>
       <table className="min-w-full border text-sm">
         <thead>
-          <tr className="bg-gray-50">
-            <th className="border px-2 py-1 text-left">区分</th>
-            <th className="border px-2 py-1">実習生</th>
-            <th className="border px-2 py-1">法人</th>
-            <th className="border px-2 py-1">職種</th>
-            <th className="border px-2 py-1">詳細</th>
+          <tr className="bg-surface/80">
+            <th className="border px-2 py-1 text-left text-gray-100">区分</th>
+            <th className="border px-2 py-1 text-gray-100">実習生</th>
+            <th className="border px-2 py-1 text-gray-100">法人</th>
+            <th className="border px-2 py-1 text-gray-100">職種</th>
+            <th className="border px-2 py-1 text-gray-100">詳細</th>
           </tr>
         </thead>
         <tbody>
           {items.map((p) => (
-            <tr key={p.id} className="hover:bg-gray-50">
+            <tr key={p.id} className="hover:bg-white/10">
               <td className="border px-2 py-1">{p.category ?? "-"}</td>
               <td className="border px-2 py-1 text-center">{personName(p.personId)}</td>
               <td className="border px-2 py-1 text-center">{companyName(p.companyId)}</td>

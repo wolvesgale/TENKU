@@ -25,23 +25,19 @@ const cards = [
 
 export default function Home() {
   return (
-    <main className="min-h-screen bg-slate-50 text-slate-900">
+    <main className="min-h-screen text-gray-100">
       <div className="max-w-5xl mx-auto px-6 py-12 space-y-8">
         <div className="space-y-2">
-          <p className="text-sm uppercase tracking-wide text-slate-500">TENKU Demo</p>
+          <p className="text-sm uppercase tracking-wide text-muted">TENKU Demo</p>
           <h1 className="text-3xl font-semibold">技能実習計画のデモ体験</h1>
-          <p className="text-slate-600">必要な情報を入力し、テンプレPDFへ即時反映できます。</p>
+          <p className="text-muted">必要な情報を入力し、テンプレPDFへ即時反映できます。</p>
         </div>
         <div className="grid gap-4 md:grid-cols-2">
           {cards.map((card) => (
-            <Link
-              key={card.title}
-              href={card.href}
-              className="border rounded-lg bg-white p-5 shadow-sm hover:shadow-md transition"
-            >
+            <Link key={card.title} href={card.href} className="glass-card p-5 hover:shadow-glow transition text-gray-100">
               <h2 className="text-lg font-semibold">{card.title}</h2>
-              <p className="text-sm text-slate-600 mt-1">{card.description}</p>
-              <span className="inline-block mt-3 text-blue-600 text-sm">開く →</span>
+              <p className="text-sm text-muted mt-1">{card.description}</p>
+              <span className="inline-block mt-3 text-brand-blue text-sm">開く →</span>
             </Link>
           ))}
         </div>

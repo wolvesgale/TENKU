@@ -238,7 +238,10 @@ export function TrainingPlanEditor({
     [organization, selectedCompany, selectedPerson, values],
   );
 
-  const mergedValues = useMemo(() => ({ ...baseValues, ...values.freeEditOverrides }), [baseValues, values.freeEditOverrides]);
+  const mergedValues: Record<string, string> = useMemo(
+    () => ({ ...baseValues, ...values.freeEditOverrides }) as Record<string, string>,
+    [baseValues, values.freeEditOverrides],
+  );
 
   const updateOverride = (key: string, value: string) => {
     setValues((prev) => ({

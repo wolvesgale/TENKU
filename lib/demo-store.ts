@@ -9,16 +9,53 @@ export type OrganizationType = "SUPPORT" | "SENDING";
 
 export type Tenant = { id: string; code: string; name: string };
 export type Organization = { id: string; tenantId: string; orgType: OrganizationType; displayName: string };
+export type DemoOrganizationProfile = {
+  id: string;
+  tenantId: string;
+  permitNumber?: string;
+  permitType?: string;
+  name: string;
+  address?: string;
+  phone?: string;
+  representativeName?: string;
+  supervisorResponsibleName?: string;
+  supervisingOfficeName?: string;
+  supervisingOfficeAddress?: string;
+  supervisingOfficePhone?: string;
+  planInstructorName?: string;
+  sendingOrgName?: string;
+  sendingOrgNumber?: string;
+  sendingOrgRefNumber?: string;
+};
 export type Company = {
   id: string;
   tenantId: string;
   name: string;
+  nameKana?: string;
+  notifAcceptanceNo?: string;
   address?: string;
+  postalCode?: string;
   defaultOrgId?: string;
   defaultOrgType?: string;
-  industry?: string;
+  industryMajor?: string;
+  industryMinor?: string;
+  representativeKana?: string;
+  representativeName?: string;
+  corporateNumber?: string;
+  phone?: string;
   contactName?: string;
   contactTel?: string;
+  workplaceName?: string;
+  workplaceNameKana?: string;
+  workplaceAddress?: string;
+  workplacePostalCode?: string;
+  workplacePhone?: string;
+  traineeResponsibleName?: string;
+  traineeResponsibleRole?: string;
+  traineeInstructorName?: string;
+  traineeInstructorRole?: string;
+  lifeInstructorName?: string;
+  lifeInstructorRole?: string;
 };
 export type Person = {
   id: string;
@@ -28,6 +65,7 @@ export type Person = {
   nameKanji?: string;
   nameKana?: string;
   nameRoma?: string;
+  nameRomaji?: string;
   gender?: string;
   displayLanguage?: string;
   residenceCardNumber?: string;
@@ -54,6 +92,10 @@ export type Person = {
   nationality?: string;
   nativeLanguage?: string;
   birthDate?: string;
+  birthdate?: string;
+  age?: number;
+  returnPeriodFrom?: string;
+  returnPeriodTo?: string;
   currentCompanyId?: string;
   currentProgram?: Program | string;
   residenceCardExpiry?: string;
@@ -151,6 +193,11 @@ export type TrainingPlan = {
   plannedEnd?: string;
   documentUrl?: string;
   metadata?: any;
+  category?: string;
+  jobCode?: string;
+  jobName?: string;
+  workName?: string;
+  freeEditOverrides?: Record<string, string>;
 };
 
 export type MonitoringLog = {
@@ -199,39 +246,114 @@ const organizations: Organization[] = [
   { id: "org_support", tenantId: tenant.id, orgType: "SUPPORT", displayName: "TENKU_Cloud 監理団体" },
   { id: "org_sending", tenantId: tenant.id, orgType: "SENDING", displayName: "SkyBridge HR" },
 ];
+const demoOrganizationProfile: DemoOrganizationProfile = {
+  id: "demo-org-profile",
+  tenantId: tenant.id,
+  permitNumber: "23-監-00123",
+  permitType: "一般",
+  name: "TENKU監理協同組合",
+  address: "東京都千代田区1-2-3",
+  phone: "03-1234-5678",
+  representativeName: "山田 太郎",
+  supervisorResponsibleName: "佐藤 花子",
+  supervisingOfficeName: "東京事業所",
+  supervisingOfficeAddress: "東京都千代田区1-2-3",
+  supervisingOfficePhone: "03-1234-5678",
+  planInstructorName: "鈴木 一郎",
+  sendingOrgName: "VietHope Sending",
+  sendingOrgNumber: "VN-9988",
+  sendingOrgRefNumber: "REF-2024-01",
+};
 const companies: Company[] = [
   {
     id: "cmp-001",
     tenantId: tenant.id,
     name: "Orion Logistics",
+    nameKana: "オリオン ロジスティクス",
     address: "北海道 札幌市",
+    postalCode: "060-0001",
+    phone: "011-123-4567",
     defaultOrgId: "org_support",
     defaultOrgType: "SUPPORT",
-    industry: "物流",
+    industryMajor: "物流",
+    industryMinor: "倉庫内作業",
     contactName: "佐藤 彩",
     contactTel: "011-123-4567",
+    representativeName: "佐藤 彩",
+    representativeKana: "サトウ アヤ",
+    corporateNumber: "1234567890123",
+    notifAcceptanceNo: "実習届-001",
+    workplaceName: "札幌第一物流センター",
+    workplaceNameKana: "サッポロ ダイイチ ブツリュウセンター",
+    workplaceAddress: "北海道札幌市中央区1-2-3",
+    workplacePostalCode: "060-0001",
+    workplacePhone: "011-123-4567",
+    traineeResponsibleName: "吉田 進",
+    traineeResponsibleRole: "実習責任者",
+    traineeInstructorName: "伊藤 健",
+    traineeInstructorRole: "技能実習指導員",
+    lifeInstructorName: "青木 玲奈",
+    lifeInstructorRole: "生活指導員",
   },
   {
     id: "cmp-002",
     tenantId: tenant.id,
     name: "Aster Foods",
+    nameKana: "アスター フーズ",
     address: "宮城県 仙台市",
+    postalCode: "980-0001",
+    phone: "022-987-6543",
     defaultOrgId: "org_support",
     defaultOrgType: "SUPPORT",
-    industry: "食品製造",
+    industryMajor: "食品製造",
+    industryMinor: "惣菜製造",
     contactName: "田中 健",
     contactTel: "022-987-6543",
+    representativeName: "田中 健",
+    representativeKana: "タナカ ケン",
+    corporateNumber: "9876543210987",
+    notifAcceptanceNo: "実習届-002",
+    workplaceName: "仙台食品工場",
+    workplaceNameKana: "センダイ ショクヒン コウジョウ",
+    workplaceAddress: "宮城県仙台市青葉区2-3-4",
+    workplacePostalCode: "980-0001",
+    workplacePhone: "022-987-6543",
+    traineeResponsibleName: "木村 遥",
+    traineeResponsibleRole: "実習責任者",
+    traineeInstructorName: "森田 拓",
+    traineeInstructorRole: "技能実習指導員",
+    lifeInstructorName: "小川 沙織",
+    lifeInstructorRole: "生活指導員",
   },
   {
     id: "cmp-003",
     tenantId: tenant.id,
     name: "Nova Robotics",
+    nameKana: "ノヴァ ロボティクス",
     address: "愛知県 名古屋市",
+    postalCode: "450-0001",
+    phone: "052-555-1212",
     defaultOrgId: "org_support",
     defaultOrgType: "SUPPORT",
-    industry: "製造",
+    industryMajor: "製造",
+    industryMinor: "機械組立",
     contactName: "山本 瑞希",
     contactTel: "052-555-1212",
+    representativeName: "山本 瑞希",
+    representativeKana: "ヤマモト ミズキ",
+    corporateNumber: "5555555555555",
+    notifAcceptanceNo: "実習届-003",
+    workplaceName: "名古屋ロボット工場",
+    workplaceNameKana: "ナゴヤ ロボット コウジョウ",
+    workplaceAddress: "愛知県名古屋市中村区5-6-7",
+    workplacePostalCode: "450-0001",
+    workplacePhone: "052-555-1212",
+    traineeResponsibleName: "佐々木 海",
+    traineeResponsibleRole: "実習責任者",
+    traineeInstructorName: "池田 徹",
+    traineeInstructorRole: "技能実習指導員",
+    lifeInstructorName: "森下 純",
+    lifeInstructorRole: "生活指導員",
   },
 ];
 const persons: Person[] = [
@@ -243,10 +365,13 @@ const persons: Person[] = [
     nameKanji: "リン・チュオン",
     nameKana: "リン チュオン",
     nameRoma: "Linh Truong",
+    nameRomaji: "Linh Truong",
     gender: "女性",
     displayLanguage: "日本語",
     nationality: "ベトナム",
     nativeLanguage: "Vietnamese",
+    birthdate: "1998-04-12",
+    age: 26,
     currentProgram: "TITP",
     currentCompanyId: "cmp-001",
     sendingOrgId: "org_sending",
@@ -272,10 +397,13 @@ const persons: Person[] = [
     nameKanji: "アマラ・シン",
     nameKana: "アマラ シン",
     nameRoma: "Amara Singh",
+    nameRomaji: "Amara Singh",
     gender: "女性",
     displayLanguage: "日本語",
     nationality: "フィリピン",
     nativeLanguage: "Tagalog",
+    birthdate: "1996-09-03",
+    age: 28,
     currentProgram: "SSW",
     currentCompanyId: "cmp-002",
     sendingOrgId: "org_sending",
@@ -300,10 +428,13 @@ const persons: Person[] = [
     nameKanji: "ラフィ・プトラ",
     nameKana: "ラフィ プトラ",
     nameRoma: "Rafi Putra",
+    nameRomaji: "Rafi Putra",
     gender: "男性",
     displayLanguage: "英語",
     nationality: "インドネシア",
     nativeLanguage: "Indonesian",
+    birthdate: "1999-01-17",
+    age: 25,
     currentProgram: "TA",
     currentCompanyId: "cmp-003",
     sendingOrgId: "org_sending",
@@ -328,10 +459,13 @@ const persons: Person[] = [
     nameKanji: "ムンフ・ビレグ",
     nameKana: "ムンフ ビレグ",
     nameRoma: "Munkh Bileg",
+    nameRomaji: "Munkh Bileg",
     gender: "男性",
     displayLanguage: "日本語",
     nationality: "モンゴル",
     nativeLanguage: "Mongolian",
+    birthdate: "1997-11-01",
+    age: 26,
     currentProgram: "TITP",
     currentCompanyId: "cmp-001",
     sendingOrgId: "org_sending",
@@ -356,10 +490,13 @@ const persons: Person[] = [
     nameKanji: "サラ・キム",
     nameKana: "サラ キム",
     nameRoma: "Sara Kim",
+    nameRomaji: "Sara Kim",
     gender: "女性",
     displayLanguage: "韓国語",
     nationality: "韓国",
     nativeLanguage: "Korean",
+    birthdate: "2000-06-08",
+    age: 24,
     currentProgram: "SSW",
     currentCompanyId: "cmp-002",
     sendingOrgId: "org_sending",
@@ -530,6 +667,11 @@ const trainingPlans: TrainingPlan[] = [
     orgId: "org_support",
     planType: "skill_practice_plan",
     status: "DRAFT",
+    category: "A",
+    jobCode: "05-12",
+    jobName: "惣菜製造",
+    workName: "盛り付け・包装",
+    freeEditOverrides: {},
   },
 ];
 const monitoringLogs: MonitoringLog[] = [
@@ -591,6 +733,7 @@ function filterProgram<T extends { program?: string }>(items: T[], program?: Pro
 export const store = {
   tenant,
   organizations,
+  demoOrganizationProfile,
   companies,
   persons,
   statusHistory,
@@ -678,6 +821,15 @@ export function updateOrganization(id: string, data: Partial<Organization>): Org
   if (idx === -1) return null;
   organizations[idx] = { ...organizations[idx], ...data };
   return organizations[idx];
+}
+
+export function getDemoOrganizationProfile() {
+  return demoOrganizationProfile;
+}
+
+export function updateDemoOrganizationProfile(data: Partial<DemoOrganizationProfile>) {
+  Object.assign(demoOrganizationProfile, data);
+  return demoOrganizationProfile;
 }
 
 export function deleteOrganization(id: string): boolean {

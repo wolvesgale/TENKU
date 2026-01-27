@@ -35,15 +35,27 @@ const BASE_TO_FIELD_NAMES: Record<string, string[]> = {
     "Top[0].Page2[0].txtSEKININSHA_SEI[0]",
     "Top[0].Page2[0].txtSEKININSHA_MEI[0]",
   ],
+  "company.traineeResponsibleKana": [
+    "Top[0].Page2[0].txtSEKININSHA_KANA_SEI[0]",
+    "Top[0].Page2[0].txtSEKININSHA_KANA_MEI[0]",
+  ],
   "company.traineeResponsibleRole": ["Top[0].Page2[0].txtSEKININSHA_YAKUSHOKU[0]"],
   "company.traineeInstructorName": [
     "Top[0].Page3[0].txtJISSHUSHIDOIN_SEI[0]",
     "Top[0].Page3[0].txtJISSHUSHIDOIN_MEI[0]",
   ],
+  "company.traineeInstructorKana": [
+    "Top[0].Page3[0].txtJISSHUSHIDOIN_KANA_SEI[0]",
+    "Top[0].Page3[0].txtJISSHUSHIDOIN_KANA_MEI[0]",
+  ],
   "company.traineeInstructorRole": ["Top[0].Page3[0].txtJISSHUSHIDOIN_YAKUSHOKU[0]"],
   "company.lifeInstructorName": [
     "Top[0].Page3[0].txtSEIKATSUSHIDOIN_SEI[0]",
     "Top[0].Page3[0].txtSEIKATSUSHIDOIN_MEI[0]",
+  ],
+  "company.lifeInstructorKana": [
+    "Top[0].Page3[0].txtSEIKATSUSHIDOIN_KANA_SEI[0]",
+    "Top[0].Page3[0].txtSEIKATSUSHIDOIN_KANA_MEI[0]",
   ],
   "company.lifeInstructorRole": ["Top[0].Page3[0].txtSEIKATSUSHIDOIN_YAKUSHOKU[0]"],
 
@@ -59,6 +71,8 @@ const BASE_TO_FIELD_NAMES: Record<string, string[]> = {
 
   "org.permitNumber": ["Top[0].Page4[0].txtKANRI_KYOKABANGO[0]"],
   "org.permitType": ["Top[0].Page4[0].rbtKANRI_KYOKA[0]"],
+  "org.nameKana": ["Top[0].Page4[0].txtKANRI_MEISHO_KANA[0]"],
+  "org.postalCode": ["Top[0].Page4[0].txtKANRI_YUBINBANGO[0]"],
   "org.name": ["Top[0].Page4[0].txtKANRI_MEISHO[0]"],
   "org.address": ["Top[0].Page4[0].txtKANRI_TATEMONO[0]"],
   "org.phone": ["Top[0].Page4[0].txtKANRI_DENWA[0]"],
@@ -71,15 +85,22 @@ const BASE_TO_FIELD_NAMES: Record<string, string[]> = {
     "Top[0].Page4[0].txtKANRI_SEKININ_MEI[0]",
   ],
   "org.supervisingOfficeName": ["Top[0].Page4[0].txtTANTOJIGYOSHO[0]"],
+  "org.supervisingOfficeNameKana": ["Top[0].Page4[0].txtTANTOJIGYOSHO_KANA[0]"],
+  "org.supervisingOfficePostalCode": ["Top[0].Page4[0].txtTANTOJIGYOSHO_YUBINBANGO[0]"],
   "org.supervisingOfficeAddress": ["Top[0].Page4[0].txtTANTOJIGYOSHO_TATEMONO[0]"],
   "org.supervisingOfficePhone": ["Top[0].Page4[0].txtTANTOJIGYOSHO_DENWA[0]"],
   "org.planInstructorName": [
     "Top[0].Page4[0].txtKEIKAKUSHIDOTANTO_SEI[0]",
     "Top[0].Page4[0].txtKEIKAKUSHIDOTANTO_MEI[0]",
   ],
+  "org.planInstructorKana": [
+    "Top[0].Page4[0].txtKEIKAKUSHIDOTANTO_KANA_SEI[0]",
+    "Top[0].Page4[0].txtKEIKAKUSHIDOTANTO_KANA_MEI[0]",
+  ],
+  "org.sendingOrgNumberCountry": ["Top[0].Page4[0].txtOKURIDASHIKIKANBANGO_KUNI[0]"],
   "org.sendingOrgName": ["Top[0].Page4[0].cmbOKURIDASHIKIKAN[0]"],
   "org.sendingOrgNumber": ["Top[0].Page4[0].txtOKURIDASHIKIKANBANGO_BANGO[0]"],
-  "org.sendingOrgRefNumber": ["Top[0].Page4[0].txtOKURIDASHIKIKANBANGO_KUNI[0]"],
+  "org.sendingOrgRefNumber": ["Top[0].Page4[0].txtSEIRIBANGO[0]"],
 };
 
 const getTemplateBytes = async (): Promise<{ bytes: Buffer; source: "local" | "remote" }> => {
@@ -124,6 +145,16 @@ const splitName = (value?: string) => {
   return { family: family ?? "", given: given ?? "" };
 };
 
+const splitPostalCode = (value?: string) => {
+  if (!value) return "";
+  return value.replace(/[^\d-]/g, "");
+};
+
+const normalizeAddress = (value?: string) => {
+  if (!value) return "";
+  return value.replace(/\s+/g, " ").trim();
+};
+
 const splitDateParts = (value?: string) => {
   const date = formatDate(value);
   if (!date) return { year: "", month: "", day: "" };
@@ -162,18 +193,37 @@ const buildFieldValues = ({
   person?: Person;
   trainingPlan: TrainingPlan;
 }) => {
+  const organizationExtras = organization as DemoOrganizationProfile & {
+    nameKana?: string;
+    postalCode?: string;
+    supervisingOfficeNameKana?: string;
+    supervisingOfficePostalCode?: string;
+    planInstructorKana?: string;
+    sendingOrgNumberCountry?: string;
+  };
+  const companyExtras = company as Company & {
+    traineeResponsibleKana?: string;
+    traineeInstructorKana?: string;
+    lifeInstructorKana?: string;
+  };
   const baseValues: Record<string, string> = {
     "org.permitNumber": organization.permitNumber ?? "",
     "org.permitType": organization.permitType ?? "",
     "org.name": organization.name ?? "",
+    "org.nameKana": organizationExtras?.nameKana ?? "",
+    "org.postalCode": organizationExtras?.postalCode ?? "",
     "org.address": organization.address ?? "",
     "org.phone": organization.phone ?? "",
     "org.representativeName": organization.representativeName ?? "",
     "org.supervisorResponsibleName": organization.supervisorResponsibleName ?? "",
     "org.supervisingOfficeName": organization.supervisingOfficeName ?? "",
+    "org.supervisingOfficeNameKana": organizationExtras?.supervisingOfficeNameKana ?? "",
+    "org.supervisingOfficePostalCode": organizationExtras?.supervisingOfficePostalCode ?? "",
     "org.supervisingOfficeAddress": organization.supervisingOfficeAddress ?? "",
     "org.supervisingOfficePhone": organization.supervisingOfficePhone ?? "",
     "org.planInstructorName": organization.planInstructorName ?? "",
+    "org.planInstructorKana": organizationExtras?.planInstructorKana ?? "",
+    "org.sendingOrgNumberCountry": organizationExtras?.sendingOrgNumberCountry ?? "",
     "org.sendingOrgName": organization.sendingOrgName ?? "",
     "org.sendingOrgNumber": organization.sendingOrgNumber ?? "",
     "org.sendingOrgRefNumber": organization.sendingOrgRefNumber ?? "",
@@ -195,14 +245,18 @@ const buildFieldValues = ({
     "company.workplaceAddress": company?.workplaceAddress ?? "",
     "company.workplacePhone": company?.workplacePhone ?? "",
     "company.traineeResponsibleName": company?.traineeResponsibleName ?? "",
+    "company.traineeResponsibleKana": companyExtras?.traineeResponsibleKana ?? "",
     "company.traineeResponsibleRole": company?.traineeResponsibleRole ?? "",
     "company.traineeInstructorName": company?.traineeInstructorName ?? "",
+    "company.traineeInstructorKana": companyExtras?.traineeInstructorKana ?? "",
     "company.traineeInstructorRole": company?.traineeInstructorRole ?? "",
     "company.lifeInstructorName": company?.lifeInstructorName ?? "",
+    "company.lifeInstructorKana": companyExtras?.lifeInstructorKana ?? "",
     "company.lifeInstructorRole": company?.lifeInstructorRole ?? "",
 
     "person.nameRomaji": person?.nameRomaji ?? person?.nameRoma ?? "",
     "person.nameKanji": person?.nameKanji ?? "",
+    "person.nameKana": person?.nameKana ?? "",
     "person.nationality": person?.nationality ?? "",
     "person.birthdate": formatDate(person?.birthdate ?? person?.birthDate),
     "person.birthdateDisplay": formatDateDisplay(person?.birthdate ?? person?.birthDate),
@@ -227,7 +281,13 @@ const buildFieldValues = ({
   return merged;
 };
 
-const logTemplateFieldNames = (fieldNames: string[]) => {
+const logTemplateFieldNames = (
+  fieldNames: {
+    name: string;
+    type: string;
+    options?: string[];
+  }[]
+) => {
   console.log("OTITテンプレPDFのフィールド一覧:", fieldNames);
 };
 
@@ -292,11 +352,13 @@ export async function generateTrainingPlanPdf({
   company,
   person,
   trainingPlan,
+  debug = false,
 }: {
   organization: DemoOrganizationProfile;
   company?: Company;
   person?: Person;
   trainingPlan: TrainingPlan;
+  debug?: boolean;
 }) {
   let templateSource: "local" | "remote" | "unknown" = "unknown";
   try {
@@ -309,18 +371,44 @@ export async function generateTrainingPlanPdf({
     const font = await pdfDoc.embedFont(fontBytes, { subset: true });
 
     const form = pdfDoc.getForm();
-    const fieldNames = form.getFields().map((field) => field.getName());
-    logTemplateFieldNames(fieldNames);
+    const fields = form.getFields();
+    const fieldNameList = fields.map((field) => field.getName());
+    const fieldDetails = fields.map((field) => {
+      const name = field.getName();
+      if (field instanceof PDFTextField) {
+        return { name, type: "text" };
+      }
+      if (field instanceof PDFDropdown) {
+        return { name, type: "dropdown", options: field.getOptions() };
+      }
+      if (field instanceof PDFOptionList) {
+        return { name, type: "optionList", options: field.getOptions() };
+      }
+      if (field instanceof PDFCheckBox) {
+        return { name, type: "checkbox" };
+      }
+      if (field instanceof PDFRadioGroup) {
+        return { name, type: "radio", options: field.getOptions() };
+      }
+      return { name, type: "unknown" };
+    });
+    if (debug) {
+      logTemplateFieldNames(fieldDetails);
+    }
 
     const values = buildFieldValues({ organization, company, person, trainingPlan });
     const representativeKana = splitName(values["company.representativeKana"]);
     const representativeName = splitName(values["company.representativeName"]);
     const traineeResponsibleName = splitName(values["company.traineeResponsibleName"]);
+    const traineeResponsibleKana = splitName(values["company.traineeResponsibleKana"]);
     const traineeInstructorName = splitName(values["company.traineeInstructorName"]);
+    const traineeInstructorKana = splitName(values["company.traineeInstructorKana"]);
     const lifeInstructorName = splitName(values["company.lifeInstructorName"]);
+    const lifeInstructorKana = splitName(values["company.lifeInstructorKana"]);
     const orgRepresentativeName = splitName(values["org.representativeName"]);
     const supervisorResponsibleName = splitName(values["org.supervisorResponsibleName"]);
     const planInstructorName = splitName(values["org.planInstructorName"]);
+    const planInstructorKana = splitName(values["org.planInstructorKana"]);
     const birthdateParts = splitDateParts(values["person.birthdate"]);
     const returnFromParts = splitDateParts(values["person.returnPeriodFrom"]);
     const returnToParts = splitDateParts(values["person.returnPeriodTo"]);
@@ -359,12 +447,34 @@ export async function generateTrainingPlanPdf({
       ...derivedFieldNames,
       ...Object.keys(trainingPlan.freeEditOverrides ?? {}),
     ]);
-    const unmappedFieldNames = fieldNames.filter((name) => !mappedFieldNames.has(name));
-    if (unmappedFieldNames.length) {
+    const unmappedFieldNames = fieldNameList.filter((name) => !mappedFieldNames.has(name));
+    if (debug && unmappedFieldNames.length) {
       console.warn("未マッピングのテンプレPDFフィールド:", unmappedFieldNames);
     }
 
     const fieldValueMap: Record<string, string> = buildFieldValueMap(values);
+    fieldValueMap["Top[0].Page2[0].txtJISSHISHA_YUBINBANGO[0]"] = splitPostalCode(
+      values["company.postalCode"]
+    );
+    fieldValueMap["Top[0].Page2[0].txtJISSHISHA_TATEMONO[0]"] = normalizeAddress(
+      values["company.address"]
+    );
+    fieldValueMap["Top[0].Page2[0].txtJIGYOSHO_YUBINBANGO[0]"] = splitPostalCode(
+      values["company.workplacePostalCode"]
+    );
+    fieldValueMap["Top[0].Page2[0].txtJIGYOSHO_TATEMONO[0]"] = normalizeAddress(
+      values["company.workplaceAddress"]
+    );
+    fieldValueMap["Top[0].Page4[0].txtKANRI_YUBINBANGO[0]"] = splitPostalCode(
+      values["org.postalCode"]
+    );
+    fieldValueMap["Top[0].Page4[0].txtKANRI_TATEMONO[0]"] = normalizeAddress(values["org.address"]);
+    fieldValueMap["Top[0].Page4[0].txtTANTOJIGYOSHO_YUBINBANGO[0]"] = splitPostalCode(
+      values["org.supervisingOfficePostalCode"]
+    );
+    fieldValueMap["Top[0].Page4[0].txtTANTOJIGYOSHO_TATEMONO[0]"] = normalizeAddress(
+      values["org.supervisingOfficeAddress"]
+    );
 
     fieldValueMap["Top[0].Page2[0].txtDAIHYO_KANA_SEI[0]"] = representativeKana.family;
     fieldValueMap["Top[0].Page2[0].txtDAIHYO_KANA_MEI[0]"] = representativeKana.given;
@@ -372,16 +482,24 @@ export async function generateTrainingPlanPdf({
     fieldValueMap["Top[0].Page2[0].txtDAIHYO_SHIMEI_MEI[0]"] = representativeName.given;
     fieldValueMap["Top[0].Page2[0].txtSEKININSHA_SEI[0]"] = traineeResponsibleName.family;
     fieldValueMap["Top[0].Page2[0].txtSEKININSHA_MEI[0]"] = traineeResponsibleName.given;
+    fieldValueMap["Top[0].Page2[0].txtSEKININSHA_KANA_SEI[0]"] = traineeResponsibleKana.family;
+    fieldValueMap["Top[0].Page2[0].txtSEKININSHA_KANA_MEI[0]"] = traineeResponsibleKana.given;
     fieldValueMap["Top[0].Page3[0].txtJISSHUSHIDOIN_SEI[0]"] = traineeInstructorName.family;
     fieldValueMap["Top[0].Page3[0].txtJISSHUSHIDOIN_MEI[0]"] = traineeInstructorName.given;
+    fieldValueMap["Top[0].Page3[0].txtJISSHUSHIDOIN_KANA_SEI[0]"] = traineeInstructorKana.family;
+    fieldValueMap["Top[0].Page3[0].txtJISSHUSHIDOIN_KANA_MEI[0]"] = traineeInstructorKana.given;
     fieldValueMap["Top[0].Page3[0].txtSEIKATSUSHIDOIN_SEI[0]"] = lifeInstructorName.family;
     fieldValueMap["Top[0].Page3[0].txtSEIKATSUSHIDOIN_MEI[0]"] = lifeInstructorName.given;
+    fieldValueMap["Top[0].Page3[0].txtSEIKATSUSHIDOIN_KANA_SEI[0]"] = lifeInstructorKana.family;
+    fieldValueMap["Top[0].Page3[0].txtSEIKATSUSHIDOIN_KANA_MEI[0]"] = lifeInstructorKana.given;
     fieldValueMap["Top[0].Page4[0].txtKANRI_DAIHYO_SEI[0]"] = orgRepresentativeName.family;
     fieldValueMap["Top[0].Page4[0].txtKANRI_DAIHYO_MEI[0]"] = orgRepresentativeName.given;
     fieldValueMap["Top[0].Page4[0].txtKANRI_SEKININ_SEI[0]"] = supervisorResponsibleName.family;
     fieldValueMap["Top[0].Page4[0].txtKANRI_SEKININ_MEI[0]"] = supervisorResponsibleName.given;
     fieldValueMap["Top[0].Page4[0].txtKEIKAKUSHIDOTANTO_SEI[0]"] = planInstructorName.family;
     fieldValueMap["Top[0].Page4[0].txtKEIKAKUSHIDOTANTO_MEI[0]"] = planInstructorName.given;
+    fieldValueMap["Top[0].Page4[0].txtKEIKAKUSHIDOTANTO_KANA_SEI[0]"] = planInstructorKana.family;
+    fieldValueMap["Top[0].Page4[0].txtKEIKAKUSHIDOTANTO_KANA_MEI[0]"] = planInstructorKana.given;
     fieldValueMap["Top[0].Page3[0].txtSEINENGAPPI_NEN[0]"] = birthdateParts.year;
     fieldValueMap["Top[0].Page3[0].cmbSEINENGAPPI_TSUKI[0]"] = birthdateParts.month;
     fieldValueMap["Top[0].Page3[0].cmbSEINENGAPPI_HI[0]"] = birthdateParts.day;
@@ -395,21 +513,25 @@ export async function generateTrainingPlanPdf({
     fieldValueMap["Top[0].Page4[0].rbtKANRI_KYOKA[0]"] = permitTypeValue;
 
     if (trainingPlan.freeEditOverrides) {
-      applyOverrides(fieldValueMap, trainingPlan.freeEditOverrides, fieldNames);
+      applyOverrides(fieldValueMap, trainingPlan.freeEditOverrides, fieldNameList);
     }
 
-    const emptyValueFields = fieldNames.filter((name) => {
+    const emptyValueFields = fieldNameList.filter((name) => {
       if (!mappedFieldNames.has(name)) return false;
       const value = fieldValueMap[name];
       return !value || value.toString().trim() === "";
     });
-    if (emptyValueFields.length) {
+    if (debug && emptyValueFields.length) {
       console.warn("値が空のテンプレPDFフィールド:", emptyValueFields);
+    }
+    if (debug) {
+      console.log("投入予定フィールド:", fieldValueMap);
+      console.log("投入値(正規化済み):", values);
     }
 
     Object.entries(fieldValueMap).forEach(([name, value]) => {
       if (!value) return;
-      if (!fieldNames.includes(name)) {
+      if (!fieldNameList.includes(name)) {
         console.warn(`テンプレPDFにフィールドが見つかりません: ${name}`);
         return;
       }

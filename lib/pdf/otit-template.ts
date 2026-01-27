@@ -12,8 +12,17 @@ import fontkit from "@pdf-lib/fontkit";
 import type { Company, DemoOrganizationProfile, Person, TrainingPlan } from "@/lib/demo-store";
 
 const LOCAL_TEMPLATE_PATH = path.join(process.cwd(), "public", "pdf", "otit", "240819-200-1.pdf");
+const LOCAL_ACRO_TEMPLATE_PATH = path.join(
+  process.cwd(),
+  "public",
+  "pdf",
+  "otit",
+  "240819-200-1-acro.pdf"
+);
 const TEMPLATE_REMOTE_URL =
   "https://raw.githubusercontent.com/wolvesgale/TENKU/main/public/pdf/otit/240819-200-1.pdf";
+const TEMPLATE_ACRO_REMOTE_URL =
+  "https://raw.githubusercontent.com/wolvesgale/TENKU/main/public/pdf/otit/240819-200-1-acro.pdf";
 const FONT_PATH = path.join(process.cwd(), "public", "fonts", "NotoSansJP-Regular.ttf");
 
 const BASE_TO_FIELD_NAMES: Record<string, string[]> = {
@@ -103,19 +112,34 @@ const BASE_TO_FIELD_NAMES: Record<string, string[]> = {
   "org.sendingOrgRefNumber": ["Top[0].Page4[0].txtSEIRIBANGO[0]"],
 };
 
-const getTemplateBytes = async (): Promise<{ bytes: Buffer; source: "local" | "remote" }> => {
+const getTemplateBytes = async (): Promise<{
+  bytes: Buffer;
+  source: "local" | "remote";
+  template: "acro" | "standard";
+}> => {
+  try {
+    const bytes = await fs.readFile(LOCAL_ACRO_TEMPLATE_PATH);
+    return { bytes, source: "local", template: "acro" };
+  } catch {
+    // ignore and fall back
+  }
   try {
     const bytes = await fs.readFile(LOCAL_TEMPLATE_PATH);
-    return { bytes, source: "local" };
+    return { bytes, source: "local", template: "standard" };
   } catch (error) {
     console.warn("テンプレPDFのローカル読み込みに失敗しました。リモート取得にフォールバックします。", error);
+  }
+  const acroRes = await fetch(TEMPLATE_ACRO_REMOTE_URL);
+  if (acroRes.ok) {
+    const arrayBuffer = await acroRes.arrayBuffer();
+    return { bytes: Buffer.from(arrayBuffer), source: "remote", template: "acro" };
   }
   const res = await fetch(TEMPLATE_REMOTE_URL);
   if (!res.ok) {
     throw new Error(`テンプレPDFの取得に失敗しました: ${res.status} ${res.statusText}`);
   }
   const arrayBuffer = await res.arrayBuffer();
-  return { bytes: Buffer.from(arrayBuffer), source: "remote" };
+  return { bytes: Buffer.from(arrayBuffer), source: "remote", template: "standard" };
 };
 
 const formatDate = (value?: string) => {
@@ -361,9 +385,11 @@ export async function generateTrainingPlanPdf({
   debug?: boolean;
 }) {
   let templateSource: "local" | "remote" | "unknown" = "unknown";
+  let templateKind: "acro" | "standard" | "unknown" = "unknown";
   try {
-    const { bytes: templateBytes, source } = await getTemplateBytes();
+    const { bytes: templateBytes, source, template } = await getTemplateBytes();
     templateSource = source;
+    templateKind = template;
     const fontBytes = await fs.readFile(FONT_PATH);
 
     const pdfDoc = await PDFDocument.load(templateBytes);
@@ -371,6 +397,7 @@ export async function generateTrainingPlanPdf({
     const font = await pdfDoc.embedFont(fontBytes, { subset: true });
 
     const form = pdfDoc.getForm();
+    const hasXfa = form.hasXFA();
     const fields = form.getFields();
     const fieldNameList = fields.map((field) => field.getName());
     const fieldDetails = fields.map((field) => {
@@ -394,6 +421,17 @@ export async function generateTrainingPlanPdf({
     });
     if (debug) {
       logTemplateFieldNames(fieldDetails);
+      console.log("テンプレ情報:", {
+        templateKind,
+        templateSource,
+        hasXfa,
+        fieldCount: fields.length,
+      });
+      if (hasXfa) {
+        console.warn(
+          "XFAフォームが検出されました。AcroForm版テンプレ(240819-200-1-acro.pdf)の利用を推奨します。"
+        );
+      }
     }
 
     const values = buildFieldValues({ organization, company, person, trainingPlan });
@@ -547,6 +585,7 @@ export async function generateTrainingPlanPdf({
       error,
       trainingPlanId: trainingPlan.id,
       templateSource,
+      templateKind,
     });
     throw error;
   }

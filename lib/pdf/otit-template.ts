@@ -16,7 +16,7 @@ const TEMPLATE_REMOTE_URL =
   "https://raw.githubusercontent.com/wolvesgale/TENKU/main/public/pdf/otit/240819-200-1.pdf";
 const FONT_PATH = path.join(process.cwd(), "public", "fonts", "NotoSansJP-Regular.ttf");
 
-const FIELD_NAME_MAP: Record<string, string[]> = {
+const BASE_TO_FIELD_NAMES: Record<string, string[]> = {
   "company.name": ["Top[0].Page2[0].txtJISSHISHAMEI[0]"],
   "company.nameKana": ["Top[0].Page2[0].txtJISSHISHAMEI_KANA[0]"],
   "company.postalCode": ["Top[0].Page2[0].txtJISSHISHA_YUBINBANGO[0]"],
@@ -43,8 +43,10 @@ const FIELD_NAME_MAP: Record<string, string[]> = {
   "training.jobCode": ["Top[0].Page3[0].cmbSHOKUSHUSAGYO_1[0]"],
   "training.jobName": ["Top[0].Page3[0].txtSHOKUSHUSAGYO_1_SHOKUSHU[0]"],
   "training.workName": ["Top[0].Page3[0].txtSHOKUSHUSAGYO_1_SAGYO[0]"],
+  "training.category": ["Top[0].Page3[0].rbtJISSHUKUBUN[0]"],
 
   "org.permitNumber": ["Top[0].Page4[0].txtKANRI_KYOKABANGO[0]"],
+  "org.permitType": ["Top[0].Page4[0].rbtKANRI_KYOKA[0]"],
   "org.name": ["Top[0].Page4[0].txtKANRI_MEISHO[0]"],
   "org.address": ["Top[0].Page4[0].txtKANRI_TATEMONO[0]"],
   "org.phone": ["Top[0].Page4[0].txtKANRI_DENWA[0]"],
@@ -76,6 +78,14 @@ const formatDate = (value?: string) => {
   return value.slice(0, 10);
 };
 
+const formatDateDisplay = (value?: string) => {
+  const date = formatDate(value);
+  if (!date) return "";
+  const [year, month, day] = date.split("-");
+  if (!year || !month || !day) return "";
+  return `${year}年${Number(month)}月${Number(day)}日`;
+};
+
 const calculateAge = (birthdate?: string) => {
   if (!birthdate) return "";
   const birth = new Date(birthdate);
@@ -94,7 +104,19 @@ const splitDateParts = (value?: string) => {
   const date = formatDate(value);
   if (!date) return { year: "", month: "", day: "" };
   const [year, month, day] = date.split("-");
-  return { year: year ?? "", month: month ?? "", day: day ?? "" };
+  return {
+    year: year ?? "",
+    month: month ? String(Number(month)) : "",
+    day: day ? String(Number(day)) : "",
+  };
+};
+
+const normalizeGender = (value?: string) => {
+  if (!value) return "";
+  const normalized = value.trim().toLowerCase();
+  if (normalized === "男" || normalized === "male") return "1";
+  if (normalized === "女" || normalized === "female") return "2";
+  return value;
 };
 
 const buildFieldValues = ({
@@ -151,6 +173,7 @@ const buildFieldValues = ({
     "person.nameKanji": person?.nameKanji ?? "",
     "person.nationality": person?.nationality ?? "",
     "person.birthdate": formatDate(person?.birthdate ?? person?.birthDate),
+    "person.birthdateDisplay": formatDateDisplay(person?.birthdate ?? person?.birthDate),
     "person.gender": person?.gender ?? "",
     "person.age": person?.age?.toString() ?? calculateAge(person?.birthdate ?? person?.birthDate),
     "person.returnPeriodFrom": formatDate(person?.returnPeriodFrom),
@@ -203,6 +226,23 @@ const setFieldValue = (form: ReturnType<PDFDocument["getForm"]>, name: string, v
   }
 };
 
+const applyOverrides = (
+  fieldValueMap: Record<string, string>,
+  overrides: Record<string, string>,
+  fieldNames: string[]
+) => {
+  Object.entries(overrides).forEach(([key, value]) => {
+    if (BASE_TO_FIELD_NAMES[key]) {
+      BASE_TO_FIELD_NAMES[key].forEach((fieldName) => {
+        fieldValueMap[fieldName] = String(value);
+      });
+    }
+    if (fieldNames.includes(key)) {
+      fieldValueMap[key] = String(value);
+    }
+  });
+};
+
 export async function generateTrainingPlanPdf({
   organization,
   company,
@@ -238,35 +278,85 @@ export async function generateTrainingPlanPdf({
     const supervisorResponsibleName = splitName(values["org.supervisorResponsibleName"]);
     const planInstructorName = splitName(values["org.planInstructorName"]);
     const birthdateParts = splitDateParts(values["person.birthdate"]);
+    const returnFromParts = splitDateParts(values["person.returnPeriodFrom"]);
+    const returnToParts = splitDateParts(values["person.returnPeriodTo"]);
+    const genderValue = normalizeGender(values["person.gender"]);
+    const derivedFieldNames = [
+      "Top[0].Page2[0].txtDAIHYO_KANA_SEI[0]",
+      "Top[0].Page2[0].txtDAIHYO_KANA_MEI[0]",
+      "Top[0].Page2[0].txtDAIHYO_SHIMEI_SEI[0]",
+      "Top[0].Page2[0].txtDAIHYO_SHIMEI_MEI[0]",
+      "Top[0].Page2[0].txtSEKININSHA_SEI[0]",
+      "Top[0].Page2[0].txtSEKININSHA_MEI[0]",
+      "Top[0].Page3[0].txtJISSHUSHIDOIN_SEI[0]",
+      "Top[0].Page3[0].txtJISSHUSHIDOIN_MEI[0]",
+      "Top[0].Page3[0].txtSEIKATSUSHIDOIN_SEI[0]",
+      "Top[0].Page3[0].txtSEIKATSUSHIDOIN_MEI[0]",
+      "Top[0].Page4[0].txtKANRI_DAIHYO_SEI[0]",
+      "Top[0].Page4[0].txtKANRI_DAIHYO_MEI[0]",
+      "Top[0].Page4[0].txtKANRI_SEKININ_SEI[0]",
+      "Top[0].Page4[0].txtKANRI_SEKININ_MEI[0]",
+      "Top[0].Page4[0].txtKEIKAKUSHIDOTANTO_SEI[0]",
+      "Top[0].Page4[0].txtKEIKAKUSHIDOTANTO_MEI[0]",
+      "Top[0].Page3[0].txtSEINENGAPPI_NEN[0]",
+      "Top[0].Page3[0].cmbSEINENGAPPI_TSUKI[0]",
+      "Top[0].Page3[0].cmbSEINENGAPPI_HI[0]",
+      "Top[0].Page3[0].rbtSEIBETSU[0]",
+      "Top[0].Page3[0].txtSHUKKOKUNENGAPPI_NEN[0]",
+      "Top[0].Page3[0].cmbSHUKKOKUNENGAPPI_TSUKI[0]",
+      "Top[0].Page3[0].cmbSHUKKOKUNENGAPPI_HI[0]",
+      "Top[0].Page3[0].txtNYUKOKUNENGAPPI_NEN[0]",
+      "Top[0].Page3[0].cmbNYUKOKUNENGAPPI_TSUKI[0]",
+      "Top[0].Page3[0].cmbNYUKOKUNENGAPPI_HI[0]",
+    ];
+    const mappedFieldNames = new Set([
+      ...Object.values(BASE_TO_FIELD_NAMES).flat(),
+      ...derivedFieldNames,
+      ...Object.keys(trainingPlan.freeEditOverrides ?? {}),
+    ]);
+    const unmappedFieldNames = fieldNames.filter((name) => !mappedFieldNames.has(name));
+    if (unmappedFieldNames.length) {
+      console.warn("未マッピングのテンプレPDFフィールド:", unmappedFieldNames);
+    }
 
-    const fieldValueMap: Record<string, string> = {
-      ...Object.fromEntries(
-        Object.entries(FIELD_NAME_MAP).flatMap(([key, fieldNamesList]) => {
-          const value = values[key];
-          if (!value) return [];
-          return fieldNamesList.map((fieldName) => [fieldName, value]);
-        })
-      ),
-      "Top[0].Page2[0].txtDAIHYO_KANA_SEI[0]": representativeKana.family,
-      "Top[0].Page2[0].txtDAIHYO_KANA_MEI[0]": representativeKana.given,
-      "Top[0].Page2[0].txtDAIHYO_SHIMEI_SEI[0]": representativeName.family,
-      "Top[0].Page2[0].txtDAIHYO_SHIMEI_MEI[0]": representativeName.given,
-      "Top[0].Page2[0].txtSEKININSHA_SEI[0]": traineeResponsibleName.family,
-      "Top[0].Page2[0].txtSEKININSHA_MEI[0]": traineeResponsibleName.given,
-      "Top[0].Page3[0].txtJISSHUSHIDOIN_SEI[0]": traineeInstructorName.family,
-      "Top[0].Page3[0].txtJISSHUSHIDOIN_MEI[0]": traineeInstructorName.given,
-      "Top[0].Page3[0].txtSEIKATSUSHIDOIN_SEI[0]": lifeInstructorName.family,
-      "Top[0].Page3[0].txtSEIKATSUSHIDOIN_MEI[0]": lifeInstructorName.given,
-      "Top[0].Page4[0].txtKANRI_DAIHYO_SEI[0]": orgRepresentativeName.family,
-      "Top[0].Page4[0].txtKANRI_DAIHYO_MEI[0]": orgRepresentativeName.given,
-      "Top[0].Page4[0].txtKANRI_SEKININ_SEI[0]": supervisorResponsibleName.family,
-      "Top[0].Page4[0].txtKANRI_SEKININ_MEI[0]": supervisorResponsibleName.given,
-      "Top[0].Page4[0].txtKEIKAKUSHIDOTANTO_SEI[0]": planInstructorName.family,
-      "Top[0].Page4[0].txtKEIKAKUSHIDOTANTO_MEI[0]": planInstructorName.given,
-      "Top[0].Page3[0].txtSEINENGAPPI_NEN[0]": birthdateParts.year,
-      "Top[0].Page3[0].cmbSEINENGAPPI_TSUKI[0]": birthdateParts.month,
-      "Top[0].Page3[0].cmbSEINENGAPPI_HI[0]": birthdateParts.day,
-    };
+    const fieldValueMap: Record<string, string> = Object.fromEntries(
+      Object.entries(BASE_TO_FIELD_NAMES).flatMap(([key, fieldNamesList]) => {
+        const value = values[key];
+        if (!value) return [];
+        return fieldNamesList.map((fieldName) => [fieldName, value]);
+      })
+    );
+
+    fieldValueMap["Top[0].Page2[0].txtDAIHYO_KANA_SEI[0]"] = representativeKana.family;
+    fieldValueMap["Top[0].Page2[0].txtDAIHYO_KANA_MEI[0]"] = representativeKana.given;
+    fieldValueMap["Top[0].Page2[0].txtDAIHYO_SHIMEI_SEI[0]"] = representativeName.family;
+    fieldValueMap["Top[0].Page2[0].txtDAIHYO_SHIMEI_MEI[0]"] = representativeName.given;
+    fieldValueMap["Top[0].Page2[0].txtSEKININSHA_SEI[0]"] = traineeResponsibleName.family;
+    fieldValueMap["Top[0].Page2[0].txtSEKININSHA_MEI[0]"] = traineeResponsibleName.given;
+    fieldValueMap["Top[0].Page3[0].txtJISSHUSHIDOIN_SEI[0]"] = traineeInstructorName.family;
+    fieldValueMap["Top[0].Page3[0].txtJISSHUSHIDOIN_MEI[0]"] = traineeInstructorName.given;
+    fieldValueMap["Top[0].Page3[0].txtSEIKATSUSHIDOIN_SEI[0]"] = lifeInstructorName.family;
+    fieldValueMap["Top[0].Page3[0].txtSEIKATSUSHIDOIN_MEI[0]"] = lifeInstructorName.given;
+    fieldValueMap["Top[0].Page4[0].txtKANRI_DAIHYO_SEI[0]"] = orgRepresentativeName.family;
+    fieldValueMap["Top[0].Page4[0].txtKANRI_DAIHYO_MEI[0]"] = orgRepresentativeName.given;
+    fieldValueMap["Top[0].Page4[0].txtKANRI_SEKININ_SEI[0]"] = supervisorResponsibleName.family;
+    fieldValueMap["Top[0].Page4[0].txtKANRI_SEKININ_MEI[0]"] = supervisorResponsibleName.given;
+    fieldValueMap["Top[0].Page4[0].txtKEIKAKUSHIDOTANTO_SEI[0]"] = planInstructorName.family;
+    fieldValueMap["Top[0].Page4[0].txtKEIKAKUSHIDOTANTO_MEI[0]"] = planInstructorName.given;
+    fieldValueMap["Top[0].Page3[0].txtSEINENGAPPI_NEN[0]"] = birthdateParts.year;
+    fieldValueMap["Top[0].Page3[0].cmbSEINENGAPPI_TSUKI[0]"] = birthdateParts.month;
+    fieldValueMap["Top[0].Page3[0].cmbSEINENGAPPI_HI[0]"] = birthdateParts.day;
+    fieldValueMap["Top[0].Page3[0].rbtSEIBETSU[0]"] = genderValue;
+    fieldValueMap["Top[0].Page3[0].txtSHUKKOKUNENGAPPI_NEN[0]"] = returnFromParts.year;
+    fieldValueMap["Top[0].Page3[0].cmbSHUKKOKUNENGAPPI_TSUKI[0]"] = returnFromParts.month;
+    fieldValueMap["Top[0].Page3[0].cmbSHUKKOKUNENGAPPI_HI[0]"] = returnFromParts.day;
+    fieldValueMap["Top[0].Page3[0].txtNYUKOKUNENGAPPI_NEN[0]"] = returnToParts.year;
+    fieldValueMap["Top[0].Page3[0].cmbNYUKOKUNENGAPPI_TSUKI[0]"] = returnToParts.month;
+    fieldValueMap["Top[0].Page3[0].cmbNYUKOKUNENGAPPI_HI[0]"] = returnToParts.day;
+
+    if (trainingPlan.freeEditOverrides) {
+      applyOverrides(fieldValueMap, trainingPlan.freeEditOverrides, fieldNames);
+    }
 
     Object.entries(fieldValueMap).forEach(([name, value]) => {
       if (!value) return;

@@ -31,8 +31,20 @@ const BASE_TO_FIELD_NAMES: Record<string, string[]> = {
   "company.workplacePostalCode": ["Top[0].Page2[0].txtJIGYOSHO_YUBINBANGO[0]"],
   "company.workplaceAddress": ["Top[0].Page2[0].txtJIGYOSHO_TATEMONO[0]"],
   "company.workplacePhone": ["Top[0].Page2[0].txtJIGYOSHO_DENWA[0]"],
+  "company.traineeResponsibleName": [
+    "Top[0].Page2[0].txtSEKININSHA_SEI[0]",
+    "Top[0].Page2[0].txtSEKININSHA_MEI[0]",
+  ],
   "company.traineeResponsibleRole": ["Top[0].Page2[0].txtSEKININSHA_YAKUSHOKU[0]"],
+  "company.traineeInstructorName": [
+    "Top[0].Page3[0].txtJISSHUSHIDOIN_SEI[0]",
+    "Top[0].Page3[0].txtJISSHUSHIDOIN_MEI[0]",
+  ],
   "company.traineeInstructorRole": ["Top[0].Page3[0].txtJISSHUSHIDOIN_YAKUSHOKU[0]"],
+  "company.lifeInstructorName": [
+    "Top[0].Page3[0].txtSEIKATSUSHIDOIN_SEI[0]",
+    "Top[0].Page3[0].txtSEIKATSUSHIDOIN_MEI[0]",
+  ],
   "company.lifeInstructorRole": ["Top[0].Page3[0].txtSEIKATSUSHIDOIN_YAKUSHOKU[0]"],
 
   "person.nameRomaji": ["Top[0].Page3[0].txtJISSHUSEI_ROMAJI[0]"],
@@ -50,9 +62,21 @@ const BASE_TO_FIELD_NAMES: Record<string, string[]> = {
   "org.name": ["Top[0].Page4[0].txtKANRI_MEISHO[0]"],
   "org.address": ["Top[0].Page4[0].txtKANRI_TATEMONO[0]"],
   "org.phone": ["Top[0].Page4[0].txtKANRI_DENWA[0]"],
+  "org.representativeName": [
+    "Top[0].Page4[0].txtKANRI_DAIHYO_SEI[0]",
+    "Top[0].Page4[0].txtKANRI_DAIHYO_MEI[0]",
+  ],
+  "org.supervisorResponsibleName": [
+    "Top[0].Page4[0].txtKANRI_SEKININ_SEI[0]",
+    "Top[0].Page4[0].txtKANRI_SEKININ_MEI[0]",
+  ],
   "org.supervisingOfficeName": ["Top[0].Page4[0].txtTANTOJIGYOSHO[0]"],
   "org.supervisingOfficeAddress": ["Top[0].Page4[0].txtTANTOJIGYOSHO_TATEMONO[0]"],
   "org.supervisingOfficePhone": ["Top[0].Page4[0].txtTANTOJIGYOSHO_DENWA[0]"],
+  "org.planInstructorName": [
+    "Top[0].Page4[0].txtKEIKAKUSHIDOTANTO_SEI[0]",
+    "Top[0].Page4[0].txtKEIKAKUSHIDOTANTO_MEI[0]",
+  ],
   "org.sendingOrgName": ["Top[0].Page4[0].cmbOKURIDASHIKIKAN[0]"],
   "org.sendingOrgNumber": ["Top[0].Page4[0].txtOKURIDASHIKIKANBANGO_BANGO[0]"],
   "org.sendingOrgRefNumber": ["Top[0].Page4[0].txtOKURIDASHIKIKANBANGO_KUNI[0]"],
@@ -114,8 +138,16 @@ const splitDateParts = (value?: string) => {
 const normalizeGender = (value?: string) => {
   if (!value) return "";
   const normalized = value.trim().toLowerCase();
-  if (normalized === "男" || normalized === "male") return "1";
-  if (normalized === "女" || normalized === "female") return "2";
+  if (normalized.includes("男") || normalized === "male") return "1";
+  if (normalized.includes("女") || normalized === "female") return "2";
+  return value;
+};
+
+const normalizePermitType = (value?: string) => {
+  if (!value) return "";
+  const normalized = value.trim();
+  if (normalized.includes("一般")) return "1";
+  if (normalized.includes("特定")) return "2";
   return value;
 };
 
@@ -203,7 +235,10 @@ const setFieldValue = (form: ReturnType<PDFDocument["getForm"]>, name: string, v
   try {
     const field = form.getField(name);
     if (field instanceof PDFTextField) {
-      field.setText(value);
+      const maxLength = field.getMaxLength();
+      const trimmedValue =
+        typeof maxLength === "number" && maxLength > 0 ? value.slice(0, maxLength) : value;
+      field.setText(trimmedValue);
       return;
     }
     if (field instanceof PDFDropdown || field instanceof PDFOptionList) {
@@ -241,6 +276,15 @@ const applyOverrides = (
       fieldValueMap[key] = String(value);
     }
   });
+};
+
+const buildFieldValueMap = (values: Record<string, string>) => {
+  return Object.fromEntries(
+    Object.entries(BASE_TO_FIELD_NAMES).flatMap(([key, fieldNamesList]) => {
+      const value = values[key] ?? "";
+      return fieldNamesList.map((fieldName) => [fieldName, value]);
+    })
+  );
 };
 
 export async function generateTrainingPlanPdf({
@@ -281,6 +325,7 @@ export async function generateTrainingPlanPdf({
     const returnFromParts = splitDateParts(values["person.returnPeriodFrom"]);
     const returnToParts = splitDateParts(values["person.returnPeriodTo"]);
     const genderValue = normalizeGender(values["person.gender"]);
+    const permitTypeValue = normalizePermitType(values["org.permitType"]);
     const derivedFieldNames = [
       "Top[0].Page2[0].txtDAIHYO_KANA_SEI[0]",
       "Top[0].Page2[0].txtDAIHYO_KANA_MEI[0]",
@@ -319,13 +364,7 @@ export async function generateTrainingPlanPdf({
       console.warn("未マッピングのテンプレPDFフィールド:", unmappedFieldNames);
     }
 
-    const fieldValueMap: Record<string, string> = Object.fromEntries(
-      Object.entries(BASE_TO_FIELD_NAMES).flatMap(([key, fieldNamesList]) => {
-        const value = values[key];
-        if (!value) return [];
-        return fieldNamesList.map((fieldName) => [fieldName, value]);
-      })
-    );
+    const fieldValueMap: Record<string, string> = buildFieldValueMap(values);
 
     fieldValueMap["Top[0].Page2[0].txtDAIHYO_KANA_SEI[0]"] = representativeKana.family;
     fieldValueMap["Top[0].Page2[0].txtDAIHYO_KANA_MEI[0]"] = representativeKana.given;
@@ -353,9 +392,19 @@ export async function generateTrainingPlanPdf({
     fieldValueMap["Top[0].Page3[0].txtNYUKOKUNENGAPPI_NEN[0]"] = returnToParts.year;
     fieldValueMap["Top[0].Page3[0].cmbNYUKOKUNENGAPPI_TSUKI[0]"] = returnToParts.month;
     fieldValueMap["Top[0].Page3[0].cmbNYUKOKUNENGAPPI_HI[0]"] = returnToParts.day;
+    fieldValueMap["Top[0].Page4[0].rbtKANRI_KYOKA[0]"] = permitTypeValue;
 
     if (trainingPlan.freeEditOverrides) {
       applyOverrides(fieldValueMap, trainingPlan.freeEditOverrides, fieldNames);
+    }
+
+    const emptyValueFields = fieldNames.filter((name) => {
+      if (!mappedFieldNames.has(name)) return false;
+      const value = fieldValueMap[name];
+      return !value || value.toString().trim() === "";
+    });
+    if (emptyValueFields.length) {
+      console.warn("値が空のテンプレPDFフィールド:", emptyValueFields);
     }
 
     Object.entries(fieldValueMap).forEach(([name, value]) => {

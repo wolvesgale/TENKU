@@ -1,4 +1,4 @@
-import { NextRequest, NextResponse } from "next/server";
+import { NextRequest } from "next/server";
 import { generateTrainingPlanPdf } from "@/lib/pdf/otit-template";
 import { store } from "@/lib/demo-store";
 
@@ -8,7 +8,10 @@ export const dynamic = "force-dynamic";
 export async function GET(_req: NextRequest, { params }: { params: { id: string } }) {
   const trainingPlan = store.trainingPlans.find((plan) => plan.id === params.id);
   if (!trainingPlan) {
-    return NextResponse.json({ error: "not_found" }, { status: 404 });
+    return new Response(JSON.stringify({ error: "not_found" }), {
+      status: 404,
+      headers: { "Content-Type": "application/json" },
+    });
   }
 
   const organization = store.demoOrganizationProfile;
@@ -17,7 +20,7 @@ export async function GET(_req: NextRequest, { params }: { params: { id: string 
 
   const pdfBytes = await generateTrainingPlanPdf({ organization, company, person, trainingPlan });
 
-  return new NextResponse(Buffer.from(pdfBytes), {
+  return new Response(Buffer.from(pdfBytes), {
     status: 200,
     headers: {
       "Content-Type": "application/pdf",

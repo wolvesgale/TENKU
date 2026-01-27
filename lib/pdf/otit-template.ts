@@ -14,9 +14,7 @@ import type { Company, DemoOrganizationProfile, Person, TrainingPlan } from "@/l
 const LOCAL_TEMPLATE_PATH = path.join(process.cwd(), "public", "pdf", "otit", "240819-200-1.pdf");
 const TEMPLATE_REMOTE_URL =
   "https://raw.githubusercontent.com/wolvesgale/TENKU/main/public/pdf/otit/240819-200-1.pdf";
-const FONT_URL = "https://github.com/googlefonts/noto-cjk/raw/main/Sans/OTF/Japanese/NotoSansJP-Regular.otf";
-const CACHE_ROOT = path.join(process.cwd(), ".cache");
-const FONT_PATH = path.join(CACHE_ROOT, "fonts", "NotoSansJP-Regular.otf");
+const FONT_PATH = path.join(process.cwd(), "public", "fonts", "NotoSansJP-Regular.ttf");
 
 const FIELD_NAME_MAP: Record<string, string[]> = {
   "company.name": ["Top[0].Page2[0].txtJISSHISHAMEI[0]"],
@@ -58,24 +56,10 @@ const FIELD_NAME_MAP: Record<string, string[]> = {
   "org.sendingOrgRefNumber": ["Top[0].Page4[0].txtOKURIDASHIKIKANBANGO_KUNI[0]"],
 };
 
-const ensureCachedFont = async (url: string, targetPath: string) => {
+const getTemplateBytes = async (): Promise<{ bytes: Buffer; source: "local" | "remote" }> => {
   try {
-    await fs.access(targetPath);
-    return;
-  } catch {
-    await fs.mkdir(path.dirname(targetPath), { recursive: true });
-    const res = await fetch(url);
-    if (!res.ok) {
-      throw new Error(`Failed to fetch ${url}: ${res.status}`);
-    }
-    const arrayBuffer = await res.arrayBuffer();
-    await fs.writeFile(targetPath, Buffer.from(arrayBuffer));
-  }
-};
-
-const getTemplateBytes = async (): Promise<Buffer> => {
-  try {
-    return await fs.readFile(LOCAL_TEMPLATE_PATH);
+    const bytes = await fs.readFile(LOCAL_TEMPLATE_PATH);
+    return { bytes, source: "local" };
   } catch (error) {
     console.warn("テンプレPDFのローカル読み込みに失敗しました。リモート取得にフォールバックします。", error);
   }
@@ -84,7 +68,7 @@ const getTemplateBytes = async (): Promise<Buffer> => {
     throw new Error(`テンプレPDFの取得に失敗しました: ${res.status} ${res.statusText}`);
   }
   const arrayBuffer = await res.arrayBuffer();
-  return Buffer.from(arrayBuffer);
+  return { bytes: Buffer.from(arrayBuffer), source: "remote" };
 };
 
 const formatDate = (value?: string) => {
@@ -189,7 +173,7 @@ const buildFieldValues = ({
 };
 
 const logTemplateFieldNames = (fieldNames: string[]) => {
-  console.info("OTITテンプレPDFのフィールド一覧:", fieldNames);
+  console.log("OTITテンプレPDFのフィールド一覧:", fieldNames);
 };
 
 const setFieldValue = (form: ReturnType<PDFDocument["getForm"]>, name: string, value: string) => {
@@ -230,10 +214,10 @@ export async function generateTrainingPlanPdf({
   person?: Person;
   trainingPlan: TrainingPlan;
 }) {
+  let templateSource: "local" | "remote" | "unknown" = "unknown";
   try {
-    const templateBytes = await getTemplateBytes();
-
-    await ensureCachedFont(FONT_URL, FONT_PATH);
+    const { bytes: templateBytes, source } = await getTemplateBytes();
+    templateSource = source;
     const fontBytes = await fs.readFile(FONT_PATH);
 
     const pdfDoc = await PDFDocument.load(templateBytes);
@@ -298,7 +282,11 @@ export async function generateTrainingPlanPdf({
 
     return pdfDoc.save();
   } catch (error) {
-    console.error("OTITテンプレPDF生成中にエラーが発生しました。", error);
+    console.error("OTITテンプレPDF生成中にエラーが発生しました。", {
+      error,
+      trainingPlanId: trainingPlan.id,
+      templateSource,
+    });
     throw error;
   }
 }

@@ -112,6 +112,19 @@ const BASE_TO_FIELD_NAMES: Record<string, string[]> = {
   "org.sendingOrgRefNumber": ["Top[0].Page4[0].txtSEIRIBANGO[0]"],
 };
 
+const FIELD_NAME_TO_KEYS = Object.entries(BASE_TO_FIELD_NAMES).reduce<Record<string, string[]>>(
+  (acc, [key, fieldNames]) => {
+    fieldNames.forEach((fieldName) => {
+      if (!acc[fieldName]) {
+        acc[fieldName] = [];
+      }
+      acc[fieldName].push(key);
+    });
+    return acc;
+  },
+  {}
+);
+
 const getTemplateBytes = async (): Promise<{
   bytes: Buffer;
   source: "local" | "remote";
@@ -427,7 +440,7 @@ export async function generateTrainingPlanPdf({
         hasXfa,
         fieldCount: fields.length,
       });
-      if (hasXfa) {
+      if (hasXfa && templateKind !== "acro") {
         console.warn(
           "XFAフォームが検出されました。AcroForm版テンプレ(240819-200-1-acro.pdf)の利用を推奨します。"
         );
@@ -560,11 +573,21 @@ export async function generateTrainingPlanPdf({
       return !value || value.toString().trim() === "";
     });
     if (debug && emptyValueFields.length) {
-      console.warn("値が空のテンプレPDFフィールド:", emptyValueFields);
+      const emptyFieldDetails = emptyValueFields.map((name) => ({
+        name,
+        keys: FIELD_NAME_TO_KEYS[name] ?? [],
+      }));
+      console.warn("値が空のテンプレPDFフィールド:", emptyFieldDetails);
     }
     if (debug) {
       console.log("投入予定フィールド:", fieldValueMap);
       console.log("投入値(正規化済み):", values);
+      const mappedFieldDetails = Object.entries(fieldValueMap).map(([name, value]) => ({
+        name,
+        value,
+        keys: FIELD_NAME_TO_KEYS[name] ?? [],
+      }));
+      console.log("マッピング詳細:", mappedFieldDetails);
     }
 
     Object.entries(fieldValueMap).forEach(([name, value]) => {

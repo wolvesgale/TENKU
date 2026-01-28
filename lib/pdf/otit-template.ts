@@ -624,7 +624,35 @@ export async function generateTrainingPlanPdf({
       trimmed: result?.trimmed,
       error: result?.error,
     });
-  });
+    const mapping = await loadMapping();
+    const fieldNameToKeys = buildFieldNameToKeys(mapping);
+    if (debug) {
+      logTemplateFieldNames(fieldDetails);
+      console.log("テンプレ情報:", {
+        templateKind,
+        templateSource,
+        hasXfa: templateHasXfa,
+        deleteXfaExecuted,
+        fieldCount: fields.length,
+      });
+      if (templateHasXfa && templateKind !== "acro") {
+        console.warn(
+          "XFAフォームが検出されました。AcroForm版テンプレ(240819-200-1-acro.pdf)の利用を推奨します。"
+        );
+      }
+    }
+
+    const values = buildFieldValues({ organization, company, person, trainingPlan });
+    const mappedFieldNames = new Set([
+      ...Object.keys(fieldNameToKeys),
+      ...Object.keys(trainingPlan.freeEditOverrides ?? {}),
+    ]);
+    const unmappedFieldNames = fieldNameList.filter((name) => !mappedFieldNames.has(name));
+    if (debug && unmappedFieldNames.length) {
+      console.warn("未マッピングのテンプレPDFフィールド:", unmappedFieldNames);
+    }
+
+    const fieldValueMap: Record<string, string> = buildFieldValueMap(values, mapping);
 
   form.updateFieldAppearances(font);
   form.flatten({ updateFieldAppearances: true });

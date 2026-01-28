@@ -1,0 +1,231 @@
+{
+  "company.name": {
+    "fields": ["Top[0].Page2[0].txtJISSHISHAMEI[0]"]
+  },
+  "company.nameKana": {
+    "fields": ["Top[0].Page2[0].txtJISSHISHAMEI_KANA[0]"]
+  },
+  "company.postalCode": {
+    "fields": ["Top[0].Page2[0].txtJISSHISHA_YUBINBANGO[0]"],
+    "normalize": "postal"
+  },
+  "company.address": {
+    "fields": ["Top[0].Page2[0].txtJISSHISHA_TATEMONO[0]"],
+    "normalize": "address"
+  },
+  "company.phone": {
+    "fields": ["Top[0].Page2[0].txtJISSHISHA_DENWA[0]"]
+  },
+  "company.representativeName": {
+    "splitName": {
+      "familyField": "Top[0].Page2[0].txtDAIHYO_SHIMEI_SEI[0]",
+      "givenField": "Top[0].Page2[0].txtDAIHYO_SHIMEI_MEI[0]"
+    }
+  },
+  "company.representativeKana": {
+    "splitName": {
+      "familyField": "Top[0].Page2[0].txtDAIHYO_KANA_SEI[0]",
+      "givenField": "Top[0].Page2[0].txtDAIHYO_KANA_MEI[0]"
+    }
+  },
+  "company.corporateNumber": {
+    "fields": ["Top[0].Page2[0].txtHOJIN_BANGO[0]"]
+  },
+  "company.notifAcceptanceNo": {
+    "fields": ["Top[0].Page2[0].txtJISSHISHA_BANGO[0]"]
+  },
+  "company.industryMajor": {
+    "fields": ["Top[0].Page2[0].txtHOJIN_GYOSHU_DAI[0]"]
+  },
+  "company.industryMinor": {
+    "fields": ["Top[0].Page2[0].txtHOJIN_GYOSHU_SHO[0]"]
+  },
+  "company.workplaceName": {
+    "fields": ["Top[0].Page2[0].txtJIGYOSHO_MEI[0]"]
+  },
+  "company.workplaceNameKana": {
+    "fields": ["Top[0].Page2[0].txtJIGYOSHO_MEI_KANA[0]"]
+  },
+  "company.workplacePostalCode": {
+    "fields": ["Top[0].Page2[0].txtJIGYOSHO_YUBINBANGO[0]"],
+    "normalize": "postal"
+  },
+  "company.workplaceAddress": {
+    "fields": ["Top[0].Page2[0].txtJIGYOSHO_TATEMONO[0]"],
+    "normalize": "address"
+  },
+  "company.workplacePhone": {
+    "fields": ["Top[0].Page2[0].txtJIGYOSHO_DENWA[0]"]
+  },
+  "company.traineeResponsibleName": {
+    "splitName": {
+      "familyField": "Top[0].Page2[0].txtSEKININSHA_SEI[0]",
+      "givenField": "Top[0].Page2[0].txtSEKININSHA_MEI[0]"
+    }
+  },
+  "company.traineeResponsibleKana": {
+    "splitName": {
+      "familyField": "Top[0].Page2[0].txtSEKININSHA_KANA_SEI[0]",
+      "givenField": "Top[0].Page2[0].txtSEKININSHA_KANA_MEI[0]"
+    }
+  },
+  "company.traineeResponsibleRole": {
+    "fields": ["Top[0].Page2[0].txtSEKININSHA_YAKUSHOKU[0]"]
+  },
+  "company.traineeInstructorName": {
+    "splitName": {
+      "familyField": "Top[0].Page3[0].txtJISSHUSHIDOIN_SEI[0]",
+      "givenField": "Top[0].Page3[0].txtJISSHUSHIDOIN_MEI[0]"
+    }
+  },
+  "company.traineeInstructorKana": {
+    "splitName": {
+      "familyField": "Top[0].Page3[0].txtJISSHUSHIDOIN_KANA_SEI[0]",
+      "givenField": "Top[0].Page3[0].txtJISSHUSHIDOIN_KANA_MEI[0]"
+    }
+  },
+  "company.traineeInstructorRole": {
+    "fields": ["Top[0].Page3[0].txtJISSHUSHIDOIN_YAKUSHOKU[0]"]
+  },
+  "company.lifeInstructorName": {
+    "splitName": {
+      "familyField": "Top[0].Page3[0].txtSEIKATSUSHIDOIN_SEI[0]",
+      "givenField": "Top[0].Page3[0].txtSEIKATSUSHIDOIN_MEI[0]"
+    }
+  },
+  "company.lifeInstructorKana": {
+    "splitName": {
+      "familyField": "Top[0].Page3[0].txtSEIKATSUSHIDOIN_KANA_SEI[0]",
+      "givenField": "Top[0].Page3[0].txtSEIKATSUSHIDOIN_KANA_MEI[0]"
+    }
+  },
+  "company.lifeInstructorRole": {
+    "fields": ["Top[0].Page3[0].txtSEIKATSUSHIDOIN_YAKUSHOKU[0]"]
+  },
+  "person.nameRomaji": {
+    "fields": ["Top[0].Page3[0].txtJISSHUSEI_ROMAJI[0]"]
+  },
+  "person.nameKanji": {
+    "fields": ["Top[0].Page3[0].txtJISSHUSEI_KANJI[0]"]
+  },
+  "person.nationality": {
+    "fields": ["Top[0].Page3[0].cmbJISSHUSEI_KOKUSEKI[0]"]
+  },
+  "person.birthdate": {
+    "splitDate": {
+      "yearField": "Top[0].Page3[0].txtSEINENGAPPI_NEN[0]",
+      "monthField": "Top[0].Page3[0].cmbSEINENGAPPI_TSUKI[0]",
+      "dayField": "Top[0].Page3[0].cmbSEINENGAPPI_HI[0]"
+    }
+  },
+  "person.gender": {
+    "fields": ["Top[0].Page3[0].rbtSEIBETSU[0]"],
+    "normalize": "gender"
+  },
+  "person.age": {
+    "fields": ["Top[0].Page3[0].txtNENREI[0]"]
+  },
+  "person.returnPeriodFrom": {
+    "splitDate": {
+      "yearField": "Top[0].Page3[0].txtSHUKKOKUNENGAPPI_NEN[0]",
+      "monthField": "Top[0].Page3[0].cmbSHUKKOKUNENGAPPI_TSUKI[0]",
+      "dayField": "Top[0].Page3[0].cmbSHUKKOKUNENGAPPI_HI[0]"
+    }
+  },
+  "person.returnPeriodTo": {
+    "splitDate": {
+      "yearField": "Top[0].Page3[0].txtNYUKOKUNENGAPPI_NEN[0]",
+      "monthField": "Top[0].Page3[0].cmbNYUKOKUNENGAPPI_TSUKI[0]",
+      "dayField": "Top[0].Page3[0].cmbNYUKOKUNENGAPPI_HI[0]"
+    }
+  },
+  "training.category": {
+    "fields": ["Top[0].Page3[0].rbtJISSHUKUBUN[0]"]
+  },
+  "training.jobCode": {
+    "fields": ["Top[0].Page3[0].cmbSHOKUSHUSAGYO_1[0]"]
+  },
+  "training.jobName": {
+    "fields": ["Top[0].Page3[0].txtSHOKUSHUSAGYO_1_SHOKUSHU[0]"]
+  },
+  "training.workName": {
+    "fields": ["Top[0].Page3[0].txtSHOKUSHUSAGYO_1_SAGYO[0]"]
+  },
+  "org.permitNumber": {
+    "fields": ["Top[0].Page4[0].txtKANRI_KYOKABANGO[0]"]
+  },
+  "org.permitType": {
+    "fields": ["Top[0].Page4[0].rbtKANRI_KYOKA[0]"],
+    "normalize": "permitType"
+  },
+  "org.name": {
+    "fields": ["Top[0].Page4[0].txtKANRI_MEISHO[0]"]
+  },
+  "org.nameKana": {
+    "fields": ["Top[0].Page4[0].txtKANRI_MEISHO_KANA[0]"]
+  },
+  "org.postalCode": {
+    "fields": ["Top[0].Page4[0].txtKANRI_YUBINBANGO[0]"],
+    "normalize": "postal"
+  },
+  "org.address": {
+    "fields": ["Top[0].Page4[0].txtKANRI_TATEMONO[0]"],
+    "normalize": "address"
+  },
+  "org.phone": {
+    "fields": ["Top[0].Page4[0].txtKANRI_DENWA[0]"]
+  },
+  "org.representativeName": {
+    "splitName": {
+      "familyField": "Top[0].Page4[0].txtKANRI_DAIHYO_SEI[0]",
+      "givenField": "Top[0].Page4[0].txtKANRI_DAIHYO_MEI[0]"
+    }
+  },
+  "org.supervisorResponsibleName": {
+    "splitName": {
+      "familyField": "Top[0].Page4[0].txtKANRI_SEKININ_SEI[0]",
+      "givenField": "Top[0].Page4[0].txtKANRI_SEKININ_MEI[0]"
+    }
+  },
+  "org.supervisingOfficeName": {
+    "fields": ["Top[0].Page4[0].txtTANTOJIGYOSHO[0]"]
+  },
+  "org.supervisingOfficeNameKana": {
+    "fields": ["Top[0].Page4[0].txtTANTOJIGYOSHO_KANA[0]"]
+  },
+  "org.supervisingOfficePostalCode": {
+    "fields": ["Top[0].Page4[0].txtTANTOJIGYOSHO_YUBINBANGO[0]"],
+    "normalize": "postal"
+  },
+  "org.supervisingOfficeAddress": {
+    "fields": ["Top[0].Page4[0].txtTANTOJIGYOSHO_TATEMONO[0]"],
+    "normalize": "address"
+  },
+  "org.supervisingOfficePhone": {
+    "fields": ["Top[0].Page4[0].txtTANTOJIGYOSHO_DENWA[0]"]
+  },
+  "org.planInstructorName": {
+    "splitName": {
+      "familyField": "Top[0].Page4[0].txtKEIKAKUSHIDOTANTO_SEI[0]",
+      "givenField": "Top[0].Page4[0].txtKEIKAKUSHIDOTANTO_MEI[0]"
+    }
+  },
+  "org.planInstructorKana": {
+    "splitName": {
+      "familyField": "Top[0].Page4[0].txtKEIKAKUSHIDOTANTO_KANA_SEI[0]",
+      "givenField": "Top[0].Page4[0].txtKEIKAKUSHIDOTANTO_KANA_MEI[0]"
+    }
+  },
+  "org.sendingOrgNumberCountry": {
+    "fields": ["Top[0].Page4[0].txtOKURIDASHIKIKANBANGO_KUNI[0]"]
+  },
+  "org.sendingOrgName": {
+    "fields": ["Top[0].Page4[0].cmbOKURIDASHIKIKAN[0]"]
+  },
+  "org.sendingOrgNumber": {
+    "fields": ["Top[0].Page4[0].txtOKURIDASHIKIKANBANGO_BANGO[0]"]
+  },
+  "org.sendingOrgRefNumber": {
+    "fields": ["Top[0].Page4[0].txtSEIRIBANGO[0]"]
+  }
+}

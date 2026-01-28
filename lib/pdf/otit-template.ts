@@ -25,105 +25,62 @@ const TEMPLATE_ACRO_REMOTE_URL =
   "https://raw.githubusercontent.com/wolvesgale/TENKU/main/public/pdf/otit/240819-200-1-acro.pdf";
 const FONT_PATH = path.join(process.cwd(), "public", "fonts", "NotoSansJP-Regular.ttf");
 
-const BASE_TO_FIELD_NAMES: Record<string, string[]> = {
-  "company.name": ["Top[0].Page2[0].txtJISSHISHAMEI[0]"],
-  "company.nameKana": ["Top[0].Page2[0].txtJISSHISHAMEI_KANA[0]"],
-  "company.postalCode": ["Top[0].Page2[0].txtJISSHISHA_YUBINBANGO[0]"],
-  "company.address": ["Top[0].Page2[0].txtJISSHISHA_TATEMONO[0]"],
-  "company.phone": ["Top[0].Page2[0].txtJISSHISHA_DENWA[0]"],
-  "company.corporateNumber": ["Top[0].Page2[0].txtHOJIN_BANGO[0]"],
-  "company.notifAcceptanceNo": ["Top[0].Page2[0].txtJISSHISHA_BANGO[0]"],
-  "company.industryMajor": ["Top[0].Page2[0].txtHOJIN_GYOSHU_DAI[0]"],
-  "company.industryMinor": ["Top[0].Page2[0].txtHOJIN_GYOSHU_SHO[0]"],
-  "company.workplaceName": ["Top[0].Page2[0].txtJIGYOSHO_MEI[0]"],
-  "company.workplaceNameKana": ["Top[0].Page2[0].txtJIGYOSHO_MEI_KANA[0]"],
-  "company.workplacePostalCode": ["Top[0].Page2[0].txtJIGYOSHO_YUBINBANGO[0]"],
-  "company.workplaceAddress": ["Top[0].Page2[0].txtJIGYOSHO_TATEMONO[0]"],
-  "company.workplacePhone": ["Top[0].Page2[0].txtJIGYOSHO_DENWA[0]"],
-  "company.traineeResponsibleName": [
-    "Top[0].Page2[0].txtSEKININSHA_SEI[0]",
-    "Top[0].Page2[0].txtSEKININSHA_MEI[0]",
-  ],
-  "company.traineeResponsibleKana": [
-    "Top[0].Page2[0].txtSEKININSHA_KANA_SEI[0]",
-    "Top[0].Page2[0].txtSEKININSHA_KANA_MEI[0]",
-  ],
-  "company.traineeResponsibleRole": ["Top[0].Page2[0].txtSEKININSHA_YAKUSHOKU[0]"],
-  "company.traineeInstructorName": [
-    "Top[0].Page3[0].txtJISSHUSHIDOIN_SEI[0]",
-    "Top[0].Page3[0].txtJISSHUSHIDOIN_MEI[0]",
-  ],
-  "company.traineeInstructorKana": [
-    "Top[0].Page3[0].txtJISSHUSHIDOIN_KANA_SEI[0]",
-    "Top[0].Page3[0].txtJISSHUSHIDOIN_KANA_MEI[0]",
-  ],
-  "company.traineeInstructorRole": ["Top[0].Page3[0].txtJISSHUSHIDOIN_YAKUSHOKU[0]"],
-  "company.lifeInstructorName": [
-    "Top[0].Page3[0].txtSEIKATSUSHIDOIN_SEI[0]",
-    "Top[0].Page3[0].txtSEIKATSUSHIDOIN_MEI[0]",
-  ],
-  "company.lifeInstructorKana": [
-    "Top[0].Page3[0].txtSEIKATSUSHIDOIN_KANA_SEI[0]",
-    "Top[0].Page3[0].txtSEIKATSUSHIDOIN_KANA_MEI[0]",
-  ],
-  "company.lifeInstructorRole": ["Top[0].Page3[0].txtSEIKATSUSHIDOIN_YAKUSHOKU[0]"],
+const MAPPING_PATH = path.join(
+  process.cwd(),
+  "data",
+  "pdf",
+  "otit",
+  "240819-200-1-mapping.json"
+);
 
-  "person.nameRomaji": ["Top[0].Page3[0].txtJISSHUSEI_ROMAJI[0]"],
-  "person.nameKanji": ["Top[0].Page3[0].txtJISSHUSEI_KANJI[0]"],
-  "person.nationality": ["Top[0].Page3[0].cmbJISSHUSEI_KOKUSEKI[0]"],
-  "person.age": ["Top[0].Page3[0].txtNENREI[0]"],
-
-  "training.jobCode": ["Top[0].Page3[0].cmbSHOKUSHUSAGYO_1[0]"],
-  "training.jobName": ["Top[0].Page3[0].txtSHOKUSHUSAGYO_1_SHOKUSHU[0]"],
-  "training.workName": ["Top[0].Page3[0].txtSHOKUSHUSAGYO_1_SAGYO[0]"],
-  "training.category": ["Top[0].Page3[0].rbtJISSHUKUBUN[0]"],
-
-  "org.permitNumber": ["Top[0].Page4[0].txtKANRI_KYOKABANGO[0]"],
-  "org.permitType": ["Top[0].Page4[0].rbtKANRI_KYOKA[0]"],
-  "org.nameKana": ["Top[0].Page4[0].txtKANRI_MEISHO_KANA[0]"],
-  "org.postalCode": ["Top[0].Page4[0].txtKANRI_YUBINBANGO[0]"],
-  "org.name": ["Top[0].Page4[0].txtKANRI_MEISHO[0]"],
-  "org.address": ["Top[0].Page4[0].txtKANRI_TATEMONO[0]"],
-  "org.phone": ["Top[0].Page4[0].txtKANRI_DENWA[0]"],
-  "org.representativeName": [
-    "Top[0].Page4[0].txtKANRI_DAIHYO_SEI[0]",
-    "Top[0].Page4[0].txtKANRI_DAIHYO_MEI[0]",
-  ],
-  "org.supervisorResponsibleName": [
-    "Top[0].Page4[0].txtKANRI_SEKININ_SEI[0]",
-    "Top[0].Page4[0].txtKANRI_SEKININ_MEI[0]",
-  ],
-  "org.supervisingOfficeName": ["Top[0].Page4[0].txtTANTOJIGYOSHO[0]"],
-  "org.supervisingOfficeNameKana": ["Top[0].Page4[0].txtTANTOJIGYOSHO_KANA[0]"],
-  "org.supervisingOfficePostalCode": ["Top[0].Page4[0].txtTANTOJIGYOSHO_YUBINBANGO[0]"],
-  "org.supervisingOfficeAddress": ["Top[0].Page4[0].txtTANTOJIGYOSHO_TATEMONO[0]"],
-  "org.supervisingOfficePhone": ["Top[0].Page4[0].txtTANTOJIGYOSHO_DENWA[0]"],
-  "org.planInstructorName": [
-    "Top[0].Page4[0].txtKEIKAKUSHIDOTANTO_SEI[0]",
-    "Top[0].Page4[0].txtKEIKAKUSHIDOTANTO_MEI[0]",
-  ],
-  "org.planInstructorKana": [
-    "Top[0].Page4[0].txtKEIKAKUSHIDOTANTO_KANA_SEI[0]",
-    "Top[0].Page4[0].txtKEIKAKUSHIDOTANTO_KANA_MEI[0]",
-  ],
-  "org.sendingOrgNumberCountry": ["Top[0].Page4[0].txtOKURIDASHIKIKANBANGO_KUNI[0]"],
-  "org.sendingOrgName": ["Top[0].Page4[0].cmbOKURIDASHIKIKAN[0]"],
-  "org.sendingOrgNumber": ["Top[0].Page4[0].txtOKURIDASHIKIKANBANGO_BANGO[0]"],
-  "org.sendingOrgRefNumber": ["Top[0].Page4[0].txtSEIRIBANGO[0]"],
+type MappingEntry = {
+  fields?: string[];
+  splitName?: {
+    familyField: string;
+    givenField: string;
+  };
+  splitDate?: {
+    yearField: string;
+    monthField: string;
+    dayField: string;
+  };
+  normalize?: "postal" | "address" | "gender" | "permitType";
 };
 
-const FIELD_NAME_TO_KEYS = Object.entries(BASE_TO_FIELD_NAMES).reduce<Record<string, string[]>>(
-  (acc, [key, fieldNames]) => {
-    fieldNames.forEach((fieldName) => {
-      if (!acc[fieldName]) {
-        acc[fieldName] = [];
-      }
+type MappingData = Record<string, MappingEntry>;
+
+let cachedMapping: MappingData | null = null;
+
+const loadMapping = async (): Promise<MappingData> => {
+  if (cachedMapping) return cachedMapping;
+  const raw = await fs.readFile(MAPPING_PATH, "utf-8");
+  cachedMapping = JSON.parse(raw) as MappingData;
+  return cachedMapping;
+};
+
+const buildFieldNameToKeys = (mapping: MappingData) => {
+  return Object.entries(mapping).reduce<Record<string, string[]>>((acc, [key, entry]) => {
+    (entry.fields ?? []).forEach((fieldName) => {
+      if (!acc[fieldName]) acc[fieldName] = [];
       acc[fieldName].push(key);
     });
+    if (entry.splitName) {
+      const { familyField, givenField } = entry.splitName;
+      [familyField, givenField].forEach((fieldName) => {
+        if (!acc[fieldName]) acc[fieldName] = [];
+        acc[fieldName].push(key);
+      });
+    }
+    if (entry.splitDate) {
+      const { yearField, monthField, dayField } = entry.splitDate;
+      [yearField, monthField, dayField].forEach((fieldName) => {
+        if (!acc[fieldName]) acc[fieldName] = [];
+        acc[fieldName].push(key);
+      });
+    }
     return acc;
-  },
-  {}
-);
+  }, {});
+};
 
 const getTemplateBytes = async (): Promise<{
   bytes: Buffer;
@@ -358,16 +315,52 @@ const setFieldValue = (form: ReturnType<PDFDocument["getForm"]>, name: string, v
   }
 };
 
+const normalizeValue = (value: string, normalize?: MappingEntry["normalize"]) => {
+  if (!normalize) return value;
+  if (normalize === "postal") return splitPostalCode(value);
+  if (normalize === "address") return normalizeAddress(value);
+  if (normalize === "gender") return normalizeGender(value);
+  if (normalize === "permitType") return normalizePermitType(value);
+  return value;
+};
+
+const applyMappingEntry = (
+  fieldValueMap: Record<string, string>,
+  baseKey: string,
+  value: string,
+  entry: MappingEntry
+) => {
+  const normalizedValue = normalizeValue(value, entry.normalize);
+  (entry.fields ?? []).forEach((fieldName) => {
+    fieldValueMap[fieldName] = normalizedValue;
+  });
+  if (entry.splitName) {
+    const parts = splitName(value);
+    fieldValueMap[entry.splitName.familyField] = parts.family;
+    fieldValueMap[entry.splitName.givenField] = parts.given;
+  }
+  if (entry.splitDate) {
+    const parts = splitDateParts(value);
+    fieldValueMap[entry.splitDate.yearField] = parts.year;
+    fieldValueMap[entry.splitDate.monthField] = parts.month;
+    fieldValueMap[entry.splitDate.dayField] = parts.day;
+  }
+  if (!entry.fields && !entry.splitName && !entry.splitDate) {
+    console.warn(`マッピング定義にフィールドがありません: ${baseKey}`);
+  }
+};
+
 const applyOverrides = (
   fieldValueMap: Record<string, string>,
   overrides: Record<string, string>,
-  fieldNames: string[]
+  fieldNames: string[],
+  mapping: MappingData
 ) => {
   Object.entries(overrides).forEach(([key, value]) => {
-    if (BASE_TO_FIELD_NAMES[key]) {
-      BASE_TO_FIELD_NAMES[key].forEach((fieldName) => {
-        fieldValueMap[fieldName] = String(value);
-      });
+    const entry = mapping[key];
+    if (entry) {
+      applyMappingEntry(fieldValueMap, key, String(value), entry);
+      return;
     }
     if (fieldNames.includes(key)) {
       fieldValueMap[key] = String(value);
@@ -375,13 +368,13 @@ const applyOverrides = (
   });
 };
 
-const buildFieldValueMap = (values: Record<string, string>) => {
-  return Object.fromEntries(
-    Object.entries(BASE_TO_FIELD_NAMES).flatMap(([key, fieldNamesList]) => {
-      const value = values[key] ?? "";
-      return fieldNamesList.map((fieldName) => [fieldName, value]);
-    })
-  );
+const buildFieldValueMap = (values: Record<string, string>, mapping: MappingData) => {
+  const fieldValueMap: Record<string, string> = {};
+  Object.entries(mapping).forEach(([key, entry]) => {
+    const value = values[key] ?? "";
+    applyMappingEntry(fieldValueMap, key, value, entry);
+  });
+  return fieldValueMap;
 };
 
 export async function generateTrainingPlanPdf({
@@ -396,7 +389,20 @@ export async function generateTrainingPlanPdf({
   person?: Person;
   trainingPlan: TrainingPlan;
   debug?: boolean;
-}) {
+}): Promise<{
+  pdfBytes: Uint8Array;
+  diagnostics: {
+    templateKind: "acro" | "standard" | "unknown";
+    templateSource: "local" | "remote" | "unknown";
+    hasXfa: boolean;
+    fieldCount: number;
+    fields: { name: string; type: string; options?: string[] }[];
+    unmappedFields: string[];
+    emptyFields: { name: string; keys: string[] }[];
+    mappedFields: { name: string; value: string; keys: string[] }[];
+    values: Record<string, string>;
+  };
+}> {
   let templateSource: "local" | "remote" | "unknown" = "unknown";
   let templateKind: "acro" | "standard" | "unknown" = "unknown";
   try {
@@ -432,6 +438,8 @@ export async function generateTrainingPlanPdf({
       }
       return { name, type: "unknown" };
     });
+    const mapping = await loadMapping();
+    const fieldNameToKeys = buildFieldNameToKeys(mapping);
     if (debug) {
       logTemplateFieldNames(fieldDetails);
       console.log("テンプレ情報:", {
@@ -448,54 +456,8 @@ export async function generateTrainingPlanPdf({
     }
 
     const values = buildFieldValues({ organization, company, person, trainingPlan });
-    const representativeKana = splitName(values["company.representativeKana"]);
-    const representativeName = splitName(values["company.representativeName"]);
-    const traineeResponsibleName = splitName(values["company.traineeResponsibleName"]);
-    const traineeResponsibleKana = splitName(values["company.traineeResponsibleKana"]);
-    const traineeInstructorName = splitName(values["company.traineeInstructorName"]);
-    const traineeInstructorKana = splitName(values["company.traineeInstructorKana"]);
-    const lifeInstructorName = splitName(values["company.lifeInstructorName"]);
-    const lifeInstructorKana = splitName(values["company.lifeInstructorKana"]);
-    const orgRepresentativeName = splitName(values["org.representativeName"]);
-    const supervisorResponsibleName = splitName(values["org.supervisorResponsibleName"]);
-    const planInstructorName = splitName(values["org.planInstructorName"]);
-    const planInstructorKana = splitName(values["org.planInstructorKana"]);
-    const birthdateParts = splitDateParts(values["person.birthdate"]);
-    const returnFromParts = splitDateParts(values["person.returnPeriodFrom"]);
-    const returnToParts = splitDateParts(values["person.returnPeriodTo"]);
-    const genderValue = normalizeGender(values["person.gender"]);
-    const permitTypeValue = normalizePermitType(values["org.permitType"]);
-    const derivedFieldNames = [
-      "Top[0].Page2[0].txtDAIHYO_KANA_SEI[0]",
-      "Top[0].Page2[0].txtDAIHYO_KANA_MEI[0]",
-      "Top[0].Page2[0].txtDAIHYO_SHIMEI_SEI[0]",
-      "Top[0].Page2[0].txtDAIHYO_SHIMEI_MEI[0]",
-      "Top[0].Page2[0].txtSEKININSHA_SEI[0]",
-      "Top[0].Page2[0].txtSEKININSHA_MEI[0]",
-      "Top[0].Page3[0].txtJISSHUSHIDOIN_SEI[0]",
-      "Top[0].Page3[0].txtJISSHUSHIDOIN_MEI[0]",
-      "Top[0].Page3[0].txtSEIKATSUSHIDOIN_SEI[0]",
-      "Top[0].Page3[0].txtSEIKATSUSHIDOIN_MEI[0]",
-      "Top[0].Page4[0].txtKANRI_DAIHYO_SEI[0]",
-      "Top[0].Page4[0].txtKANRI_DAIHYO_MEI[0]",
-      "Top[0].Page4[0].txtKANRI_SEKININ_SEI[0]",
-      "Top[0].Page4[0].txtKANRI_SEKININ_MEI[0]",
-      "Top[0].Page4[0].txtKEIKAKUSHIDOTANTO_SEI[0]",
-      "Top[0].Page4[0].txtKEIKAKUSHIDOTANTO_MEI[0]",
-      "Top[0].Page3[0].txtSEINENGAPPI_NEN[0]",
-      "Top[0].Page3[0].cmbSEINENGAPPI_TSUKI[0]",
-      "Top[0].Page3[0].cmbSEINENGAPPI_HI[0]",
-      "Top[0].Page3[0].rbtSEIBETSU[0]",
-      "Top[0].Page3[0].txtSHUKKOKUNENGAPPI_NEN[0]",
-      "Top[0].Page3[0].cmbSHUKKOKUNENGAPPI_TSUKI[0]",
-      "Top[0].Page3[0].cmbSHUKKOKUNENGAPPI_HI[0]",
-      "Top[0].Page3[0].txtNYUKOKUNENGAPPI_NEN[0]",
-      "Top[0].Page3[0].cmbNYUKOKUNENGAPPI_TSUKI[0]",
-      "Top[0].Page3[0].cmbNYUKOKUNENGAPPI_HI[0]",
-    ];
     const mappedFieldNames = new Set([
-      ...Object.values(BASE_TO_FIELD_NAMES).flat(),
-      ...derivedFieldNames,
+      ...Object.keys(fieldNameToKeys),
       ...Object.keys(trainingPlan.freeEditOverrides ?? {}),
     ]);
     const unmappedFieldNames = fieldNameList.filter((name) => !mappedFieldNames.has(name));
@@ -503,68 +465,10 @@ export async function generateTrainingPlanPdf({
       console.warn("未マッピングのテンプレPDFフィールド:", unmappedFieldNames);
     }
 
-    const fieldValueMap: Record<string, string> = buildFieldValueMap(values);
-    fieldValueMap["Top[0].Page2[0].txtJISSHISHA_YUBINBANGO[0]"] = splitPostalCode(
-      values["company.postalCode"]
-    );
-    fieldValueMap["Top[0].Page2[0].txtJISSHISHA_TATEMONO[0]"] = normalizeAddress(
-      values["company.address"]
-    );
-    fieldValueMap["Top[0].Page2[0].txtJIGYOSHO_YUBINBANGO[0]"] = splitPostalCode(
-      values["company.workplacePostalCode"]
-    );
-    fieldValueMap["Top[0].Page2[0].txtJIGYOSHO_TATEMONO[0]"] = normalizeAddress(
-      values["company.workplaceAddress"]
-    );
-    fieldValueMap["Top[0].Page4[0].txtKANRI_YUBINBANGO[0]"] = splitPostalCode(
-      values["org.postalCode"]
-    );
-    fieldValueMap["Top[0].Page4[0].txtKANRI_TATEMONO[0]"] = normalizeAddress(values["org.address"]);
-    fieldValueMap["Top[0].Page4[0].txtTANTOJIGYOSHO_YUBINBANGO[0]"] = splitPostalCode(
-      values["org.supervisingOfficePostalCode"]
-    );
-    fieldValueMap["Top[0].Page4[0].txtTANTOJIGYOSHO_TATEMONO[0]"] = normalizeAddress(
-      values["org.supervisingOfficeAddress"]
-    );
-
-    fieldValueMap["Top[0].Page2[0].txtDAIHYO_KANA_SEI[0]"] = representativeKana.family;
-    fieldValueMap["Top[0].Page2[0].txtDAIHYO_KANA_MEI[0]"] = representativeKana.given;
-    fieldValueMap["Top[0].Page2[0].txtDAIHYO_SHIMEI_SEI[0]"] = representativeName.family;
-    fieldValueMap["Top[0].Page2[0].txtDAIHYO_SHIMEI_MEI[0]"] = representativeName.given;
-    fieldValueMap["Top[0].Page2[0].txtSEKININSHA_SEI[0]"] = traineeResponsibleName.family;
-    fieldValueMap["Top[0].Page2[0].txtSEKININSHA_MEI[0]"] = traineeResponsibleName.given;
-    fieldValueMap["Top[0].Page2[0].txtSEKININSHA_KANA_SEI[0]"] = traineeResponsibleKana.family;
-    fieldValueMap["Top[0].Page2[0].txtSEKININSHA_KANA_MEI[0]"] = traineeResponsibleKana.given;
-    fieldValueMap["Top[0].Page3[0].txtJISSHUSHIDOIN_SEI[0]"] = traineeInstructorName.family;
-    fieldValueMap["Top[0].Page3[0].txtJISSHUSHIDOIN_MEI[0]"] = traineeInstructorName.given;
-    fieldValueMap["Top[0].Page3[0].txtJISSHUSHIDOIN_KANA_SEI[0]"] = traineeInstructorKana.family;
-    fieldValueMap["Top[0].Page3[0].txtJISSHUSHIDOIN_KANA_MEI[0]"] = traineeInstructorKana.given;
-    fieldValueMap["Top[0].Page3[0].txtSEIKATSUSHIDOIN_SEI[0]"] = lifeInstructorName.family;
-    fieldValueMap["Top[0].Page3[0].txtSEIKATSUSHIDOIN_MEI[0]"] = lifeInstructorName.given;
-    fieldValueMap["Top[0].Page3[0].txtSEIKATSUSHIDOIN_KANA_SEI[0]"] = lifeInstructorKana.family;
-    fieldValueMap["Top[0].Page3[0].txtSEIKATSUSHIDOIN_KANA_MEI[0]"] = lifeInstructorKana.given;
-    fieldValueMap["Top[0].Page4[0].txtKANRI_DAIHYO_SEI[0]"] = orgRepresentativeName.family;
-    fieldValueMap["Top[0].Page4[0].txtKANRI_DAIHYO_MEI[0]"] = orgRepresentativeName.given;
-    fieldValueMap["Top[0].Page4[0].txtKANRI_SEKININ_SEI[0]"] = supervisorResponsibleName.family;
-    fieldValueMap["Top[0].Page4[0].txtKANRI_SEKININ_MEI[0]"] = supervisorResponsibleName.given;
-    fieldValueMap["Top[0].Page4[0].txtKEIKAKUSHIDOTANTO_SEI[0]"] = planInstructorName.family;
-    fieldValueMap["Top[0].Page4[0].txtKEIKAKUSHIDOTANTO_MEI[0]"] = planInstructorName.given;
-    fieldValueMap["Top[0].Page4[0].txtKEIKAKUSHIDOTANTO_KANA_SEI[0]"] = planInstructorKana.family;
-    fieldValueMap["Top[0].Page4[0].txtKEIKAKUSHIDOTANTO_KANA_MEI[0]"] = planInstructorKana.given;
-    fieldValueMap["Top[0].Page3[0].txtSEINENGAPPI_NEN[0]"] = birthdateParts.year;
-    fieldValueMap["Top[0].Page3[0].cmbSEINENGAPPI_TSUKI[0]"] = birthdateParts.month;
-    fieldValueMap["Top[0].Page3[0].cmbSEINENGAPPI_HI[0]"] = birthdateParts.day;
-    fieldValueMap["Top[0].Page3[0].rbtSEIBETSU[0]"] = genderValue;
-    fieldValueMap["Top[0].Page3[0].txtSHUKKOKUNENGAPPI_NEN[0]"] = returnFromParts.year;
-    fieldValueMap["Top[0].Page3[0].cmbSHUKKOKUNENGAPPI_TSUKI[0]"] = returnFromParts.month;
-    fieldValueMap["Top[0].Page3[0].cmbSHUKKOKUNENGAPPI_HI[0]"] = returnFromParts.day;
-    fieldValueMap["Top[0].Page3[0].txtNYUKOKUNENGAPPI_NEN[0]"] = returnToParts.year;
-    fieldValueMap["Top[0].Page3[0].cmbNYUKOKUNENGAPPI_TSUKI[0]"] = returnToParts.month;
-    fieldValueMap["Top[0].Page3[0].cmbNYUKOKUNENGAPPI_HI[0]"] = returnToParts.day;
-    fieldValueMap["Top[0].Page4[0].rbtKANRI_KYOKA[0]"] = permitTypeValue;
+    const fieldValueMap: Record<string, string> = buildFieldValueMap(values, mapping);
 
     if (trainingPlan.freeEditOverrides) {
-      applyOverrides(fieldValueMap, trainingPlan.freeEditOverrides, fieldNameList);
+      applyOverrides(fieldValueMap, trainingPlan.freeEditOverrides, fieldNameList, mapping);
     }
 
     const emptyValueFields = fieldNameList.filter((name) => {
@@ -575,18 +479,18 @@ export async function generateTrainingPlanPdf({
     if (debug && emptyValueFields.length) {
       const emptyFieldDetails = emptyValueFields.map((name) => ({
         name,
-        keys: FIELD_NAME_TO_KEYS[name] ?? [],
+        keys: fieldNameToKeys[name] ?? [],
       }));
       console.warn("値が空のテンプレPDFフィールド:", emptyFieldDetails);
     }
+    const mappedFieldDetails = Object.entries(fieldValueMap).map(([name, value]) => ({
+      name,
+      value,
+      keys: fieldNameToKeys[name] ?? [],
+    }));
     if (debug) {
       console.log("投入予定フィールド:", fieldValueMap);
       console.log("投入値(正規化済み):", values);
-      const mappedFieldDetails = Object.entries(fieldValueMap).map(([name, value]) => ({
-        name,
-        value,
-        keys: FIELD_NAME_TO_KEYS[name] ?? [],
-      }));
       console.log("マッピング詳細:", mappedFieldDetails);
     }
 
@@ -602,7 +506,24 @@ export async function generateTrainingPlanPdf({
     form.updateFieldAppearances(font);
     form.flatten();
 
-    return pdfDoc.save();
+    const pdfBytes = await pdfDoc.save();
+    return {
+      pdfBytes,
+      diagnostics: {
+        templateKind,
+        templateSource,
+        hasXfa,
+        fieldCount: fields.length,
+        fields: fieldDetails,
+        unmappedFields: unmappedFieldNames,
+        emptyFields: emptyValueFields.map((name) => ({
+          name,
+          keys: fieldNameToKeys[name] ?? [],
+        })),
+        mappedFields: mappedFieldDetails,
+        values,
+      },
+    };
   } catch (error) {
     console.error("OTITテンプレPDF生成中にエラーが発生しました。", {
       error,

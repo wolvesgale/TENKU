@@ -19,13 +19,20 @@ export async function GET(req: NextRequest, { params }: { params: { id: string }
   const person = store.persons.find((p) => p.id === trainingPlan.personId);
   const debug = req.nextUrl.searchParams.get("debug") === "1";
 
-  const pdfBytes = await generateTrainingPlanPdf({
+  const { pdfBytes, diagnostics } = await generateTrainingPlanPdf({
     organization,
     company,
     person,
     trainingPlan,
     debug,
   });
+
+  if (debug) {
+    return new Response(JSON.stringify(diagnostics, null, 2), {
+      status: 200,
+      headers: { "Content-Type": "application/json" },
+    });
+  }
 
   return new Response(Buffer.from(pdfBytes), {
     status: 200,

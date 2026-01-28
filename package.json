@@ -9,7 +9,7 @@
     "lint": "next lint",
     "postinstall": "prisma generate",
     "check:pdf": "node scripts/check-pdf-preview.mjs",
-    "gen:otit-mapping": "ts-node scripts/generate-otit-mapping.ts"
+    "gen:otit-mapping": "node -r ts-node/register scripts/generate-otit-mapping.ts"
   },
   "dependencies": {
     "@openfonts/noto-sans-jp_japanese": "1.44.5",

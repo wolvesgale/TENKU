@@ -1,5 +1,5 @@
-import { promises as fs } from "fs";
-import path from "path";
+const fs = require("fs").promises;
+const path = require("path");
 
 const CSV_PATH = path.join(process.cwd(), "data", "pdf", "otit", "240819-200-1-mapping.csv");
 const JSON_PATH = path.join(process.cwd(), "data", "pdf", "otit", "240819-200-1-mapping.json");
@@ -8,7 +8,9 @@ type MappingEntry = {
   fields?: string[];
   split?: "name_ja" | "date_ymd" | "postal" | "tel" | "chars";
   splitFields?: string[];
-  normalize?: "postal" | "address" | "gender" | "permitType";
+  normalize?: "postal" | "address" | "gender" | "permitType" | "kana";
+  maxLength?: number;
+  skip?: boolean;
 };
 
 type MappingData = Record<string, MappingEntry>;
@@ -84,16 +86,27 @@ const main = async () => {
   dataRows.forEach((row) => {
     const baseKey = get(row, "baseKey");
     if (!baseKey) return;
-    const fields = toList(get(row, "fields"));
+    const fields = toList(get(row, "pdfFieldName"));
     const split = get(row, "split") as MappingEntry["split"];
     const splitFields = toList(get(row, "splitFields"));
     const normalize = get(row, "normalize") as MappingEntry["normalize"];
+    const maxLengthRaw = get(row, "maxLength");
+    const skipRaw = get(row, "skip");
 
     const entry: MappingEntry = {};
     if (fields.length) entry.fields = fields;
     if (split) entry.split = split;
     if (splitFields.length) entry.splitFields = splitFields;
     if (normalize) entry.normalize = normalize;
+    if (maxLengthRaw) {
+      const parsed = Number(maxLengthRaw);
+      if (!Number.isNaN(parsed) && parsed > 0) {
+        entry.maxLength = parsed;
+      }
+    }
+    if (skipRaw) {
+      entry.skip = ["true", "1", "yes"].includes(skipRaw.toLowerCase());
+    }
 
     mapping[baseKey] = entry;
   });
@@ -102,7 +115,7 @@ const main = async () => {
   console.log(`Wrote ${Object.keys(mapping).length} mappings to ${JSON_PATH}`);
 };
 
-main().catch((error) => {
+main().catch((error: unknown) => {
   console.error(error);
   process.exit(1);
 });

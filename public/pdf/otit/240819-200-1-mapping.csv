@@ -1,0 +1,60 @@
+key,page,section,item_no,label,sheet,cell
+applicant.receiptNumber,P2,申請者,1-①,実習実施者届出受理番号,OTIT_240819-200-1,B2
+applicant.name,P2,申請者,1-②,氏名又は名称,OTIT_240819-200-1,B3
+applicant.postal,P2,申請者,1-③,住所（〒）,OTIT_240819-200-1,B4
+applicant.address,P2,申請者,1-③,住所（本文）,OTIT_240819-200-1,B5
+applicant.phone,P2,申請者,1-③,電話,OTIT_240819-200-1,B6
+applicant.repName,P2,申請者,1-④,代表者の氏名,OTIT_240819-200-1,B7
+applicant.corpNumber,P2,申請者,1-⑤,法人番号,OTIT_240819-200-1,B8
+applicant.officer1.name,P2,申請者,1-⑥,役員① 氏名,OTIT_240819-200-1,B10
+applicant.officer1.role,P2,申請者,1-⑥,役員① 役職名,OTIT_240819-200-1,B11
+applicant.officer1.address,P2,申請者,1-⑥,役員① 住所,OTIT_240819-200-1,B12
+applicant.officer2.name,P2,申請者,1-⑥,役員② 氏名,OTIT_240819-200-1,B13
+applicant.officer2.role,P2,申請者,1-⑥,役員② 役職名,OTIT_240819-200-1,B14
+applicant.officer2.address,P2,申請者,1-⑥,役員② 住所,OTIT_240819-200-1,B15
+applicant.industry.large,P2,申請者,1-⑦,業種 大分類（記号/名称）,OTIT_240819-200-1,B17
+applicant.industry.small,P2,申請者,1-⑦,業種 小分類（記号/名称）,OTIT_240819-200-1,B18
+,,,,,,
+worksite.name,P2,事業所,2-①,名称,OTIT_240819-200-1,B20
+worksite.postal,P2,事業所,2-②,所在地（〒）,OTIT_240819-200-1,B21
+worksite.address,P2,事業所,2-②,所在地（本文）,OTIT_240819-200-1,B22
+worksite.phone,P2,事業所,2-②,電話,OTIT_240819-200-1,B23
+worksite.manager.name,P2,事業所,2-③,技能実習責任者 氏名,OTIT_240819-200-1,B24
+worksite.manager.role,P2,事業所,2-③,技能実習責任者 役職名,OTIT_240819-200-1,B25
+worksite.instructor.name,P3,事業所,2-④,技能実習指導員 氏名,OTIT_240819-200-1,B26
+worksite.instructor.role,P3,事業所,2-④,技能実習指導員 役職名,OTIT_240819-200-1,B27
+worksite.lifeSupport.name,P3,事業所,2-⑤,生活指導員 氏名,OTIT_240819-200-1,B28
+worksite.lifeSupport.role,P3,事業所,2-⑤,生活指導員 役職名,OTIT_240819-200-1,B29
+,,,,,,
+trainee.nameRomaji,P3,技能実習生,3-①,氏名（ローマ字）,OTIT_240819-200-1,B31
+trainee.nameKanji,P3,技能実習生,3-①,氏名（漢字）,OTIT_240819-200-1,B32
+trainee.nationality,P3,技能実習生,3-②,国籍（国又は地域）,OTIT_240819-200-1,B33
+trainee.birthDate,P3,技能実習生,3-③,生年月日,OTIT_240819-200-1,B34
+trainee.age,P3,技能実習生,3-③,年齢,OTIT_240819-200-1,B35
+trainee.gender,P3,技能実習生,3-③,性別,OTIT_240819-200-1,B36
+trainee.returnPeriod,P3,技能実習生,3-④,帰国期間,OTIT_240819-200-1,B37
+,,,,,,
+plan.category,P3,区分,4,技能実習の区分（A〜F）,OTIT_240819-200-1,B39
+,,,,,,
+plan.job.code,P3,内容,5-①,コード番号,OTIT_240819-200-1,B41
+plan.job.title,P3,内容,5-①,職種名,OTIT_240819-200-1,B42
+plan.job.task,P3,内容,5-①,作業名,OTIT_240819-200-1,B43
+plan.preTraining.has,P3,内容,5-③,入国前講習 実施有無,OTIT_240819-200-1,B44
+plan.postTraining.note,P3,内容,5-③,入国後講習（別表参照メモ）,OTIT_240819-200-1,B45
+,,,,,,
+goal.examType,P3,目標,6,技能実習の目標（技能検定/評価試験/その他）,OTIT_240819-200-1,B47
+term.totalPeriod,P3,期間/時間,8,延べ期間（開始〜終了）,OTIT_240819-200-1,B49
+term.totalHours,P3,期間/時間,8,合計時間（講習+実習）,OTIT_240819-200-1,B50
+,,,,,,
+treatment.wageType,P4,待遇,10-①,賃金区分（月給/日給/時給）,OTIT_240819-200-1,B52
+treatment.wageAmount,P4,待遇,10-①,賃金（円）,OTIT_240819-200-1,B53
+treatment.contractFixed,P4,待遇,10-②,雇用契約期間（有/無・期間）,OTIT_240819-200-1,B54
+treatment.workHours,P4,待遇,10-③,労働時間（開始〜終了/休憩）,OTIT_240819-200-1,B55
+treatment.weeklyHours,P4,待遇,10-④,所定労働時間（年/週平均）,OTIT_240819-200-1,B56
+treatment.holidays,P4,待遇,10-⑤,休日（曜日等）,OTIT_240819-200-1,B57
+treatment.vacations,P4,待遇,10-⑥,休暇,OTIT_240819-200-1,B58
+treatment.dorm.postal,P4,待遇,10-⑦,宿泊施設（〒）,OTIT_240819-200-1,B59
+treatment.dorm.address,P4,待遇,10-⑦,宿泊施設（住所）,OTIT_240819-200-1,B60
+treatment.cost.food,P4,待遇,10-⑧,定期負担費用（食費）,OTIT_240819-200-1,B61
+treatment.cost.housing,P4,待遇,10-⑧,定期負担費用（居住費）,OTIT_240819-200-1,B62
+remarks,P4,備考,11,備考,OTIT_240819-200-1,B64

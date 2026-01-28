@@ -561,7 +561,7 @@ export async function generateTrainingPlanPdf({
       ...Object.keys(fieldNameToKeys),
       ...Object.keys(trainingPlan.freeEditOverrides ?? {}),
     ]);
-  const unmappedFieldNames = fieldNameList.filter((name) => !mappedFieldNames.has(name));
+    const unmappedFieldNames = fieldNameList.filter((name) => !mappedFieldNames.has(name));
     if (debug && unmappedFieldNames.length) {
       console.warn("未マッピングのテンプレPDFフィールド:", unmappedFieldNames);
     }
@@ -572,11 +572,11 @@ export async function generateTrainingPlanPdf({
       applyOverrides(fieldValueMap, trainingPlan.freeEditOverrides, fieldNameList, mapping);
     }
 
-  const emptyValueFields = fieldNameList.filter((name) => {
-    if (!mappedFieldNames.has(name)) return false;
-    const value = fieldValueMap[name];
-    return !value || value.toString().trim() === "";
-  });
+    const emptyValueFields = fieldNameList.filter((name) => {
+      if (!mappedFieldNames.has(name)) return false;
+      const value = fieldValueMap[name];
+      return !value || value.toString().trim() === "";
+    });
     if (debug && emptyValueFields.length) {
       const emptyFieldDetails = emptyValueFields.map((name) => ({
         name,
@@ -584,20 +584,20 @@ export async function generateTrainingPlanPdf({
       }));
       console.warn("値が空のテンプレPDFフィールド:", emptyFieldDetails);
     }
-  const mappedFieldDetails = Object.entries(fieldValueMap).map(([name, value]) => ({
-    name,
-    value,
-    keys: fieldNameToKeys[name] ?? [],
-  }));
-  const setResults: {
-    name: string;
-    value: string;
-    keys: string[];
-    status: string;
-    trimmed?: boolean;
-    error?: string;
-  }[] = [];
-  const unmappedDataKeys = Object.keys(values).filter((key) => !mapping[key]);
+    const mappedFieldDetails = Object.entries(fieldValueMap).map(([name, value]) => ({
+      name,
+      value,
+      keys: fieldNameToKeys[name] ?? [],
+    }));
+    const setResults: {
+      name: string;
+      value: string;
+      keys: string[];
+      status: string;
+      trimmed?: boolean;
+      error?: string;
+    }[] = [];
+    const unmappedDataKeys = Object.keys(values).filter((key) => !mapping[key]);
     if (debug) {
       console.log("投入予定フィールド:", fieldValueMap);
       console.log("投入値(正規化済み):", values);
@@ -605,58 +605,30 @@ export async function generateTrainingPlanPdf({
       console.log("未マッピングのデータキー:", unmappedDataKeys);
     }
 
-  Object.entries(fieldValueMap).forEach(([name, value]) => {
-    if (!value) return;
-    if (!fieldNameList.includes(name)) {
-      console.warn(`テンプレPDFにフィールドが見つかりません: ${name}`);
-      setResults.push({ name, value, keys: fieldNameToKeys[name] ?? [], status: "not_found" });
-      return;
-    }
-    const maxLengthOverride = Object.entries(mapping).find(([, entry]) =>
-      (entry.fields ?? []).includes(name)
-    )?.[1]?.maxLength;
-    const result = setFieldValue(form, name, value, maxLengthOverride);
-    setResults.push({
-      name,
-      value,
-      keys: fieldNameToKeys[name] ?? [],
-      status: result?.status ?? "unknown",
-      trimmed: result?.trimmed,
-      error: result?.error,
-    });
-    const mapping = await loadMapping();
-    const fieldNameToKeys = buildFieldNameToKeys(mapping);
-    if (debug) {
-      logTemplateFieldNames(fieldDetails);
-      console.log("テンプレ情報:", {
-        templateKind,
-        templateSource,
-        hasXfa: templateHasXfa,
-        deleteXfaExecuted,
-        fieldCount: fields.length,
-      });
-      if (templateHasXfa && templateKind !== "acro") {
-        console.warn(
-          "XFAフォームが検出されました。AcroForm版テンプレ(240819-200-1-acro.pdf)の利用を推奨します。"
-        );
+    for (const [name, value] of Object.entries(fieldValueMap)) {
+      if (!value) continue;
+      if (!fieldNameList.includes(name)) {
+        console.warn(`テンプレPDFにフィールドが見つかりません: ${name}`);
+        setResults.push({ name, value, keys: fieldNameToKeys[name] ?? [], status: "not_found" });
+        continue;
       }
+      const maxLengthOverride = Object.entries(mapping).find(([, entry]) =>
+        (entry.fields ?? []).includes(name)
+      )?.[1]?.maxLength;
+      const result = setFieldValue(form, name, value, maxLengthOverride);
+      setResults.push({
+        name,
+        value,
+        keys: fieldNameToKeys[name] ?? [],
+        status: result?.status ?? "unknown",
+        trimmed: result?.trimmed,
+        error: result?.error,
+      });
     }
 
-    const values = buildFieldValues({ organization, company, person, trainingPlan });
-    const mappedFieldNames = new Set([
-      ...Object.keys(fieldNameToKeys),
-      ...Object.keys(trainingPlan.freeEditOverrides ?? {}),
-    ]);
-    const unmappedFieldNames = fieldNameList.filter((name) => !mappedFieldNames.has(name));
-    if (debug && unmappedFieldNames.length) {
-      console.warn("未マッピングのテンプレPDFフィールド:", unmappedFieldNames);
-    }
-
-    const fieldValueMap: Record<string, string> = buildFieldValueMap(values, mapping);
-
-  form.updateFieldAppearances(font);
-  form.flatten({ updateFieldAppearances: true });
-  const appearanceUpdated = true;
+    form.updateFieldAppearances(font);
+    form.flatten({ updateFieldAppearances: true });
+    const appearanceUpdated = true;
 
     const pdfBytes = await pdfDoc.save();
     const mappedCount = fieldNameList.length - unmappedFieldNames.length;
@@ -670,19 +642,19 @@ export async function generateTrainingPlanPdf({
         fieldCount: fields.length,
         allFields: fieldDetails,
         unmappedTemplateFields: unmappedFieldNames,
-      remainingEmptyFields: emptyValueFields.map((name) => ({
-        name,
-        keys: fieldNameToKeys[name] ?? [],
-      })),
-      mappedFields: mappedFieldDetails,
-      values,
-      unmappedDataKeys,
-      setResults,
-      appearanceUpdated,
-      coverage: {
-        mappedCount,
-        totalCount: fieldNameList.length,
-      },
+        remainingEmptyFields: emptyValueFields.map((name) => ({
+          name,
+          keys: fieldNameToKeys[name] ?? [],
+        })),
+        mappedFields: mappedFieldDetails,
+        values,
+        unmappedDataKeys,
+        setResults,
+        appearanceUpdated,
+        coverage: {
+          mappedCount,
+          totalCount: fieldNameList.length,
+        },
       },
     };
   } catch (error) {

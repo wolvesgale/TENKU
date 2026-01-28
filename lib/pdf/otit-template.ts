@@ -35,6 +35,8 @@ const MAPPING_PATH = path.join(
 
 type MappingEntry = {
   fields?: string[];
+  split?: "name_ja" | "date_ymd" | "postal" | "tel" | "chars";
+  splitFields?: string[];
   splitName?: {
     familyField: string;
     givenField: string;
@@ -61,6 +63,10 @@ const loadMapping = async (): Promise<MappingData> => {
 const buildFieldNameToKeys = (mapping: MappingData) => {
   return Object.entries(mapping).reduce<Record<string, string[]>>((acc, [key, entry]) => {
     (entry.fields ?? []).forEach((fieldName) => {
+      if (!acc[fieldName]) acc[fieldName] = [];
+      acc[fieldName].push(key);
+    });
+    (entry.splitFields ?? []).forEach((fieldName) => {
       if (!acc[fieldName]) acc[fieldName] = [];
       acc[fieldName].push(key);
     });
@@ -324,6 +330,19 @@ const normalizeValue = (value: string, normalize?: MappingEntry["normalize"]) =>
   return value;
 };
 
+const splitByChars = (value: string, fields: string[], fieldValueMap: Record<string, string>) => {
+  fields.forEach((field, index) => {
+    fieldValueMap[field] = value[index] ?? "";
+  });
+};
+
+const splitByTel = (value: string, fields: string[], fieldValueMap: Record<string, string>) => {
+  const parts = value.split(/[-\s]+/).filter(Boolean);
+  fields.forEach((field, index) => {
+    fieldValueMap[field] = parts[index] ?? "";
+  });
+};
+
 const applyMappingEntry = (
   fieldValueMap: Record<string, string>,
   baseKey: string,
@@ -334,6 +353,27 @@ const applyMappingEntry = (
   (entry.fields ?? []).forEach((fieldName) => {
     fieldValueMap[fieldName] = normalizedValue;
   });
+  if (entry.split) {
+    const splitFields = entry.splitFields ?? [];
+    if (entry.split === "name_ja" && splitFields.length >= 2) {
+      const parts = splitName(normalizedValue);
+      fieldValueMap[splitFields[0]] = parts.family;
+      fieldValueMap[splitFields[1]] = parts.given;
+    } else if (entry.split === "date_ymd" && splitFields.length >= 3) {
+      const parts = splitDateParts(normalizedValue);
+      fieldValueMap[splitFields[0]] = parts.year;
+      fieldValueMap[splitFields[1]] = parts.month;
+      fieldValueMap[splitFields[2]] = parts.day;
+    } else if (entry.split === "postal" && splitFields.length >= 2) {
+      const digits = splitPostalCode(normalizedValue);
+      fieldValueMap[splitFields[0]] = digits.slice(0, 3);
+      fieldValueMap[splitFields[1]] = digits.slice(3);
+    } else if (entry.split === "tel" && splitFields.length) {
+      splitByTel(normalizedValue, splitFields, fieldValueMap);
+    } else if (entry.split === "chars" && splitFields.length) {
+      splitByChars(normalizedValue, splitFields, fieldValueMap);
+    }
+  }
   if (entry.splitName) {
     const parts = splitName(value);
     fieldValueMap[entry.splitName.familyField] = parts.family;
@@ -345,7 +385,7 @@ const applyMappingEntry = (
     fieldValueMap[entry.splitDate.monthField] = parts.month;
     fieldValueMap[entry.splitDate.dayField] = parts.day;
   }
-  if (!entry.fields && !entry.splitName && !entry.splitDate) {
+  if (!entry.fields && !entry.split && !entry.splitName && !entry.splitDate) {
     console.warn(`マッピング定義にフィールドがありません: ${baseKey}`);
   }
 };
@@ -394,13 +434,26 @@ export async function generateTrainingPlanPdf({
   diagnostics: {
     templateKind: "acro" | "standard" | "unknown";
     templateSource: "local" | "remote" | "unknown";
-    hasXfa: boolean;
+    templateHasXFA: boolean;
+    deleteXFAExecuted: boolean;
     fieldCount: number;
-    fields: { name: string; type: string; options?: string[] }[];
-    unmappedFields: string[];
-    emptyFields: { name: string; keys: string[] }[];
+    allFields: {
+      name: string;
+      type: string;
+      options?: string[];
+      maybeMaxLength?: number;
+      hasWidgets?: boolean;
+      pageIndex?: number;
+    }[];
+    unmappedTemplateFields: string[];
+    emptyAfterMapping: { name: string; keys: string[] }[];
     mappedFields: { name: string; value: string; keys: string[] }[];
     values: Record<string, string>;
+    unmappedDataKeys: string[];
+    coverage: {
+      mappedCount: number;
+      totalCount: number;
+    };
   };
 }> {
   let templateSource: "local" | "remote" | "unknown" = "unknown";
@@ -416,27 +469,42 @@ export async function generateTrainingPlanPdf({
     const font = await pdfDoc.embedFont(fontBytes, { subset: true });
 
     const form = pdfDoc.getForm();
-    const hasXfa = form.hasXFA();
+    const templateHasXfa = form.hasXFA();
+    let deleteXfaExecuted = false;
+    if (templateHasXfa) {
+      form.deleteXFA();
+      deleteXfaExecuted = true;
+    }
     const fields = form.getFields();
     const fieldNameList = fields.map((field) => field.getName());
     const fieldDetails = fields.map((field) => {
       const name = field.getName();
+      const widgets = (field as any).acroField?.getWidgets?.() ?? [];
+      const page = widgets[0]?.getPage?.();
+      const pageIndex = page ? pdfDoc.getPages().indexOf(page) : undefined;
+      const hasWidgets = widgets.length > 0;
       if (field instanceof PDFTextField) {
-        return { name, type: "text" };
+        return {
+          name,
+          type: "text",
+          maybeMaxLength: field.getMaxLength(),
+          hasWidgets,
+          pageIndex,
+        };
       }
       if (field instanceof PDFDropdown) {
-        return { name, type: "dropdown", options: field.getOptions() };
+        return { name, type: "dropdown", options: field.getOptions(), hasWidgets, pageIndex };
       }
       if (field instanceof PDFOptionList) {
-        return { name, type: "optionList", options: field.getOptions() };
+        return { name, type: "optionList", options: field.getOptions(), hasWidgets, pageIndex };
       }
       if (field instanceof PDFCheckBox) {
-        return { name, type: "checkbox" };
+        return { name, type: "checkbox", hasWidgets, pageIndex };
       }
       if (field instanceof PDFRadioGroup) {
-        return { name, type: "radio", options: field.getOptions() };
+        return { name, type: "radio", options: field.getOptions(), hasWidgets, pageIndex };
       }
-      return { name, type: "unknown" };
+      return { name, type: "unknown", hasWidgets, pageIndex };
     });
     const mapping = await loadMapping();
     const fieldNameToKeys = buildFieldNameToKeys(mapping);
@@ -445,10 +513,11 @@ export async function generateTrainingPlanPdf({
       console.log("テンプレ情報:", {
         templateKind,
         templateSource,
-        hasXfa,
+        hasXfa: templateHasXfa,
+        deleteXfaExecuted,
         fieldCount: fields.length,
       });
-      if (hasXfa && templateKind !== "acro") {
+      if (templateHasXfa && templateKind !== "acro") {
         console.warn(
           "XFAフォームが検出されました。AcroForm版テンプレ(240819-200-1-acro.pdf)の利用を推奨します。"
         );
@@ -488,10 +557,12 @@ export async function generateTrainingPlanPdf({
       value,
       keys: fieldNameToKeys[name] ?? [],
     }));
+    const unmappedDataKeys = Object.keys(values).filter((key) => !mapping[key]);
     if (debug) {
       console.log("投入予定フィールド:", fieldValueMap);
       console.log("投入値(正規化済み):", values);
       console.log("マッピング詳細:", mappedFieldDetails);
+      console.log("未マッピングのデータキー:", unmappedDataKeys);
     }
 
     Object.entries(fieldValueMap).forEach(([name, value]) => {
@@ -507,21 +578,28 @@ export async function generateTrainingPlanPdf({
     form.flatten();
 
     const pdfBytes = await pdfDoc.save();
+    const mappedCount = fieldNameList.length - unmappedFieldNames.length;
     return {
       pdfBytes,
       diagnostics: {
         templateKind,
         templateSource,
-        hasXfa,
+        templateHasXFA: templateHasXfa,
+        deleteXFAExecuted: deleteXfaExecuted,
         fieldCount: fields.length,
-        fields: fieldDetails,
-        unmappedFields: unmappedFieldNames,
-        emptyFields: emptyValueFields.map((name) => ({
+        allFields: fieldDetails,
+        unmappedTemplateFields: unmappedFieldNames,
+        emptyAfterMapping: emptyValueFields.map((name) => ({
           name,
           keys: fieldNameToKeys[name] ?? [],
         })),
         mappedFields: mappedFieldDetails,
         values,
+        unmappedDataKeys,
+        coverage: {
+          mappedCount,
+          totalCount: fieldNameList.length,
+        },
       },
     };
   } catch (error) {

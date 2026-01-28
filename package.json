@@ -8,7 +8,8 @@
     "start": "next start",
     "lint": "next lint",
     "postinstall": "prisma generate",
-    "check:pdf": "node scripts/check-pdf-preview.mjs"
+    "check:pdf": "node scripts/check-pdf-preview.mjs",
+    "gen:otit-mapping": "ts-node scripts/generate-otit-mapping.ts"
   },
   "dependencies": {
     "@openfonts/noto-sans-jp_japanese": "1.44.5",
@@ -34,6 +35,7 @@
     "eslint": "8.57.0",
     "eslint-config-next": "14.2.5",
     "prisma": "5.17.0",
+    "ts-node": "10.9.2",
     "typescript": "5.4.5"
   }
 }

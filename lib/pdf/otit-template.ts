@@ -4,8 +4,10 @@ import {
   PDFCheckBox,
   PDFDocument,
   PDFDropdown,
+  PDFName,
   PDFOptionList,
   PDFRadioGroup,
+  PDFString,
   PDFTextField,
 } from "pdf-lib";
 import fontkit from "@pdf-lib/fontkit";
@@ -328,7 +330,14 @@ const setFieldValue = (
       return { status: "set", trimmed: trimmedValue !== value };
     }
     if (field instanceof PDFDropdown || field instanceof PDFOptionList) {
-      field.select(value);
+      const options = field.getOptions();
+      if (options.length > 0 && options.includes(value)) {
+        field.select(value);
+      } else {
+        // XFA由来のドロップダウンはオプション定義が空の場合がある。
+        // その場合はAcroFieldのdictに直接V値を設定することで値を反映させる。
+        (field as any).acroField.dict.set(PDFName.of("V"), PDFString.of(value));
+      }
       return { status: "set" };
     }
     if (field instanceof PDFCheckBox) {

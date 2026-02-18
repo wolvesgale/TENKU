@@ -9,6 +9,19 @@ export type TrainingPlanFormValues = {
   plannedEnd: string;
   status: string;
   description: string;
+  trainingStartDate: string;
+  trainingEndDate: string;
+  trainingDurationYears: string;
+  trainingDurationMonths: string;
+  trainingDurationDays: string;
+  trainingHoursTotal: string;
+  trainingHoursLecture: string;
+  trainingHoursPractice: string;
+  jobCode2: string;
+  jobName2: string;
+  workName2: string;
+  prevCertNumber: string;
+  entryTrainingRequired: string;
 };
 
 export type TrainingPlanFieldSchema = FormFieldSchema<TrainingPlanFormValues>;
@@ -36,6 +49,19 @@ const defaultSchema: TrainingPlanFieldSchema[] = [
     options: TRAINING_PLAN_STATUS_OPTIONS,
   },
   { name: "description", label: "職種/作業", type: "textarea", required: true },
+  { name: "trainingStartDate", label: "実習開始日（PDF用）", type: "date", required: false },
+  { name: "trainingEndDate", label: "実習終了日（PDF用）", type: "date", required: false },
+  { name: "trainingDurationYears", label: "実習期間_年", type: "text", required: false },
+  { name: "trainingDurationMonths", label: "実習期間_月", type: "text", required: false },
+  { name: "trainingDurationDays", label: "実習期間_日", type: "text", required: false },
+  { name: "trainingHoursTotal", label: "実習時間合計", type: "text", required: false },
+  { name: "trainingHoursLecture", label: "実習時間_講習", type: "text", required: false },
+  { name: "trainingHoursPractice", label: "実習時間_実習", type: "text", required: false },
+  { name: "jobCode2", label: "職種コード2", type: "text", required: false },
+  { name: "jobName2", label: "職種名2", type: "text", required: false },
+  { name: "workName2", label: "作業名2", type: "text", required: false },
+  { name: "prevCertNumber", label: "前段階認定番号", type: "text", required: false },
+  { name: "entryTrainingRequired", label: "入国後講習（1=必要/0=不要）", type: "text", required: false },
 ];
 
 export type TrainingPlanFormProps = {

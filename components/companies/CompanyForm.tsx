@@ -22,10 +22,13 @@ export type CompanyFormData = {
   workplacePostalCode?: string;
   workplacePhone?: string;
   traineeResponsibleName?: string;
+  traineeResponsibleKana?: string;
   traineeResponsibleRole?: string;
   traineeInstructorName?: string;
+  traineeInstructorKana?: string;
   traineeInstructorRole?: string;
   lifeInstructorName?: string;
+  lifeInstructorKana?: string;
   lifeInstructorRole?: string;
 };
 
@@ -60,10 +63,13 @@ export function CompanyForm({
     workplacePostalCode: "",
     workplacePhone: "",
     traineeResponsibleName: "",
+    traineeResponsibleKana: "",
     traineeResponsibleRole: "",
     traineeInstructorName: "",
+    traineeInstructorKana: "",
     traineeInstructorRole: "",
     lifeInstructorName: "",
+    lifeInstructorKana: "",
     lifeInstructorRole: "",
     ...initialData,
   });
@@ -156,6 +162,10 @@ export function CompanyForm({
             <input className={inputClassName} value={form.traineeResponsibleName ?? ""} onChange={(e) => setForm({ ...form, traineeResponsibleName: e.target.value })} />
           </label>
           <label className="text-sm">
+            実習責任者（カナ）
+            <input className={inputClassName} value={form.traineeResponsibleKana ?? ""} onChange={(e) => setForm({ ...form, traineeResponsibleKana: e.target.value })} />
+          </label>
+          <label className="text-sm">
             実習責任者 役職
             <input className={inputClassName} value={form.traineeResponsibleRole ?? ""} onChange={(e) => setForm({ ...form, traineeResponsibleRole: e.target.value })} />
           </label>
@@ -164,12 +174,20 @@ export function CompanyForm({
             <input className={inputClassName} value={form.traineeInstructorName ?? ""} onChange={(e) => setForm({ ...form, traineeInstructorName: e.target.value })} />
           </label>
           <label className="text-sm">
+            技能実習指導員（カナ）
+            <input className={inputClassName} value={form.traineeInstructorKana ?? ""} onChange={(e) => setForm({ ...form, traineeInstructorKana: e.target.value })} />
+          </label>
+          <label className="text-sm">
             技能実習指導員 役職
             <input className={inputClassName} value={form.traineeInstructorRole ?? ""} onChange={(e) => setForm({ ...form, traineeInstructorRole: e.target.value })} />
           </label>
           <label className="text-sm">
             生活指導員
             <input className={inputClassName} value={form.lifeInstructorName ?? ""} onChange={(e) => setForm({ ...form, lifeInstructorName: e.target.value })} />
+          </label>
+          <label className="text-sm">
+            生活指導員（カナ）
+            <input className={inputClassName} value={form.lifeInstructorKana ?? ""} onChange={(e) => setForm({ ...form, lifeInstructorKana: e.target.value })} />
           </label>
           <label className="text-sm">
             生活指導員 役職

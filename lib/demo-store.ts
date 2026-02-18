@@ -15,16 +15,24 @@ export type DemoOrganizationProfile = {
   permitNumber?: string;
   permitType?: string;
   name: string;
+  nameKana?: string;
+  postalCode?: string;
   address?: string;
   phone?: string;
   representativeName?: string;
+  representativeKana?: string;
   supervisorResponsibleName?: string;
+  supervisorResponsibleKana?: string;
   supervisingOfficeName?: string;
+  supervisingOfficeNameKana?: string;
+  supervisingOfficePostalCode?: string;
   supervisingOfficeAddress?: string;
   supervisingOfficePhone?: string;
   planInstructorName?: string;
+  planInstructorKana?: string;
   sendingOrgName?: string;
   sendingOrgNumber?: string;
+  sendingOrgNumberCountry?: string;
   sendingOrgRefNumber?: string;
 };
 export type Company = {
@@ -51,10 +59,13 @@ export type Company = {
   workplacePostalCode?: string;
   workplacePhone?: string;
   traineeResponsibleName?: string;
+  traineeResponsibleKana?: string;
   traineeResponsibleRole?: string;
   traineeInstructorName?: string;
+  traineeInstructorKana?: string;
   traineeInstructorRole?: string;
   lifeInstructorName?: string;
+  lifeInstructorKana?: string;
   lifeInstructorRole?: string;
 };
 export type Person = {
@@ -197,6 +208,19 @@ export type TrainingPlan = {
   jobCode?: string;
   jobName?: string;
   workName?: string;
+  jobCode2?: string;
+  jobName2?: string;
+  workName2?: string;
+  trainingStartDate?: string;
+  trainingEndDate?: string;
+  trainingDurationYears?: string;
+  trainingDurationMonths?: string;
+  trainingDurationDays?: string;
+  trainingHoursTotal?: string;
+  trainingHoursLecture?: string;
+  trainingHoursPractice?: string;
+  prevCertNumber?: string;
+  entryTrainingRequired?: string;
   freeEditOverrides?: Record<string, string>;
 };
 

@@ -198,41 +198,14 @@ const buildFieldValues = ({
   person?: Person;
   trainingPlan: TrainingPlan;
 }) => {
-  const organizationExtras = organization as DemoOrganizationProfile & {
-    nameKana?: string;
-    postalCode?: string;
-    supervisingOfficeNameKana?: string;
-    supervisingOfficePostalCode?: string;
-    planInstructorKana?: string;
-    sendingOrgNumberCountry?: string;
-  };
-  const companyExtras = company as Company & {
-    traineeResponsibleKana?: string;
-    traineeInstructorKana?: string;
-    lifeInstructorKana?: string;
-  };
+  const today = new Date().toISOString().slice(0, 10);
   const baseValues: Record<string, string> = {
-    "org.permitNumber": organization.permitNumber ?? "",
-    "org.permitType": organization.permitType ?? "",
-    "org.name": organization.name ?? "",
-    "org.nameKana": organizationExtras?.nameKana ?? "",
-    "org.postalCode": organizationExtras?.postalCode ?? "",
-    "org.address": organization.address ?? "",
-    "org.phone": organization.phone ?? "",
-    "org.representativeName": organization.representativeName ?? "",
-    "org.supervisorResponsibleName": organization.supervisorResponsibleName ?? "",
-    "org.supervisingOfficeName": organization.supervisingOfficeName ?? "",
-    "org.supervisingOfficeNameKana": organizationExtras?.supervisingOfficeNameKana ?? "",
-    "org.supervisingOfficePostalCode": organizationExtras?.supervisingOfficePostalCode ?? "",
-    "org.supervisingOfficeAddress": organization.supervisingOfficeAddress ?? "",
-    "org.supervisingOfficePhone": organization.supervisingOfficePhone ?? "",
-    "org.planInstructorName": organization.planInstructorName ?? "",
-    "org.planInstructorKana": organizationExtras?.planInstructorKana ?? "",
-    "org.sendingOrgNumberCountry": organizationExtras?.sendingOrgNumberCountry ?? "",
-    "org.sendingOrgName": organization.sendingOrgName ?? "",
-    "org.sendingOrgNumber": organization.sendingOrgNumber ?? "",
-    "org.sendingOrgRefNumber": organization.sendingOrgRefNumber ?? "",
+    // Page 1: 申請書ヘッダー
+    "application.submissionDate": today,
+    "application.applicant": company?.name ?? "",
+    "application.org": organization.name ?? "",
 
+    // Page 2: 実習実施者
     "company.name": company?.name ?? "",
     "company.nameKana": company?.nameKana ?? "",
     "company.postalCode": company?.postalCode ?? "",
@@ -250,30 +223,67 @@ const buildFieldValues = ({
     "company.workplaceAddress": company?.workplaceAddress ?? "",
     "company.workplacePhone": company?.workplacePhone ?? "",
     "company.traineeResponsibleName": company?.traineeResponsibleName ?? "",
-    "company.traineeResponsibleKana": companyExtras?.traineeResponsibleKana ?? "",
+    "company.traineeResponsibleKana": company?.traineeResponsibleKana ?? "",
     "company.traineeResponsibleRole": company?.traineeResponsibleRole ?? "",
     "company.traineeInstructorName": company?.traineeInstructorName ?? "",
-    "company.traineeInstructorKana": companyExtras?.traineeInstructorKana ?? "",
+    "company.traineeInstructorKana": company?.traineeInstructorKana ?? "",
     "company.traineeInstructorRole": company?.traineeInstructorRole ?? "",
     "company.lifeInstructorName": company?.lifeInstructorName ?? "",
-    "company.lifeInstructorKana": companyExtras?.lifeInstructorKana ?? "",
+    "company.lifeInstructorKana": company?.lifeInstructorKana ?? "",
     "company.lifeInstructorRole": company?.lifeInstructorRole ?? "",
 
+    // Page 3: 技能実習生
     "person.nameRomaji": person?.nameRomaji ?? person?.nameRoma ?? "",
     "person.nameKanji": person?.nameKanji ?? "",
-    "person.nameKana": person?.nameKana ?? "",
     "person.nationality": person?.nationality ?? "",
     "person.birthdate": formatDate(person?.birthdate ?? person?.birthDate),
-    "person.birthdateDisplay": formatDateDisplay(person?.birthdate ?? person?.birthDate),
     "person.gender": person?.gender ?? "",
     "person.age": person?.age?.toString() ?? calculateAge(person?.birthdate ?? person?.birthDate),
     "person.returnPeriodFrom": formatDate(person?.returnPeriodFrom),
     "person.returnPeriodTo": formatDate(person?.returnPeriodTo),
 
+    // Page 3: 技能実習計画
     "training.category": trainingPlan.category ?? "",
     "training.jobCode": trainingPlan.jobCode ?? "",
     "training.jobName": trainingPlan.jobName ?? "",
     "training.workName": trainingPlan.workName ?? "",
+    "training.jobCode2": trainingPlan.jobCode2 ?? "",
+    "training.jobName2": trainingPlan.jobName2 ?? "",
+    "training.workName2": trainingPlan.workName2 ?? "",
+    "training.startDate": formatDate(trainingPlan.trainingStartDate ?? trainingPlan.plannedStart),
+    "training.endDate": formatDate(trainingPlan.trainingEndDate ?? trainingPlan.plannedEnd),
+    "training.durationYears": trainingPlan.trainingDurationYears ?? "",
+    "training.durationMonths": trainingPlan.trainingDurationMonths ?? "",
+    "training.durationDays": trainingPlan.trainingDurationDays ?? "",
+    "training.hoursTotal": trainingPlan.trainingHoursTotal ?? "",
+    "training.hoursLecture": trainingPlan.trainingHoursLecture ?? "",
+    "training.hoursPractice": trainingPlan.trainingHoursPractice ?? "",
+    "training.prevCertNumber": trainingPlan.prevCertNumber ?? "",
+    "training.entryTrainingRequired": trainingPlan.entryTrainingRequired ?? "",
+
+    // Page 4: 監理団体
+    "org.permitNumber": organization.permitNumber ?? "",
+    "org.permitType": organization.permitType ?? "",
+    "org.name": organization.name ?? "",
+    "org.nameKana": organization.nameKana ?? "",
+    "org.postalCode": organization.postalCode ?? "",
+    "org.address": organization.address ?? "",
+    "org.phone": organization.phone ?? "",
+    "org.representativeName": organization.representativeName ?? "",
+    "org.representativeKana": organization.representativeKana ?? "",
+    "org.supervisorResponsibleName": organization.supervisorResponsibleName ?? "",
+    "org.supervisorResponsibleKana": organization.supervisorResponsibleKana ?? "",
+    "org.supervisingOfficeName": organization.supervisingOfficeName ?? "",
+    "org.supervisingOfficeNameKana": organization.supervisingOfficeNameKana ?? "",
+    "org.supervisingOfficePostalCode": organization.supervisingOfficePostalCode ?? "",
+    "org.supervisingOfficeAddress": organization.supervisingOfficeAddress ?? "",
+    "org.supervisingOfficePhone": organization.supervisingOfficePhone ?? "",
+    "org.planInstructorName": organization.planInstructorName ?? "",
+    "org.planInstructorKana": organization.planInstructorKana ?? "",
+    "org.sendingOrgNumberCountry": organization.sendingOrgNumberCountry ?? "",
+    "org.sendingOrgName": organization.sendingOrgName ?? "",
+    "org.sendingOrgNumber": organization.sendingOrgNumber ?? "",
+    "org.sendingOrgRefNumber": organization.sendingOrgRefNumber ?? "",
   };
 
   const overrides = trainingPlan.freeEditOverrides ?? {};

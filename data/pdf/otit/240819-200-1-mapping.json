@@ -1,4 +1,22 @@
 {
+  "application.submissionDate": {
+    "split": "date_ymd",
+    "splitFields": [
+      "Top[0].Page1[0].txtSHINSEIBI_NEN[0]",
+      "Top[0].Page1[0].cmbSHINSEIBI_TSUKI[0]",
+      "Top[0].Page1[0].cmbSHINSEIBI_HI[0]"
+    ]
+  },
+  "application.applicant": {
+    "fields": [
+      "Top[0].Page1[0].txtSHINSEISHA[0]"
+    ]
+  },
+  "application.org": {
+    "fields": [
+      "Top[0].Page1[0].txtKANRIDANTAI[0]"
+    ]
+  },
   "company.name": {
     "fields": [
       "Top[0].Page2[0].txtJISSHISHAMEI[0]"
@@ -325,6 +343,91 @@
   "org.sendingOrgRefNumber": {
     "fields": [
       "Top[0].Page4[0].txtSEIRIBANGO[0]"
+    ]
+  },
+  "org.representativeKana": {
+    "split": "name_ja",
+    "splitFields": [
+      "Top[0].Page4[0].txtKANRI_DAIHYO_KANA_SEI[0]",
+      "Top[0].Page4[0].txtKANRI_DAIHYO_KANA_MEI[0]"
+    ]
+  },
+  "org.supervisorResponsibleKana": {
+    "split": "name_ja",
+    "splitFields": [
+      "Top[0].Page4[0].txtKANRI_SEKININ_KANA_SEI[0]",
+      "Top[0].Page4[0].txtKANRI_SEKININ_KANA_MEI[0]"
+    ]
+  },
+  "training.startDate": {
+    "split": "date_ymd",
+    "splitFields": [
+      "Top[0].Page3[0].txtJISSHUKAISHI_NEN[0]",
+      "Top[0].Page3[0].cmbJISSHUKAISHI_TSUKI[0]",
+      "Top[0].Page3[0].cmbJISSHUKAISHI_HI[0]"
+    ]
+  },
+  "training.endDate": {
+    "split": "date_ymd",
+    "splitFields": [
+      "Top[0].Page3[0].txtJISSHUSHURYO_NEN[0]",
+      "Top[0].Page3[0].cmbJISSHUSHURYO_TSUKI[0]",
+      "Top[0].Page3[0].cmbJISSHUSHURYO_HI[0]"
+    ]
+  },
+  "training.durationYears": {
+    "fields": [
+      "Top[0].Page3[0].txtJISSHUKIKAN_NEN[0]"
+    ]
+  },
+  "training.durationMonths": {
+    "fields": [
+      "Top[0].Page3[0].cmbJISSHUKIKAN_TSUKI[0]"
+    ]
+  },
+  "training.durationDays": {
+    "fields": [
+      "Top[0].Page3[0].cmbJISSHUKIKAN_HI[0]"
+    ]
+  },
+  "training.hoursTotal": {
+    "fields": [
+      "Top[0].Page3[0].txtJISSHUJIKAN[0]"
+    ]
+  },
+  "training.hoursLecture": {
+    "fields": [
+      "Top[0].Page3[0].txtJISSHUJIKANUCHIWAKE_KOUSHU[0]"
+    ]
+  },
+  "training.hoursPractice": {
+    "fields": [
+      "Top[0].Page3[0].txtJISSHUJIKANUCHIWAKE_JISSHU[0]"
+    ]
+  },
+  "training.jobCode2": {
+    "fields": [
+      "Top[0].Page3[0].cmbSHOKUSHUSAGYO_2[0]"
+    ]
+  },
+  "training.jobName2": {
+    "fields": [
+      "Top[0].Page3[0].txtSHOKUSHUSAGYO_2_SHOKUSHU[0]"
+    ]
+  },
+  "training.workName2": {
+    "fields": [
+      "Top[0].Page3[0].txtSHOKUSHUSAGYO_2_SAGYO[0]"
+    ]
+  },
+  "training.prevCertNumber": {
+    "fields": [
+      "Top[0].Page3[0].txtZENDANKAI_NINTEIBANGO[0]"
+    ]
+  },
+  "training.entryTrainingRequired": {
+    "fields": [
+      "Top[0].Page3[0].rbtNYUKOKUGOKOSHU[0]"
     ]
   }
 }

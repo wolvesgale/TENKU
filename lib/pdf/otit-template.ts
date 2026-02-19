@@ -2,10 +2,13 @@ import { promises as fs } from "fs";
 import path from "path";
 import {
   PDFCheckBox,
+  PDFDict,
   PDFDocument,
   PDFDropdown,
+  PDFName,
   PDFOptionList,
   PDFRadioGroup,
+  PDFString,
   PDFTextField,
 } from "pdf-lib";
 import fontkit from "@pdf-lib/fontkit";
@@ -328,7 +331,14 @@ const setFieldValue = (
       return { status: "set", trimmed: trimmedValue !== value };
     }
     if (field instanceof PDFDropdown || field instanceof PDFOptionList) {
-      field.select(value);
+      const options = field.getOptions();
+      if (options.length > 0 && options.includes(value)) {
+        field.select(value);
+      } else {
+        // XFA由来のドロップダウンはオプション定義が空の場合がある。
+        // その場合はAcroFieldのdictに直接V値を設定することで値を反映させる。
+        (field as any).acroField.dict.set(PDFName.of("V"), PDFString.of(value));
+      }
       return { status: "set" };
     }
     if (field instanceof PDFCheckBox) {
@@ -637,8 +647,26 @@ export async function generateTrainingPlanPdf({
     }
 
     form.updateFieldAppearances(font);
-    form.flatten({ updateFieldAppearances: true });
+    form.flatten();
     const appearanceUpdated = true;
+
+    // flatten()後にNotoSansJP-Regularフォントをすべてのページリソースに追加する。
+    // これをしないと、アピアランスストリームが参照するフォント名がページリソースに
+    // 存在しないため、PDFビューアがテキストを正しくレンダリングできない。
+    for (let i = 0; i < pdfDoc.getPageCount(); i++) {
+      const page = pdfDoc.getPage(i);
+      const resources = page.node.Resources();
+      if (!resources) continue;
+      const existingFontRes = resources.get(PDFName.of("Font"));
+      if (existingFontRes instanceof PDFDict) {
+        existingFontRes.set(PDFName.of(font.name), font.ref);
+      } else {
+        // ページにFontリソース辞書がない場合は新規作成して追加
+        const newFontDict = pdfDoc.context.obj({}) as unknown as PDFDict;
+        newFontDict.set(PDFName.of(font.name), font.ref);
+        resources.set(PDFName.of("Font"), newFontDict);
+      }
+    }
 
     const pdfBytes = await pdfDoc.save();
     const mappedCount = fieldNameList.length - unmappedFieldNames.length;

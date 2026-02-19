@@ -18,6 +18,9 @@ public/fonts
 *.jpeg
 *.webp
 
+# TypeScript build info
+*.tsbuildinfo
+
 # runtime cache
 .cache/
 tmp/

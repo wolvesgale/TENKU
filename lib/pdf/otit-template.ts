@@ -2,6 +2,7 @@ import { promises as fs } from "fs";
 import path from "path";
 import {
   PDFCheckBox,
+  PDFDict,
   PDFDocument,
   PDFDropdown,
   PDFName,
@@ -646,8 +647,26 @@ export async function generateTrainingPlanPdf({
     }
 
     form.updateFieldAppearances(font);
-    form.flatten({ updateFieldAppearances: true });
+    form.flatten();
     const appearanceUpdated = true;
+
+    // flatten()後にNotoSansJP-Regularフォントをすべてのページリソースに追加する。
+    // これをしないと、アピアランスストリームが参照するフォント名がページリソースに
+    // 存在しないため、PDFビューアがテキストを正しくレンダリングできない。
+    for (let i = 0; i < pdfDoc.getPageCount(); i++) {
+      const page = pdfDoc.getPage(i);
+      const resources = page.node.Resources();
+      if (!resources) continue;
+      const existingFontRes = resources.get(PDFName.of("Font"));
+      if (existingFontRes instanceof PDFDict) {
+        existingFontRes.set(PDFName.of(font.name), font.ref);
+      } else {
+        // ページにFontリソース辞書がない場合は新規作成して追加
+        const newFontDict = pdfDoc.context.obj({}) as unknown as PDFDict;
+        newFontDict.set(PDFName.of(font.name), font.ref);
+        resources.set(PDFName.of("Font"), newFontDict);
+      }
+    }
 
     const pdfBytes = await pdfDoc.save();
     const mappedCount = fieldNameList.length - unmappedFieldNames.length;

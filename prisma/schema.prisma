@@ -29,6 +29,21 @@ enum TaskStatus {
 enum OrganizationType {
   SUPPORT
   SENDING
+  SUPERVISING
+  TRAINING
+}
+
+enum TravelType {
+  FLIGHT
+  BUS
+}
+
+enum TripStatus {
+  DRAFT
+  PREP
+  READY
+  OUTBOUND
+  RETURNED
 }
 
 enum CaseProgram {
@@ -57,6 +72,8 @@ model Company {
   applications   Application[]
   trainingPlans  TrainingPlan[]
   monitoringLogs MonitoringLog[]
+  engagements    Engagement[]
+  supportPlans   SupportPlan[]
   createdAt      DateTime       @default(now())
   updatedAt      DateTime       @updatedAt
 }
@@ -100,6 +117,11 @@ model Tenant {
   applications          Application[]
   trainingPlans         TrainingPlan[]
   jobs                  Job[]
+  travelPlans           TravelPlan[]
+  engagements           Engagement[]
+  supportPlans          SupportPlan[]
+  educationCourses      EducationCourse[]
+  translationJobs       TranslationJob[]
 }
 
 model Organization {
@@ -157,14 +179,19 @@ model Person {
   tenant              Tenant                @relation(fields: [tenantId], references: [id])
   currentCompany      Company?              @relation(fields: [currentCompanyId], references: [id])
   sendingOrg          Organization?         @relation("SendingOrg", fields: [sendingOrgId], references: [id])
-  cases               Case[]
-  tasks               Task[]
-  statusHistory       PersonStatusHistory[]
-  applications        Application[]
-  trainingPlans       TrainingPlan[]
-  monitoringLogs      MonitoringLog[]
-  createdAt           DateTime              @default(now())
-  updatedAt           DateTime              @updatedAt
+  cases                 Case[]
+  tasks                 Task[]
+  statusHistory         PersonStatusHistory[]
+  applications          Application[]
+  trainingPlans         TrainingPlan[]
+  monitoringLogs        MonitoringLog[]
+  travelPlans           TravelPlan[]
+  engagements           Engagement[]
+  supportPlans          SupportPlan[]
+  educationSubmissions  EducationSubmission[]
+  translationJobs       TranslationJob[]
+  createdAt             DateTime              @default(now())
+  updatedAt             DateTime              @updatedAt
 }
 
 model PersonStatusHistory {
@@ -314,4 +341,123 @@ model MinorChangeNotice {
   details      Json
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
+}
+
+// ─── 移動・渡航管理 ───────────────────────────────────────────────────────────
+
+model TravelPlan {
+  id           String     @id @default(cuid())
+  tenantId     String     @map("tenant_id")
+  personId     String     @map("person_id")
+  tripGroupId  String?    @map("trip_group_id")
+  travelType   TravelType @map("travel_type")
+  provider     String?
+  bookingUrl   String?    @map("booking_url")
+  tripStatus   TripStatus @default(DRAFT) @map("trip_status")
+  departureDate DateTime? @map("departure_date")
+  returnDate   DateTime?  @map("return_date")
+  notes        String?
+  metaJson     Json?      @map("meta_json")
+  tenant       Tenant     @relation(fields: [tenantId], references: [id])
+  person       Person     @relation(fields: [personId], references: [id])
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
+}
+
+// ─── エンゲージメント（誰が・どの会社に・どの制度で）────────────────────────────
+
+model Engagement {
+  id        String    @id @default(cuid())
+  tenantId  String    @map("tenant_id")
+  personId  String    @map("person_id")
+  companyId String    @map("company_id")
+  orgId     String?   @map("org_id")
+  program   String    // TITP / SSW / TA
+  startDate DateTime  @map("start_date")
+  endDate   DateTime? @map("end_date")
+  status    String    @default("ACTIVE")
+  metaJson  Json?     @map("meta_json")
+  tenant    Tenant    @relation(fields: [tenantId], references: [id])
+  person    Person    @relation(fields: [personId], references: [id])
+  company   Company   @relation(fields: [companyId], references: [id])
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+}
+
+// ─── 支援計画・面談・記録（特定技能）──────────────────────────────────────────
+
+model SupportPlan {
+  id            String    @id @default(cuid())
+  tenantId      String    @map("tenant_id")
+  personId      String?   @map("person_id")
+  companyId     String?   @map("company_id")
+  orgId         String?   @map("org_id")
+  planType      String    @map("plan_type")
+  status        String    @default("DRAFT")
+  scheduledDate DateTime? @map("scheduled_date")
+  conductedDate DateTime? @map("conducted_date")
+  documentUrl   String?   @map("document_url")
+  memo          String?
+  metaJson      Json?     @map("meta_json")
+  tenant        Tenant    @relation(fields: [tenantId], references: [id])
+  person        Person?   @relation(fields: [personId], references: [id])
+  company       Company?  @relation(fields: [companyId], references: [id])
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+}
+
+// ─── 教育（Google Classroom連携）────────────────────────────────────────────
+
+model EducationCourse {
+  id                String                @id @default(cuid())
+  tenantId          String                @map("tenant_id")
+  classroomCourseId String?               @map("classroom_course_id")
+  name              String
+  section           String?
+  syncedAt          DateTime?             @map("synced_at")
+  metaJson          Json?                 @map("meta_json")
+  tenant            Tenant                @relation(fields: [tenantId], references: [id])
+  submissions       EducationSubmission[]
+  createdAt         DateTime              @default(now())
+  updatedAt         DateTime              @updatedAt
+}
+
+model EducationSubmission {
+  id              String          @id @default(cuid())
+  tenantId        String          @map("tenant_id")
+  courseId        String          @map("course_id")
+  personId        String?         @map("person_id")
+  courseWorkId    String?         @map("course_work_id")
+  courseWorkTitle String?         @map("course_work_title")
+  submittedAt     DateTime?       @map("submitted_at")
+  dueDate         DateTime?       @map("due_date")
+  score           Float?
+  maxScore        Float?          @map("max_score")
+  state           String?
+  audioUrl        String?         @map("audio_url")
+  metaJson        Json?           @map("meta_json")
+  course          EducationCourse @relation(fields: [courseId], references: [id])
+  person          Person?         @relation(fields: [personId], references: [id])
+  createdAt       DateTime        @default(now())
+  updatedAt       DateTime        @updatedAt
+}
+
+// ─── 翻訳ジョブ ──────────────────────────────────────────────────────────────
+
+model TranslationJob {
+  id             String   @id @default(cuid())
+  tenantId       String   @map("tenant_id")
+  personId       String?  @map("person_id")
+  sourceLanguage String   @default("ja") @map("source_language")
+  targetLanguage String   @map("target_language")
+  contentType    String   @map("content_type")
+  status         String   @default("PENDING")
+  sourceUrl      String?  @map("source_url")
+  resultUrl      String?  @map("result_url")
+  notes          String?
+  metaJson       Json?    @map("meta_json")
+  tenant         Tenant   @relation(fields: [tenantId], references: [id])
+  person         Person?  @relation(fields: [personId], references: [id])
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
 }

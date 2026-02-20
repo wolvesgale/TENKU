@@ -518,7 +518,11 @@ export async function generateTrainingPlanPdf({
 
     const pdfDoc = await PDFDocument.load(templateBytes);
     pdfDoc.registerFontkit(fontkit);
-    const font = await pdfDoc.embedFont(fontBytes, { subset: true });
+    // subset: false でフルフォントを埋め込む。
+    // subset: true の場合、flatten() 後のページコンテンツ内にある
+    // CJK 複合フォントのマルチバイト文字コードを fontkit が正しくトレースできず、
+    // 一部の日本語グリフがサブセットに含まれない（歯抜け）問題が発生するため。
+    const font = await pdfDoc.embedFont(fontBytes, { subset: false });
 
     const form = pdfDoc.getForm();
     const templateHasXfa = form.hasXFA();

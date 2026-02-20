@@ -720,6 +720,7 @@ const trainingPlans: TrainingPlan[] = [
     trainingHoursTotal: "2080",
     trainingHoursLecture: "240",
     trainingHoursPractice: "1840",
+    entryTrainingRequired: "1",
     freeEditOverrides: {},
   },
 ];

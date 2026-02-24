@@ -67,6 +67,43 @@ export default function TrainingPlansPage() {
           ))}
         </tbody>
       </table>
+
+      {/* 区分凡例 */}
+      <div className="rounded border border-white/10 bg-white/5 p-4 text-sm">
+        <p className="mb-3 font-semibold text-gray-300">
+          区分について（技能実習計画認定申請書 第200号の1様式）
+        </p>
+        <table className="w-full border-collapse text-xs">
+          <thead>
+            <tr className="bg-white/10">
+              <th className="border border-white/10 px-3 py-1.5 text-left text-gray-200 w-12">区分</th>
+              <th className="border border-white/10 px-3 py-1.5 text-left text-gray-200 w-24">実習段階</th>
+              <th className="border border-white/10 px-3 py-1.5 text-left text-gray-200 w-32">類型</th>
+              <th className="border border-white/10 px-3 py-1.5 text-left text-gray-200">概要</th>
+            </tr>
+          </thead>
+          <tbody>
+            {[
+              { label: "A", stage: "第1号", type: "企業単独型", desc: "受入企業が単独で技能実習生を受け入れる。実習期間1〜2年目。" },
+              { label: "B", stage: "第1号", type: "団体監理型", desc: "監理団体（事業協同組合等）を通じて受け入れる。実習期間1〜2年目。最も一般的な類型。" },
+              { label: "C", stage: "第2号", type: "企業単独型", desc: "第1号（企業単独型）修了後の継続実習。実習期間3〜4年目。" },
+              { label: "D", stage: "第2号", type: "団体監理型", desc: "第1号（団体監理型）修了後の継続実習。実習期間3〜4年目。" },
+              { label: "E", stage: "第3号", type: "企業単独型", desc: "第2号修了後のさらなる継続実習。優良な実習実施者のみ可。実習期間5年目。" },
+              { label: "F", stage: "第3号", type: "団体監理型", desc: "第2号修了後のさらなる継続実習。優良な監理団体・実習実施者のみ可。実習期間5年目。" },
+            ].map((row) => (
+              <tr key={row.label} className="hover:bg-white/5">
+                <td className="border border-white/10 px-3 py-1.5 text-center font-bold text-brand-blue">{row.label}</td>
+                <td className="border border-white/10 px-3 py-1.5 text-gray-300">{row.stage}</td>
+                <td className="border border-white/10 px-3 py-1.5 text-gray-300">{row.type}</td>
+                <td className="border border-white/10 px-3 py-1.5 text-gray-400">{row.desc}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+        <p className="mt-2 text-gray-500 text-xs">
+          ※ OTIT（外国人技能実習機構）様式200-1「技能実習計画認定申請書」の実習区分（rbtJISSHUKUBUN）に対応。
+        </p>
+      </div>
     </div>
   );
 }

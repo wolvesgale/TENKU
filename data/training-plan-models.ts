@@ -1,3 +1,21 @@
+export type TaskPlanItem = { text: string; enabled: boolean };
+
+export type TaskPlan = {
+  modelJobCode: string;
+  mandatoryTasks: string[];
+  relatedTasks: TaskPlanItem[];
+  peripheralTasks: TaskPlanItem[];
+  materials: string[];
+  equipment: string[];
+  productExamples: string[];
+  supervision: {
+    instructorName: string;
+    instructorKana: string;
+    instructorRole: string;
+    note: string;
+  };
+};
+
 export type TrainingPlanModel = {
   jobCode: string;
   jobName: string;

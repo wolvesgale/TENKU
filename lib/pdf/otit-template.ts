@@ -5,12 +5,15 @@ import {
   PDFDict,
   PDFDocument,
   PDFDropdown,
+  PDFFont,
   PDFName,
   PDFOptionList,
   PDFRadioGroup,
   PDFString,
   PDFTextField,
+  rgb,
 } from "pdf-lib";
+import type { TaskPlan } from "@/data/training-plan-models";
 import fontkit from "@pdf-lib/fontkit";
 import type { Company, DemoOrganizationProfile, Person, TrainingPlan } from "@/lib/demo-store";
 
@@ -188,6 +191,79 @@ const normalizePermitType = (value?: string) => {
   if (normalized.includes("一般")) return "1";
   if (normalized.includes("特定")) return "2";
   return value;
+};
+
+const PAGE_W = 595.28;
+const PAGE_H = 841.89;
+const ML = 45;
+const MR = 45;
+const MT = 50;
+const MB = 50;
+
+const appendTaskPlanPage = (pdfDoc: PDFDocument, font: PDFFont, taskPlan: TaskPlan) => {
+  let page = pdfDoc.addPage([PAGE_W, PAGE_H]);
+  let y = PAGE_H - MT;
+
+  const newPage = () => {
+    page = pdfDoc.addPage([PAGE_W, PAGE_H]);
+    y = PAGE_H - MT;
+  };
+
+  const need = (h: number) => {
+    if (y - h < MB) newPage();
+  };
+
+  const text = (str: string, x: number, size: number, bold = false) => {
+    need(size + 4);
+    page.drawText(str, { x, y, size, font, color: rgb(0.1, 0.1, 0.1) });
+    y -= size + 4;
+  };
+
+  const hline = () => {
+    need(8);
+    page.drawLine({ start: { x: ML, y }, end: { x: PAGE_W - MR, y }, thickness: 0.4, color: rgb(0.6, 0.6, 0.6) });
+    y -= 8;
+  };
+
+  const section = (title: string, items: string[]) => {
+    if (items.length === 0) return;
+    need(16 + items.length * 14);
+    text(`■ ${title}`, ML, 10.5);
+    for (const item of items) {
+      const display = item.length > 55 ? item.slice(0, 55) + "…" : item;
+      text(`　・${display}`, ML + 6, 9);
+    }
+    y -= 4;
+  };
+
+  // タイトル
+  text("技能実習の内容（別添）", ML, 13);
+  y -= 2;
+  hline();
+  y -= 2;
+
+  section("必須業務", taskPlan.mandatoryTasks);
+  section(
+    "関連業務（実施するもの）",
+    taskPlan.relatedTasks.filter((t) => t.enabled).map((t) => t.text).filter(Boolean),
+  );
+  section(
+    "周辺業務（実施するもの）",
+    taskPlan.peripheralTasks.filter((t) => t.enabled).map((t) => t.text).filter(Boolean),
+  );
+  section("使用する素材・材料", taskPlan.materials.filter(Boolean));
+  section("使用する機械・器具", taskPlan.equipment.filter(Boolean));
+  section("製品などの例", taskPlan.productExamples.filter(Boolean));
+
+  const sup = taskPlan.supervision;
+  if (sup.instructorName) {
+    const parts = [
+      `技能実習指導員: ${sup.instructorName}${sup.instructorKana ? `（${sup.instructorKana}）` : ""}`,
+      sup.instructorRole ? `役職: ${sup.instructorRole}` : "",
+      sup.note ? `備考: ${sup.note}` : "",
+    ].filter(Boolean);
+    section("指導体制", parts);
+  }
 };
 
 const buildFieldValues = ({
@@ -670,6 +746,11 @@ export async function generateTrainingPlanPdf({
         newFontDict.set(PDFName.of(font.name), font.ref);
         resources.set(PDFName.of("Font"), newFontDict);
       }
+    }
+
+    const taskPlan = (trainingPlan.metadata as { taskPlan?: TaskPlan } | undefined)?.taskPlan;
+    if (taskPlan) {
+      appendTaskPlanPage(pdfDoc, font, taskPlan);
     }
 
     const pdfBytes = await pdfDoc.save();

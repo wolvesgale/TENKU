@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { findModel, trainingPlanModels } from "@/data/training-plan-models";
+import { findModel, trainingPlanModels, type TaskPlanItem, type TaskPlan } from "@/data/training-plan-models";
 
 type Company = {
   id: string;
@@ -69,23 +69,7 @@ type Organization = {
   sendingOrgRefNumber?: string;
 };
 
-export type TaskPlanItem = { text: string; enabled: boolean };
-
-export type TaskPlan = {
-  modelJobCode: string;
-  mandatoryTasks: string[];
-  relatedTasks: TaskPlanItem[];
-  peripheralTasks: TaskPlanItem[];
-  materials: string[];
-  equipment: string[];
-  productExamples: string[];
-  supervision: {
-    instructorName: string;
-    instructorKana: string;
-    instructorRole: string;
-    note: string;
-  };
-};
+export type { TaskPlanItem, TaskPlan } from "@/data/training-plan-models";
 
 export type TrainingPlanEditorValues = {
   companyId: string;

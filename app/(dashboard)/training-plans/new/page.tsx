@@ -24,6 +24,7 @@ const DEFAULT_FORM_VALUES: TrainingPlanEditorValues = {
   prevCertNumber: "",
   entryTrainingRequired: "",
   freeEditOverrides: {},
+  taskPlan: undefined,
 };
 
 export default function NewTrainingPlanPage() {
@@ -66,6 +67,7 @@ export default function NewTrainingPlanPage() {
           prevCertNumber: values.prevCertNumber,
           entryTrainingRequired: values.entryTrainingRequired,
           freeEditOverrides: values.freeEditOverrides,
+          metadata: values.taskPlan ? { taskPlan: values.taskPlan } : undefined,
         }),
       });
       const json = await res.json();

@@ -24,6 +24,7 @@ const emptyValues: TrainingPlanEditorValues = {
   prevCertNumber: "",
   entryTrainingRequired: "",
   freeEditOverrides: {},
+  taskPlan: undefined,
 };
 
 export default function TrainingPlanDetail({ params }: { params: { id: string } }) {
@@ -62,6 +63,7 @@ export default function TrainingPlanDetail({ params }: { params: { id: string } 
           prevCertNumber: res.data.prevCertNumber ?? "",
           entryTrainingRequired: res.data.entryTrainingRequired ?? "",
           freeEditOverrides: res.data.freeEditOverrides ?? {},
+          taskPlan: res.data.metadata?.taskPlan ?? undefined,
         });
       });
     fetch("/api/v1/persons").then((r) => r.json()).then((res) => setPersons(res.data ?? []));
@@ -94,6 +96,7 @@ export default function TrainingPlanDetail({ params }: { params: { id: string } 
         prevCertNumber: values.prevCertNumber,
         entryTrainingRequired: values.entryTrainingRequired,
         freeEditOverrides: values.freeEditOverrides,
+        metadata: values.taskPlan ? { taskPlan: values.taskPlan } : undefined,
       }),
     });
     setFormValues(values);

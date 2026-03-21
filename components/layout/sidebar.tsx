@@ -61,7 +61,7 @@ export const sidebarSections: SidebarSection[] = [
     defaultOpen: true,
     links: [
       { href: "/training-plans", label: "技能実習", icon: ClipboardList },
-      { href: "/ssw", label: "特定技能", icon: Award, wip: true },
+      { href: "/ssw", label: "特定技能", icon: Award },
       { href: "/ta", label: "特定活動（移行）", icon: ArrowRightLeft, wip: true },
     ],
   },

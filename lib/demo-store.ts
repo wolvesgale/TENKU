@@ -249,6 +249,111 @@ export type MinorChangeNotice = {
   updatedAt: string;
 };
 
+// ─── SSW (特定技能) 専用型 ───────────────────────────────────────────────────
+
+export type SswInterviewStatus = "scheduled" | "completed" | "cancelled";
+export type SswInterview = {
+  id: string;
+  tenantId: string;
+  personId: string;
+  companyId?: string;
+  interviewNo: number; // 第N回
+  scheduledDate: string;
+  conductedDate?: string;
+  status: SswInterviewStatus;
+  conductorName?: string;
+  location?: string;
+  memo?: string;
+  createdAt: string;
+  updatedAt: string;
+};
+
+export type SswNotifType = "regular" | "adhoc";
+export type SswNotifStatus = "pending" | "submitted" | "overdue";
+export type SswNotification = {
+  id: string;
+  tenantId: string;
+  personId: string;
+  companyId?: string;
+  notifType: SswNotifType; // 定期届出 or 随時届出
+  category: string; // 届出種別
+  dueDate: string;
+  submittedDate?: string;
+  status: SswNotifStatus;
+  memo?: string;
+  createdAt: string;
+  updatedAt: string;
+};
+
+export type SswSupportPlanType = "1" | "2";
+export type SswSupportPlanStatus = "draft" | "approved" | "in_progress" | "completed";
+export type SswSupportPlan = {
+  id: string;
+  tenantId: string;
+  personId: string;
+  companyId?: string;
+  planType: SswSupportPlanType; // 1号 or 2号
+  status: SswSupportPlanStatus;
+  startDate?: string;
+  endDate?: string;
+  supportOrgId?: string;
+  isDelegated: boolean; // 支援委託かどうか
+  memo?: string;
+  createdAt: string;
+  updatedAt: string;
+};
+
+export type SswAppType = "COE" | "COS" | "EXT";
+export type SswAppStatus = "draft" | "submitted" | "approved" | "rejected";
+export type SswApplication = {
+  id: string;
+  tenantId: string;
+  personId: string;
+  companyId?: string;
+  appType: SswAppType; // Certificate of Eligibility / Change of Status / Extension
+  sector: string; // 特定産業分野
+  employerType: "corporate" | "individual"; // 法人 or 個人事業主
+  nationality?: string;
+  status: SswAppStatus;
+  submittedAt?: string;
+  approvedAt?: string;
+  targetDate?: string; // 申請予定日 or 期限
+  notes?: string;
+  createdAt: string;
+  updatedAt: string;
+};
+
+export type SswRecord = {
+  id: string;
+  tenantId: string;
+  personId: string;
+  companyId?: string;
+  recordDate: string;
+  recordType: string; // 支援内容カテゴリ
+  content: string;
+  staffName?: string;
+  memo?: string;
+  createdAt: string;
+  updatedAt: string;
+};
+
+export type SswJobChangeStatus = "planning" | "notified" | "completed" | "cancelled";
+export type SswJobChange = {
+  id: string;
+  tenantId: string;
+  personId: string;
+  fromCompanyId: string;
+  toCompanyId?: string;
+  status: SswJobChangeStatus;
+  changeDate?: string;
+  reason?: string;
+  notes?: string;
+  createdAt: string;
+  updatedAt: string;
+};
+
+// ─────────────────────────────────────────────────────────────────────────────
+
 export type ExpiryThresholds = {
   residenceCardExpiryDays: number;
   passportExpiryDays: number;
@@ -775,6 +880,196 @@ const tenantSettings: TenantSettings[] = [
   { tenantId: tenant.id, expiryThresholds: { ...DEFAULT_EXPIRY_THRESHOLDS }, updatedAt: new Date().toISOString() },
 ];
 
+// ─── SSW デモデータ ──────────────────────────────────────────────────────────
+
+const sswInterviews: SswInterview[] = [
+  {
+    id: "swi-001",
+    tenantId: tenant.id,
+    personId: "prs-002",
+    companyId: "cmp-002",
+    interviewNo: 1,
+    scheduledDate: new Date(Date.now() - 1000 * 60 * 60 * 24 * 120).toISOString(),
+    conductedDate: new Date(Date.now() - 1000 * 60 * 60 * 24 * 118).toISOString(),
+    status: "completed",
+    conductorName: "鈴木 直人",
+    location: "Aster Foods 会議室",
+    memo: "就労環境・賃金・相談事項なし。次回は4ヶ月後。",
+    createdAt: new Date(Date.now() - 1000 * 60 * 60 * 24 * 125).toISOString(),
+    updatedAt: new Date(Date.now() - 1000 * 60 * 60 * 24 * 118).toISOString(),
+  },
+  {
+    id: "swi-002",
+    tenantId: tenant.id,
+    personId: "prs-002",
+    companyId: "cmp-002",
+    interviewNo: 2,
+    scheduledDate: new Date(Date.now() + 1000 * 60 * 60 * 24 * 2).toISOString(),
+    status: "scheduled",
+    conductorName: "鈴木 直人",
+    location: "オンライン",
+    memo: "",
+    createdAt: new Date(Date.now() - 1000 * 60 * 60 * 24 * 10).toISOString(),
+    updatedAt: new Date(Date.now() - 1000 * 60 * 60 * 24 * 10).toISOString(),
+  },
+  {
+    id: "swi-003",
+    tenantId: tenant.id,
+    personId: "prs-005",
+    companyId: "cmp-002",
+    interviewNo: 1,
+    scheduledDate: new Date(Date.now() + 1000 * 60 * 60 * 24 * 15).toISOString(),
+    status: "scheduled",
+    conductorName: "渡辺 優斗",
+    location: "Aster Foods 会議室",
+    memo: "",
+    createdAt: new Date(Date.now() - 1000 * 60 * 60 * 24 * 5).toISOString(),
+    updatedAt: new Date(Date.now() - 1000 * 60 * 60 * 24 * 5).toISOString(),
+  },
+];
+
+const sswNotifications: SswNotification[] = [
+  {
+    id: "swn-001",
+    tenantId: tenant.id,
+    personId: "prs-002",
+    companyId: "cmp-002",
+    notifType: "regular",
+    category: "受入れ・活動状況に係る届出",
+    dueDate: new Date(Date.now() + 1000 * 60 * 60 * 24 * 20).toISOString(),
+    status: "pending",
+    memo: "四半期定期届出",
+    createdAt: new Date(Date.now() - 1000 * 60 * 60 * 24 * 5).toISOString(),
+    updatedAt: new Date(Date.now() - 1000 * 60 * 60 * 24 * 5).toISOString(),
+  },
+  {
+    id: "swn-002",
+    tenantId: tenant.id,
+    personId: "prs-005",
+    companyId: "cmp-002",
+    notifType: "adhoc",
+    category: "受入れ困難に係る届出",
+    dueDate: new Date(Date.now() - 1000 * 60 * 60 * 24 * 3).toISOString(),
+    submittedDate: new Date(Date.now() - 1000 * 60 * 60 * 24 * 2).toISOString(),
+    status: "submitted",
+    memo: "休職に伴う随時届出。提出済み。",
+    createdAt: new Date(Date.now() - 1000 * 60 * 60 * 24 * 10).toISOString(),
+    updatedAt: new Date(Date.now() - 1000 * 60 * 60 * 24 * 2).toISOString(),
+  },
+  {
+    id: "swn-003",
+    tenantId: tenant.id,
+    personId: "prs-002",
+    companyId: "cmp-002",
+    notifType: "regular",
+    category: "受入れ・活動状況に係る届出",
+    dueDate: new Date(Date.now() - 1000 * 60 * 60 * 24 * 70).toISOString(),
+    submittedDate: new Date(Date.now() - 1000 * 60 * 60 * 24 * 68).toISOString(),
+    status: "submitted",
+    memo: "前四半期定期届出。提出済み。",
+    createdAt: new Date(Date.now() - 1000 * 60 * 60 * 24 * 90).toISOString(),
+    updatedAt: new Date(Date.now() - 1000 * 60 * 60 * 24 * 68).toISOString(),
+  },
+];
+
+const sswSupportPlans: SswSupportPlan[] = [
+  {
+    id: "ssp-001",
+    tenantId: tenant.id,
+    personId: "prs-002",
+    companyId: "cmp-002",
+    planType: "1",
+    status: "in_progress",
+    startDate: new Date(Date.now() - 1000 * 60 * 60 * 24 * 300).toISOString(),
+    endDate: new Date(Date.now() + 1000 * 60 * 60 * 24 * 65).toISOString(),
+    supportOrgId: "org_support",
+    isDelegated: true,
+    memo: "登録支援機関への支援委託。全11項目対応中。",
+    createdAt: new Date(Date.now() - 1000 * 60 * 60 * 24 * 310).toISOString(),
+    updatedAt: new Date(Date.now() - 1000 * 60 * 60 * 24 * 5).toISOString(),
+  },
+  {
+    id: "ssp-002",
+    tenantId: tenant.id,
+    personId: "prs-005",
+    companyId: "cmp-002",
+    planType: "1",
+    status: "approved",
+    startDate: new Date(Date.now() - 1000 * 60 * 60 * 24 * 150).toISOString(),
+    endDate: new Date(Date.now() + 1000 * 60 * 60 * 24 * 215).toISOString(),
+    supportOrgId: "org_support",
+    isDelegated: true,
+    memo: "承認済み。定期面談スケジュール調整中。",
+    createdAt: new Date(Date.now() - 1000 * 60 * 60 * 24 * 160).toISOString(),
+    updatedAt: new Date(Date.now() - 1000 * 60 * 60 * 24 * 120).toISOString(),
+  },
+];
+
+const sswApplications: SswApplication[] = [
+  {
+    id: "swa-001",
+    tenantId: tenant.id,
+    personId: "prs-002",
+    companyId: "cmp-002",
+    appType: "EXT",
+    sector: "食品製造業",
+    employerType: "corporate",
+    nationality: "フィリピン",
+    status: "draft",
+    targetDate: new Date(Date.now() + 1000 * 60 * 60 * 24 * 15).toISOString(),
+    notes: "在留期間満了前更新。雇用契約継続。",
+    createdAt: new Date(Date.now() - 1000 * 60 * 60 * 24 * 7).toISOString(),
+    updatedAt: new Date(Date.now() - 1000 * 60 * 60 * 24 * 7).toISOString(),
+  },
+  {
+    id: "swa-002",
+    tenantId: tenant.id,
+    personId: "prs-005",
+    companyId: "cmp-002",
+    appType: "COE",
+    sector: "食品製造業",
+    employerType: "corporate",
+    nationality: "韓国",
+    status: "submitted",
+    submittedAt: new Date(Date.now() - 1000 * 60 * 60 * 24 * 30).toISOString(),
+    targetDate: new Date(Date.now() + 1000 * 60 * 60 * 24 * 60).toISOString(),
+    notes: "海外からの新規招聘。特定技能1号食品製造。",
+    createdAt: new Date(Date.now() - 1000 * 60 * 60 * 24 * 45).toISOString(),
+    updatedAt: new Date(Date.now() - 1000 * 60 * 60 * 24 * 30).toISOString(),
+  },
+];
+
+const sswRecords: SswRecord[] = [
+  {
+    id: "swr-001",
+    tenantId: tenant.id,
+    personId: "prs-002",
+    companyId: "cmp-002",
+    recordDate: new Date(Date.now() - 1000 * 60 * 60 * 24 * 118).toISOString(),
+    recordType: "定期面談",
+    content: "就労状況・賃金・住居環境・不満点なし。日本語学習継続中。",
+    staffName: "鈴木 直人",
+    createdAt: new Date(Date.now() - 1000 * 60 * 60 * 24 * 118).toISOString(),
+    updatedAt: new Date(Date.now() - 1000 * 60 * 60 * 24 * 118).toISOString(),
+  },
+  {
+    id: "swr-002",
+    tenantId: tenant.id,
+    personId: "prs-002",
+    companyId: "cmp-002",
+    recordDate: new Date(Date.now() - 1000 * 60 * 60 * 24 * 30).toISOString(),
+    recordType: "生活支援",
+    content: "住居更新手続きサポート。賃貸契約書確認・翻訳提供。",
+    staffName: "鈴木 直人",
+    createdAt: new Date(Date.now() - 1000 * 60 * 60 * 24 * 30).toISOString(),
+    updatedAt: new Date(Date.now() - 1000 * 60 * 60 * 24 * 30).toISOString(),
+  },
+];
+
+const sswJobChanges: SswJobChange[] = [];
+
+// ─────────────────────────────────────────────────────────────────────────────
+
 function filterProgram<T extends { program?: string }>(items: T[], program?: Program | string) {
   if (!program || program === "ALL") return items;
   return items.filter((i) => i.program === program);
@@ -796,6 +1091,12 @@ export const store = {
   tenantSettings,
   monitoringLogs,
   minorChangeNotices,
+  sswInterviews,
+  sswNotifications,
+  sswSupportPlans,
+  sswApplications,
+  sswRecords,
+  sswJobChanges,
 };
 
 function ensureTenantSettings(tenantId: string): TenantSettings {
@@ -1324,3 +1625,96 @@ export function autoGenerateTasks(caseId: string) {
 }
 
 calculateAlerts();
+
+
+// ─── SSW CRUD 関数 ────────────────────────────────────────────────────────────
+
+export function listSswInterviews(personId?: string) {
+  if (personId) return sswInterviews.filter((i) => i.personId === personId);
+  return sswInterviews;
+}
+export function addSswInterview(input: Omit<SswInterview, "id" | "tenantId" | "createdAt" | "updatedAt">): SswInterview {
+  const item: SswInterview = { id: randomUUID(), tenantId: tenant.id, createdAt: new Date().toISOString(), updatedAt: new Date().toISOString(), ...input };
+  sswInterviews.push(item);
+  return item;
+}
+export function updateSswInterview(id: string, data: Partial<SswInterview>): SswInterview | null {
+  const idx = sswInterviews.findIndex((i) => i.id === id);
+  if (idx === -1) return null;
+  sswInterviews[idx] = { ...sswInterviews[idx], ...data, updatedAt: new Date().toISOString() };
+  return sswInterviews[idx];
+}
+
+export function listSswNotifications(personId?: string) {
+  if (personId) return sswNotifications.filter((n) => n.personId === personId);
+  return sswNotifications;
+}
+export function addSswNotification(input: Omit<SswNotification, "id" | "tenantId" | "createdAt" | "updatedAt">): SswNotification {
+  const item: SswNotification = { id: randomUUID(), tenantId: tenant.id, createdAt: new Date().toISOString(), updatedAt: new Date().toISOString(), ...input };
+  sswNotifications.push(item);
+  return item;
+}
+export function updateSswNotification(id: string, data: Partial<SswNotification>): SswNotification | null {
+  const idx = sswNotifications.findIndex((n) => n.id === id);
+  if (idx === -1) return null;
+  sswNotifications[idx] = { ...sswNotifications[idx], ...data, updatedAt: new Date().toISOString() };
+  return sswNotifications[idx];
+}
+
+export function listSswSupportPlans(personId?: string) {
+  if (personId) return sswSupportPlans.filter((p) => p.personId === personId);
+  return sswSupportPlans;
+}
+export function addSswSupportPlan(input: Omit<SswSupportPlan, "id" | "tenantId" | "createdAt" | "updatedAt">): SswSupportPlan {
+  const item: SswSupportPlan = { id: randomUUID(), tenantId: tenant.id, createdAt: new Date().toISOString(), updatedAt: new Date().toISOString(), ...input };
+  sswSupportPlans.push(item);
+  return item;
+}
+export function updateSswSupportPlan(id: string, data: Partial<SswSupportPlan>): SswSupportPlan | null {
+  const idx = sswSupportPlans.findIndex((p) => p.id === id);
+  if (idx === -1) return null;
+  sswSupportPlans[idx] = { ...sswSupportPlans[idx], ...data, updatedAt: new Date().toISOString() };
+  return sswSupportPlans[idx];
+}
+
+export function listSswApplications(personId?: string) {
+  if (personId) return sswApplications.filter((a) => a.personId === personId);
+  return sswApplications;
+}
+export function addSswApplication(input: Omit<SswApplication, "id" | "tenantId" | "createdAt" | "updatedAt">): SswApplication {
+  const item: SswApplication = { id: randomUUID(), tenantId: tenant.id, createdAt: new Date().toISOString(), updatedAt: new Date().toISOString(), ...input };
+  sswApplications.push(item);
+  return item;
+}
+export function updateSswApplication(id: string, data: Partial<SswApplication>): SswApplication | null {
+  const idx = sswApplications.findIndex((a) => a.id === id);
+  if (idx === -1) return null;
+  sswApplications[idx] = { ...sswApplications[idx], ...data, updatedAt: new Date().toISOString() };
+  return sswApplications[idx];
+}
+
+export function listSswRecords(personId?: string) {
+  if (personId) return sswRecords.filter((r) => r.personId === personId);
+  return sswRecords;
+}
+export function addSswRecord(input: Omit<SswRecord, "id" | "tenantId" | "createdAt" | "updatedAt">): SswRecord {
+  const item: SswRecord = { id: randomUUID(), tenantId: tenant.id, createdAt: new Date().toISOString(), updatedAt: new Date().toISOString(), ...input };
+  sswRecords.push(item);
+  return item;
+}
+
+export function listSswJobChanges(personId?: string) {
+  if (personId) return sswJobChanges.filter((j) => j.personId === personId);
+  return sswJobChanges;
+}
+export function addSswJobChange(input: Omit<SswJobChange, "id" | "tenantId" | "createdAt" | "updatedAt">): SswJobChange {
+  const item: SswJobChange = { id: randomUUID(), tenantId: tenant.id, createdAt: new Date().toISOString(), updatedAt: new Date().toISOString(), ...input };
+  sswJobChanges.push(item);
+  return item;
+}
+export function updateSswJobChange(id: string, data: Partial<SswJobChange>): SswJobChange | null {
+  const idx = sswJobChanges.findIndex((j) => j.id === id);
+  if (idx === -1) return null;
+  sswJobChanges[idx] = { ...sswJobChanges[idx], ...data, updatedAt: new Date().toISOString() };
+  return sswJobChanges[idx];
+}

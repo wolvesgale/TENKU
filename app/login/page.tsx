@@ -1,31 +1,50 @@
 "use client";
 import { useState } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { useAppState } from "@/components/providers/app-state-provider";
 import { Shield, Sparkles } from "lucide-react";
+import { Suspense } from "react";
 
 const DEMO_TENANT = process.env.NEXT_PUBLIC_TENKU_TENANT_CODE ?? "240224";
-const DEMO_EMAIL = process.env.NEXT_PUBLIC_TENKU_DEMO_EMAIL ?? "support@techtas.jp";
-const DEMO_PASSWORD = process.env.NEXT_PUBLIC_TENKU_DEMO_PASSWORD ?? "techtas720";
+const DEMO_EMAIL = process.env.NEXT_PUBLIC_TENKU_DEMO_EMAIL ?? "";
 
-export default function LoginPage() {
+function LoginForm() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const { setTenantCode, setEmail, setRole, role } = useAppState();
   const [tenantCode, updateTenantCode] = useState(DEMO_TENANT);
   const [email, updateEmail] = useState(DEMO_EMAIL);
-  const [password, setPassword] = useState(DEMO_PASSWORD);
+  const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
 
-  const onSubmit = (e: React.FormEvent) => {
+  const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (tenantCode === DEMO_TENANT && email === DEMO_EMAIL && password === DEMO_PASSWORD) {
+    setLoading(true);
+    setError(null);
+
+    try {
+      const res = await fetch("/api/auth/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ tenantCode, email, password }),
+      });
+
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}));
+        setError(data.error ?? "認証に失敗しました");
+        return;
+      }
+
       setTenantCode(tenantCode);
       setEmail(email);
-      setError(null);
-      router.push("/dashboard");
-    } else {
-      setError("デモ用固定値と一致しません");
+      const from = searchParams.get("from") ?? "/dashboard";
+      router.push(from);
+    } catch {
+      setError("ネットワークエラーが発生しました");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -38,7 +57,7 @@ export default function LoginPage() {
           </div>
           <div>
             <p className="text-sm text-muted">TENKU_Cloud</p>
-            <h1 className="text-2xl font-bold text-white">ダミーログイン</h1>
+            <h1 className="text-2xl font-bold text-white">ログイン</h1>
             <p className="text-sm text-muted">管理団体コード + ID + PW を入力</p>
           </div>
         </div>
@@ -66,14 +85,19 @@ export default function LoginPage() {
             </select>
           </div>
           {error && <p className="text-rose-400 text-sm">{error}</p>}
-          <Button type="submit" className="w-full">
-            <Sparkles size={16} /> Sign in (デモ)
+          <Button type="submit" className="w-full" disabled={loading}>
+            <Sparkles size={16} /> {loading ? "認証中..." : "Sign in"}
           </Button>
         </form>
-        <div className="text-xs text-muted">
-          デモ用固定値: tenantCode={DEMO_TENANT}, email={DEMO_EMAIL}, password={DEMO_PASSWORD}
-        </div>
       </div>
     </div>
+  );
+}
+
+export default function LoginPage() {
+  return (
+    <Suspense>
+      <LoginForm />
+    </Suspense>
   );
 }

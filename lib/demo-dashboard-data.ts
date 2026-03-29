@@ -134,5 +134,5 @@ export const dashboardKpiCards: DashboardKpi[] = [
   { title: "実習実施先数", value: 10, change: "+1", trend: "up" },
   { title: "在留管理人数", value: 49, change: "+11", trend: "up" },
   { title: "申請管理件数", value: 33, change: "+5", trend: "up" },
-  { title: "登録済みアカウント", value: 3, change: "+1", trend: "up" },
+  { title: "登録済みアカウント", value: 4, change: "+1", trend: "up" },
 ];

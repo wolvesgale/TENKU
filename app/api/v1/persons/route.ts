@@ -51,9 +51,14 @@ export async function POST(req: NextRequest) {
     returnPeriodFrom: body.returnPeriodFrom,
     returnPeriodTo: body.returnPeriodTo,
     currentCompanyId: body.currentCompanyId,
+    currentCompanyName: body.currentCompanyName,
     currentProgram: body.currentProgram,
+    residenceStatus: body.residenceStatus,
     residenceCardExpiry: body.residenceCardExpiry,
+    passportNo: body.passportNo,
     passportExpiry: body.passportExpiry,
+    address: body.address,
+    photoUrl: body.photoUrl,
     metaJson: body.metaJson,
   });
   return NextResponse.json({ data: created }, { status: 201 });

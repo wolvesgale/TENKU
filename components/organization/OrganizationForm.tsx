@@ -2,6 +2,9 @@
 
 import { useState } from "react";
 
+type HandledJobType = { number: string; jobName: string };
+type PlanInstructor = { jobName: string; name: string; kana?: string };
+
 export type OrganizationFormData = {
   permitNumber?: string;
   permitType?: string;
@@ -19,15 +22,13 @@ export type OrganizationFormData = {
   supervisingOfficePostalCode?: string;
   supervisingOfficeAddress?: string;
   supervisingOfficePhone?: string;
-  planInstructorName?: string;
-  planInstructorKana?: string;
-  sendingOrgName?: string;
-  sendingOrgNumber?: string;
-  sendingOrgNumberCountry?: string;
-  sendingOrgRefNumber?: string;
+  handledJobTypes?: HandledJobType[];
+  planInstructors?: PlanInstructor[];
 };
 
 const inputClassName = "w-full border px-2 py-1 rounded";
+const emptyJob = (): HandledJobType => ({ number: "", jobName: "" });
+const emptyInstructor = (): PlanInstructor => ({ jobName: "", name: "", kana: "" });
 
 export function OrganizationForm({
   initialData,
@@ -55,14 +56,28 @@ export function OrganizationForm({
     supervisingOfficePostalCode: "",
     supervisingOfficeAddress: "",
     supervisingOfficePhone: "",
-    planInstructorName: "",
-    planInstructorKana: "",
-    sendingOrgName: "",
-    sendingOrgNumber: "",
-    sendingOrgNumberCountry: "",
-    sendingOrgRefNumber: "",
+    handledJobTypes: [emptyJob()],
+    planInstructors: [emptyInstructor()],
     ...initialData,
   });
+
+  const set = (key: keyof OrganizationFormData, val: any) => setForm((f) => ({ ...f, [key]: val }));
+
+  // 取り扱い職種
+  const updateJob = (i: number, key: keyof HandledJobType, val: string) => {
+    const next = (form.handledJobTypes ?? []).map((e, idx) => (idx === i ? { ...e, [key]: val } : e));
+    set("handledJobTypes", next);
+  };
+  const addJob = () => set("handledJobTypes", [...(form.handledJobTypes ?? []), emptyJob()]);
+  const removeJob = (i: number) => set("handledJobTypes", (form.handledJobTypes ?? []).filter((_, idx) => idx !== i));
+
+  // 計画指導担当者
+  const updateInstructor = (i: number, key: keyof PlanInstructor, val: string) => {
+    const next = (form.planInstructors ?? []).map((e, idx) => (idx === i ? { ...e, [key]: val } : e));
+    set("planInstructors", next);
+  };
+  const addInstructor = () => set("planInstructors", [...(form.planInstructors ?? []), emptyInstructor()]);
+  const removeInstructor = (i: number) => set("planInstructors", (form.planInstructors ?? []).filter((_, idx) => idx !== i));
 
   return (
     <div className="space-y-6">
@@ -71,11 +86,11 @@ export function OrganizationForm({
         <div className="grid gap-3 md:grid-cols-2">
           <label className="text-sm">
             許可番号
-            <input className={inputClassName} value={form.permitNumber ?? ""} onChange={(e) => setForm({ ...form, permitNumber: e.target.value })} />
+            <input className={inputClassName} value={form.permitNumber ?? ""} onChange={(e) => set("permitNumber", e.target.value)} />
           </label>
           <label className="text-sm">
             許可区分（一般/特定）
-            <input className={inputClassName} value={form.permitType ?? ""} onChange={(e) => setForm({ ...form, permitType: e.target.value })} />
+            <input className={inputClassName} value={form.permitType ?? ""} onChange={(e) => set("permitType", e.target.value)} />
           </label>
         </div>
       </section>
@@ -85,23 +100,23 @@ export function OrganizationForm({
         <div className="grid gap-3 md:grid-cols-2">
           <label className="text-sm">
             団体名
-            <input className={inputClassName} value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} />
+            <input className={inputClassName} value={form.name} onChange={(e) => set("name", e.target.value)} />
           </label>
           <label className="text-sm">
             団体名（カナ）
-            <input className={inputClassName} value={form.nameKana ?? ""} onChange={(e) => setForm({ ...form, nameKana: e.target.value })} />
+            <input className={inputClassName} value={form.nameKana ?? ""} onChange={(e) => set("nameKana", e.target.value)} />
           </label>
           <label className="text-sm">
             郵便番号
-            <input className={inputClassName} placeholder="例: 123-4567" value={form.postalCode ?? ""} onChange={(e) => setForm({ ...form, postalCode: e.target.value })} />
+            <input className={inputClassName} placeholder="例: 123-4567" value={form.postalCode ?? ""} onChange={(e) => set("postalCode", e.target.value)} />
           </label>
           <label className="text-sm">
             住所
-            <input className={inputClassName} value={form.address ?? ""} onChange={(e) => setForm({ ...form, address: e.target.value })} />
+            <input className={inputClassName} value={form.address ?? ""} onChange={(e) => set("address", e.target.value)} />
           </label>
           <label className="text-sm">
             電話番号
-            <input className={inputClassName} value={form.phone ?? ""} onChange={(e) => setForm({ ...form, phone: e.target.value })} />
+            <input className={inputClassName} value={form.phone ?? ""} onChange={(e) => set("phone", e.target.value)} />
           </label>
         </div>
       </section>
@@ -111,19 +126,19 @@ export function OrganizationForm({
         <div className="grid gap-3 md:grid-cols-2">
           <label className="text-sm">
             代表者氏名
-            <input className={inputClassName} value={form.representativeName ?? ""} onChange={(e) => setForm({ ...form, representativeName: e.target.value })} />
+            <input className={inputClassName} value={form.representativeName ?? ""} onChange={(e) => set("representativeName", e.target.value)} />
           </label>
           <label className="text-sm">
             代表者氏名（カナ）
-            <input className={inputClassName} value={form.representativeKana ?? ""} onChange={(e) => setForm({ ...form, representativeKana: e.target.value })} />
+            <input className={inputClassName} value={form.representativeKana ?? ""} onChange={(e) => set("representativeKana", e.target.value)} />
           </label>
           <label className="text-sm">
             監理責任者
-            <input className={inputClassName} value={form.supervisorResponsibleName ?? ""} onChange={(e) => setForm({ ...form, supervisorResponsibleName: e.target.value })} />
+            <input className={inputClassName} value={form.supervisorResponsibleName ?? ""} onChange={(e) => set("supervisorResponsibleName", e.target.value)} />
           </label>
           <label className="text-sm">
             監理責任者（カナ）
-            <input className={inputClassName} value={form.supervisorResponsibleKana ?? ""} onChange={(e) => setForm({ ...form, supervisorResponsibleKana: e.target.value })} />
+            <input className={inputClassName} value={form.supervisorResponsibleKana ?? ""} onChange={(e) => set("supervisorResponsibleKana", e.target.value)} />
           </label>
         </div>
       </section>
@@ -133,61 +148,87 @@ export function OrganizationForm({
         <div className="grid gap-3 md:grid-cols-2">
           <label className="text-sm">
             担当事業所名
-            <input className={inputClassName} value={form.supervisingOfficeName ?? ""} onChange={(e) => setForm({ ...form, supervisingOfficeName: e.target.value })} />
+            <input className={inputClassName} value={form.supervisingOfficeName ?? ""} onChange={(e) => set("supervisingOfficeName", e.target.value)} />
           </label>
           <label className="text-sm">
             担当事業所名（カナ）
-            <input className={inputClassName} value={form.supervisingOfficeNameKana ?? ""} onChange={(e) => setForm({ ...form, supervisingOfficeNameKana: e.target.value })} />
+            <input className={inputClassName} value={form.supervisingOfficeNameKana ?? ""} onChange={(e) => set("supervisingOfficeNameKana", e.target.value)} />
           </label>
           <label className="text-sm">
             担当事業所郵便番号
-            <input className={inputClassName} placeholder="例: 123-4567" value={form.supervisingOfficePostalCode ?? ""} onChange={(e) => setForm({ ...form, supervisingOfficePostalCode: e.target.value })} />
+            <input className={inputClassName} placeholder="例: 123-4567" value={form.supervisingOfficePostalCode ?? ""} onChange={(e) => set("supervisingOfficePostalCode", e.target.value)} />
           </label>
           <label className="text-sm">
             担当事業所住所
-            <input className={inputClassName} value={form.supervisingOfficeAddress ?? ""} onChange={(e) => setForm({ ...form, supervisingOfficeAddress: e.target.value })} />
+            <input className={inputClassName} value={form.supervisingOfficeAddress ?? ""} onChange={(e) => set("supervisingOfficeAddress", e.target.value)} />
           </label>
           <label className="text-sm">
             担当事業所電話
-            <input className={inputClassName} value={form.supervisingOfficePhone ?? ""} onChange={(e) => setForm({ ...form, supervisingOfficePhone: e.target.value })} />
+            <input className={inputClassName} value={form.supervisingOfficePhone ?? ""} onChange={(e) => set("supervisingOfficePhone", e.target.value)} />
           </label>
         </div>
       </section>
 
+      {/* 取り扱い職種 */}
       <section className="space-y-3">
-        <h2 className="text-lg font-semibold">計画指導担当者</h2>
-        <div className="grid gap-3 md:grid-cols-2">
-          <label className="text-sm">
-            計画指導担当者氏名
-            <input className={inputClassName} value={form.planInstructorName ?? ""} onChange={(e) => setForm({ ...form, planInstructorName: e.target.value })} />
-          </label>
-          <label className="text-sm">
-            計画指導担当者（カナ）
-            <input className={inputClassName} value={form.planInstructorKana ?? ""} onChange={(e) => setForm({ ...form, planInstructorKana: e.target.value })} />
-          </label>
+        <div className="flex items-center justify-between">
+          <h2 className="text-lg font-semibold">取り扱い職種</h2>
+          <button type="button" className="text-xs px-2 py-0.5 bg-blue-600 text-white rounded" onClick={addJob}>
+            ＋追加
+          </button>
         </div>
+        {(form.handledJobTypes ?? []).map((j, i) => (
+          <div key={i} className="border rounded p-2 space-y-2 bg-white/5">
+            <div className="grid gap-2 md:grid-cols-2">
+              <label className="text-xs">
+                番号
+                <input className={inputClassName} value={j.number} onChange={(e) => updateJob(i, "number", e.target.value)} />
+              </label>
+              <label className="text-xs">
+                職種名
+                <input className={inputClassName} value={j.jobName} onChange={(e) => updateJob(i, "jobName", e.target.value)} />
+              </label>
+            </div>
+            {(form.handledJobTypes ?? []).length > 1 && (
+              <button type="button" className="text-xs text-red-400 hover:underline" onClick={() => removeJob(i)}>
+                削除
+              </button>
+            )}
+          </div>
+        ))}
       </section>
 
+      {/* 計画指導担当者（職種別） */}
       <section className="space-y-3">
-        <h2 className="text-lg font-semibold">送出機関</h2>
-        <div className="grid gap-3 md:grid-cols-2">
-          <label className="text-sm">
-            送出機関名
-            <input className={inputClassName} value={form.sendingOrgName ?? ""} onChange={(e) => setForm({ ...form, sendingOrgName: e.target.value })} />
-          </label>
-          <label className="text-sm">
-            送出機関番号（国コード）
-            <input className={inputClassName} placeholder="例: VNM" value={form.sendingOrgNumberCountry ?? ""} onChange={(e) => setForm({ ...form, sendingOrgNumberCountry: e.target.value })} />
-          </label>
-          <label className="text-sm">
-            送出機関番号
-            <input className={inputClassName} value={form.sendingOrgNumber ?? ""} onChange={(e) => setForm({ ...form, sendingOrgNumber: e.target.value })} />
-          </label>
-          <label className="text-sm">
-            送出機関整理番号
-            <input className={inputClassName} value={form.sendingOrgRefNumber ?? ""} onChange={(e) => setForm({ ...form, sendingOrgRefNumber: e.target.value })} />
-          </label>
+        <div className="flex items-center justify-between">
+          <h2 className="text-lg font-semibold">計画指導担当者</h2>
+          <button type="button" className="text-xs px-2 py-0.5 bg-blue-600 text-white rounded" onClick={addInstructor}>
+            ＋追加
+          </button>
         </div>
+        {(form.planInstructors ?? []).map((p, i) => (
+          <div key={i} className="border rounded p-2 space-y-2 bg-white/5">
+            <div className="grid gap-2 md:grid-cols-3">
+              <label className="text-xs">
+                対象職種
+                <input className={inputClassName} value={p.jobName} onChange={(e) => updateInstructor(i, "jobName", e.target.value)} />
+              </label>
+              <label className="text-xs">
+                氏名
+                <input className={inputClassName} value={p.name} onChange={(e) => updateInstructor(i, "name", e.target.value)} />
+              </label>
+              <label className="text-xs">
+                氏名（カナ）
+                <input className={inputClassName} value={p.kana ?? ""} onChange={(e) => updateInstructor(i, "kana", e.target.value)} />
+              </label>
+            </div>
+            {(form.planInstructors ?? []).length > 1 && (
+              <button type="button" className="text-xs text-red-400 hover:underline" onClick={() => removeInstructor(i)}>
+                削除
+              </button>
+            )}
+          </div>
+        ))}
       </section>
 
       <button

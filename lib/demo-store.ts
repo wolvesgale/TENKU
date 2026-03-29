@@ -30,11 +30,24 @@ export type DemoOrganizationProfile = {
   supervisingOfficePhone?: string;
   planInstructorName?: string;
   planInstructorKana?: string;
+  handledJobTypes?: { number: string; jobName: string }[];
+  planInstructors?: { jobName: string; name: string; kana?: string }[];
   sendingOrgName?: string;
   sendingOrgNumber?: string;
   sendingOrgNumberCountry?: string;
   sendingOrgRefNumber?: string;
 };
+export type InstructorEntry = {
+  name: string;
+  kana?: string;
+  role?: string;
+  lectureDate?: string;
+  lectureExpiry?: string;
+};
+
+export type TitpJobType = { jobType: string; task: string };
+export type SswJobType = { field: string; category: string };
+
 export type Company = {
   id: string;
   tenantId: string;
@@ -61,12 +74,18 @@ export type Company = {
   traineeResponsibleName?: string;
   traineeResponsibleKana?: string;
   traineeResponsibleRole?: string;
+  traineeResponsibleLectureDate?: string;
+  traineeResponsibleLectureExpiry?: string;
   traineeInstructorName?: string;
   traineeInstructorKana?: string;
   traineeInstructorRole?: string;
   lifeInstructorName?: string;
   lifeInstructorKana?: string;
   lifeInstructorRole?: string;
+  traineeInstructors?: InstructorEntry[];
+  lifeInstructors?: InstructorEntry[];
+  titpJobTypes?: TitpJobType[];
+  sswJobTypes?: SswJobType[];
 };
 export type Person = {
   id: string;
@@ -108,9 +127,14 @@ export type Person = {
   returnPeriodFrom?: string;
   returnPeriodTo?: string;
   currentCompanyId?: string;
+  currentCompanyName?: string;
   currentProgram?: Program | string;
+  residenceStatus?: string;
   residenceCardExpiry?: string;
+  passportNo?: string;
   passportExpiry?: string;
+  address?: string;
+  photoUrl?: string;
   metaJson?: any;
 };
 export type PersonStatusHistory = {

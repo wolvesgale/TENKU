@@ -373,9 +373,9 @@ export default function SswPage() {
         </div>
         <div className="flex items-center gap-2">
           {tab === "applications" && (
-            <button onClick={() => setShowNewApp(true)} className="px-3 py-1.5 rounded bg-brand-blue text-white text-sm hover:opacity-90">
-              ＋ 新規申請
-            </button>
+            <Link href="/ssw/applications/new" className="px-3 py-1.5 rounded bg-brand-blue text-white text-sm hover:opacity-90">
+              ＋ 詳細申請フォーム
+            </Link>
           )}
           {tab === "interviews" && (
             <button onClick={() => setShowNewInterview(true)} className="px-3 py-1.5 rounded bg-brand-blue text-white text-sm hover:opacity-90">

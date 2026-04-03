@@ -22,6 +22,8 @@ import {
   ChevronDown,
   ChevronRight,
   Construction,
+  FolderOpen,
+  ReceiptText,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useState } from "react";
@@ -89,6 +91,14 @@ export const sidebarSections: SidebarSection[] = [
     links: [
       { href: "/chat/foreigner", label: "外国人向けチャット", icon: MessageCircle, wip: true },
       { href: "/chat/staff", label: "職員向けAIアシスタント", icon: Bot, wip: true },
+    ],
+  },
+  {
+    label: "書類・請求",
+    defaultOpen: true,
+    links: [
+      { href: "/documents", label: "書類管理", icon: FolderOpen },
+      { href: "/billing", label: "請求書管理", icon: ReceiptText },
     ],
   },
   {

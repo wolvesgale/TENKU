@@ -1,6 +1,6 @@
 import { randomUUID } from "crypto";
 
-export type Program = "TITP" | "SSW" | "TA" | "ALL";
+export type Program = "TITP" | "SSW" | "TA" | "IKUSEI" | "ALL";
 export type CaseStatus = "OPEN" | "IN_PROGRESS" | "DONE";
 export type TaskStatus = "TODO" | "DOING" | "DONE";
 export type AlertStatus = "OPEN" | "SNOOZED" | "DONE";
@@ -1717,4 +1717,280 @@ export function updateSswJobChange(id: string, data: Partial<SswJobChange>): Ssw
   if (idx === -1) return null;
   sswJobChanges[idx] = { ...sswJobChanges[idx], ...data, updatedAt: new Date().toISOString() };
   return sswJobChanges[idx];
+}
+
+// ─── Document（書類管理）型 ───────────────────────────────────────────────────
+
+export type DocumentCategory =
+  | "passport"        // パスポートコピー
+  | "residence_card"  // 在留カード
+  | "contract"        // 雇用契約書
+  | "support_plan"    // 支援計画書
+  | "application_pdf" // 申請書PDF
+  | "approval_notice" // 許可通知書
+  | "other";          // その他
+
+export type StoredDocument = {
+  id: string;
+  tenantId: string;
+  personId?: string;
+  companyId?: string;
+  applicationId?: string;
+  category: DocumentCategory;
+  filename: string;
+  mimeType: string;
+  sizeBytes?: number;
+  /** デモ用：base64 data URI または仮URL */
+  dataUrl?: string;
+  uploadedAt: string;
+  uploadedBy?: string;
+  memo?: string;
+};
+
+// ─── Invoice（請求書）型 ──────────────────────────────────────────────────────
+
+export type InvoiceStatus = "draft" | "confirmed" | "sent" | "paid";
+
+export type InvoiceLineItem = {
+  description: string;
+  unitPrice: number;
+  quantity: number;
+  amount: number;
+};
+
+export type Invoice = {
+  id: string;
+  tenantId: string;
+  invoiceNumber: string; // INV-YYYYMM-NNN
+  companyId: string;
+  billingMonth: string;  // YYYY-MM
+  status: InvoiceStatus;
+  lineItems: InvoiceLineItem[];
+  subtotal: number;
+  taxRate: number;   // 0.10
+  taxAmount: number;
+  totalAmount: number;
+  dueDate?: string;
+  confirmedAt?: string;
+  sentAt?: string;
+  paidAt?: string;
+  memo?: string;
+  createdAt: string;
+  updatedAt: string;
+};
+
+// ─── デモデータ ───────────────────────────────────────────────────────────────
+
+const documents: StoredDocument[] = [
+  {
+    id: "doc-001",
+    tenantId: "tenant_demo",
+    personId: "prs-002",
+    category: "passport",
+    filename: "passport_amara_singh.pdf",
+    mimeType: "application/pdf",
+    sizeBytes: 512000,
+    uploadedAt: new Date(Date.now() - 1000 * 60 * 60 * 24 * 300).toISOString(),
+    uploadedBy: "鈴木 直人",
+    memo: "Amara Singh パスポートコピー（2025年更新）",
+  },
+  {
+    id: "doc-002",
+    tenantId: "tenant_demo",
+    personId: "prs-002",
+    category: "contract",
+    filename: "employment_contract_amara_2023.pdf",
+    mimeType: "application/pdf",
+    sizeBytes: 256000,
+    uploadedAt: new Date(Date.now() - 1000 * 60 * 60 * 24 * 280).toISOString(),
+    uploadedBy: "鈴木 直人",
+    memo: "特定技能雇用契約書（2023年11月締結）",
+  },
+  {
+    id: "doc-003",
+    tenantId: "tenant_demo",
+    personId: "prs-002",
+    applicationId: "swa-001",
+    category: "application_pdf",
+    filename: "ssw_ext_application_amara_2024.pdf",
+    mimeType: "application/pdf",
+    sizeBytes: 890000,
+    uploadedAt: new Date(Date.now() - 1000 * 60 * 60 * 24 * 7).toISOString(),
+    uploadedBy: "鈴木 直人",
+    memo: "在留期間更新申請書一式（下書き）",
+  },
+  {
+    id: "doc-004",
+    tenantId: "tenant_demo",
+    personId: "prs-005",
+    category: "support_plan",
+    filename: "support_plan_sara_kim.pdf",
+    mimeType: "application/pdf",
+    sizeBytes: 320000,
+    uploadedAt: new Date(Date.now() - 1000 * 60 * 60 * 24 * 140).toISOString(),
+    uploadedBy: "渡辺 優斗",
+    memo: "1号特定技能外国人支援計画書（承認済み）",
+  },
+];
+
+// 請求書シーケンス管理
+const invoiceSeq: Record<string, number> = {};
+function nextInvoiceNumber(month: string): string {
+  const key = month.replace("-", "");
+  invoiceSeq[key] = (invoiceSeq[key] ?? 0) + 1;
+  return `INV-${key}-${String(invoiceSeq[key]).padStart(3, "0")}`;
+}
+
+const now = new Date();
+const lastMonth = new Date(now.getFullYear(), now.getMonth() - 1, 1);
+const thisMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+
+const TAX_RATE = 0.1;
+
+function buildInvoice(
+  companyId: string,
+  billingMonth: string,
+  lineItems: InvoiceLineItem[],
+  status: InvoiceStatus,
+  extra?: Partial<Invoice>
+): Invoice {
+  const subtotal = lineItems.reduce((s, l) => s + l.amount, 0);
+  const taxAmount = Math.floor(subtotal * TAX_RATE);
+  return {
+    id: randomUUID(),
+    tenantId: "tenant_demo",
+    invoiceNumber: nextInvoiceNumber(billingMonth),
+    companyId,
+    billingMonth,
+    status,
+    lineItems,
+    subtotal,
+    taxRate: TAX_RATE,
+    taxAmount,
+    totalAmount: subtotal + taxAmount,
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
+    ...extra,
+  };
+}
+
+const invoices: Invoice[] = [
+  buildInvoice(
+    "cmp-001",
+    `${lastMonth.getFullYear()}-${String(lastMonth.getMonth() + 1).padStart(2, "0")}`,
+    [
+      { description: "監理費（技能実習1号）× 3名", unitPrice: 30000, quantity: 3, amount: 90000 },
+      { description: "監理費（技能実習2号）× 1名", unitPrice: 35000, quantity: 1, amount: 35000 },
+    ],
+    "paid",
+    { paidAt: new Date(Date.now() - 1000 * 60 * 60 * 24 * 5).toISOString(), sentAt: new Date(Date.now() - 1000 * 60 * 60 * 24 * 15).toISOString() }
+  ),
+  buildInvoice(
+    "cmp-002",
+    `${lastMonth.getFullYear()}-${String(lastMonth.getMonth() + 1).padStart(2, "0")}`,
+    [
+      { description: "支援費（特定技能1号）× 2名", unitPrice: 50000, quantity: 2, amount: 100000 },
+    ],
+    "sent",
+    { sentAt: new Date(Date.now() - 1000 * 60 * 60 * 24 * 10).toISOString() }
+  ),
+  buildInvoice(
+    "cmp-001",
+    `${thisMonth.getFullYear()}-${String(thisMonth.getMonth() + 1).padStart(2, "0")}`,
+    [
+      { description: "監理費（技能実習1号）× 3名", unitPrice: 30000, quantity: 3, amount: 90000 },
+      { description: "監理費（技能実習2号）× 1名", unitPrice: 35000, quantity: 1, amount: 35000 },
+    ],
+    "draft"
+  ),
+  buildInvoice(
+    "cmp-002",
+    `${thisMonth.getFullYear()}-${String(thisMonth.getMonth() + 1).padStart(2, "0")}`,
+    [
+      { description: "支援費（特定技能1号）× 2名", unitPrice: 50000, quantity: 2, amount: 100000 },
+    ],
+    "confirmed",
+    { confirmedAt: new Date(Date.now() - 1000 * 60 * 60 * 24 * 1).toISOString() }
+  ),
+];
+
+// ─── Document CRUD ────────────────────────────────────────────────────────────
+
+export function listDocuments(filter?: { personId?: string; companyId?: string; applicationId?: string }) {
+  return documents.filter((d) => {
+    if (filter?.personId && d.personId !== filter.personId) return false;
+    if (filter?.companyId && d.companyId !== filter.companyId) return false;
+    if (filter?.applicationId && d.applicationId !== filter.applicationId) return false;
+    return true;
+  });
+}
+
+export function addDocument(input: Omit<StoredDocument, "id" | "tenantId">): StoredDocument {
+  const doc: StoredDocument = { id: randomUUID(), tenantId: "tenant_demo", ...input };
+  documents.push(doc);
+  return doc;
+}
+
+export function deleteDocument(id: string): boolean {
+  const idx = documents.findIndex((d) => d.id === id);
+  if (idx === -1) return false;
+  documents.splice(idx, 1);
+  return true;
+}
+
+// ─── Invoice CRUD ─────────────────────────────────────────────────────────────
+
+export function listInvoices(companyId?: string) {
+  if (companyId) return invoices.filter((i) => i.companyId === companyId);
+  return invoices;
+}
+
+export function getInvoice(id: string) {
+  return invoices.find((i) => i.id === id) ?? null;
+}
+
+export function addInvoice(input: {
+  companyId: string;
+  billingMonth: string;
+  lineItems: InvoiceLineItem[];
+  dueDate?: string;
+  memo?: string;
+}): Invoice {
+  const inv = buildInvoice(input.companyId, input.billingMonth, input.lineItems, "draft", {
+    dueDate: input.dueDate,
+    memo: input.memo,
+  });
+  invoices.push(inv);
+  return inv;
+}
+
+export function updateInvoiceStatus(id: string, status: InvoiceStatus): Invoice | null {
+  const inv = invoices.find((i) => i.id === id);
+  if (!inv) return null;
+  inv.status = status;
+  inv.updatedAt = new Date().toISOString();
+  if (status === "confirmed") inv.confirmedAt = new Date().toISOString();
+  if (status === "sent") inv.sentAt = new Date().toISOString();
+  if (status === "paid") inv.paidAt = new Date().toISOString();
+  return inv;
+}
+
+export function updateInvoice(id: string, data: Partial<Pick<Invoice, "lineItems" | "dueDate" | "memo">>): Invoice | null {
+  const idx = invoices.findIndex((i) => i.id === id);
+  if (idx === -1) return null;
+  if (data.lineItems) {
+    const subtotal = data.lineItems.reduce((s, l) => s + l.amount, 0);
+    const taxAmount = Math.floor(subtotal * TAX_RATE);
+    invoices[idx] = {
+      ...invoices[idx],
+      ...data,
+      subtotal,
+      taxAmount,
+      totalAmount: subtotal + taxAmount,
+      updatedAt: new Date().toISOString(),
+    };
+  } else {
+    invoices[idx] = { ...invoices[idx], ...data, updatedAt: new Date().toISOString() };
+  }
+  return invoices[idx];
 }

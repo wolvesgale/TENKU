@@ -2282,7 +2282,7 @@ export function addCompanyToTenant(tenantId: string, input: Omit<Company, "id" |
 
 export function listInvoicesByTenant(tenantId: string, companyId?: string): Invoice[] {
   const tenantCompanyIds = new Set((TENANT_COMPANIES[tenantId] ?? []).map((c) => c.id));
-  const filtered = store.invoices.filter((inv) => tenantCompanyIds.has(inv.companyId));
+  const filtered = invoices.filter((inv) => tenantCompanyIds.has(inv.companyId));
   if (companyId) return filtered.filter((inv) => inv.companyId === companyId);
   return filtered;
 }

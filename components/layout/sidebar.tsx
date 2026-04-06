@@ -1,6 +1,7 @@
 "use client";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useAppState } from "@/components/providers/app-state-provider";
 import {
   Home,
   Building2,
@@ -167,6 +168,7 @@ function SidebarSection({ section, pathname }: { section: SidebarSection; pathna
 
 export function Sidebar() {
   const pathname = usePathname();
+  const { tenantName } = useAppState();
   return (
     <aside className="w-64 hidden md:flex flex-col gap-3 p-4 border-r border-border bg-surface/60 overflow-y-auto">
       <div className="flex items-center gap-2 pb-2 border-b border-border">
@@ -175,7 +177,7 @@ export function Sidebar() {
         </div>
         <div>
           <p className="text-[10px] uppercase tracking-wide text-muted">TENKU_Cloud</p>
-          <p className="font-semibold text-white text-sm">AI Agent</p>
+          <p className="font-semibold text-white text-sm truncate max-w-[140px]" title={tenantName}>{tenantName}</p>
         </div>
       </div>
 

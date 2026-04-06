@@ -1,15 +1,16 @@
 import { NextRequest, NextResponse } from "next/server";
-import { addCase, autoGenerateTasks, listCases, store } from "@/lib/demo-store";
+import { addCase, autoGenerateTasks, listCases, listCasesByTenant, store } from "@/lib/demo-store";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
 export async function GET(req: NextRequest) {
+  const tenantId = req.headers.get("x-tenant-id") ?? "tenant_demo";
   const { searchParams } = new URL(req.url);
   const program = searchParams.get("program") || undefined;
   const status = searchParams.get("status") || undefined;
   const caseType = searchParams.get("case_type") || undefined;
-  let data = listCases(program);
+  let data = listCasesByTenant(tenantId, program);
   if (status) data = data.filter((c) => c.status === status);
   if (caseType) data = data.filter((c) => c.caseType === caseType);
   return NextResponse.json({ data });

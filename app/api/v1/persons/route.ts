@@ -1,13 +1,14 @@
 import { NextRequest, NextResponse } from "next/server";
-import { addPerson, listPersons, store } from "@/lib/demo-store";
+import { addPerson, listPersons, listPersonsByTenant, store } from "@/lib/demo-store";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
 export async function GET(req: NextRequest) {
+  const tenantId = req.headers.get("x-tenant-id") ?? "tenant_demo";
   const { searchParams } = new URL(req.url);
   const program = searchParams.get("program") || undefined;
-  const data = listPersons(program || undefined);
+  const data = listPersonsByTenant(tenantId, program);
   return NextResponse.json({ data });
 }
 

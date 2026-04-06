@@ -1,12 +1,13 @@
 import { NextRequest, NextResponse } from "next/server";
-import { listInvoices, addInvoice } from "@/lib/demo-store";
+import { listInvoices, listInvoicesByTenant, addInvoice } from "@/lib/demo-store";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
 export async function GET(req: NextRequest) {
+  const tenantId = req.headers.get("x-tenant-id") ?? "tenant_demo";
   const companyId = req.nextUrl.searchParams.get("companyId") ?? undefined;
-  return NextResponse.json({ data: listInvoices(companyId) });
+  return NextResponse.json({ data: listInvoicesByTenant(tenantId, companyId) });
 }
 
 export async function POST(req: NextRequest) {

@@ -1,11 +1,12 @@
 import { NextRequest, NextResponse } from "next/server";
-import { addCompany, store } from "@/lib/demo-store";
+import { addCompany, listCompaniesByTenant, store } from "@/lib/demo-store";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
-export async function GET() {
-  return NextResponse.json({ data: store.companies });
+export async function GET(req: NextRequest) {
+  const tenantId = req.headers.get("x-tenant-id") ?? "tenant_demo";
+  return NextResponse.json({ data: listCompaniesByTenant(tenantId) });
 }
 
 export async function POST(req: NextRequest) {

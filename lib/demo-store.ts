@@ -1994,3 +1994,295 @@ export function updateInvoice(id: string, data: Partial<Pick<Invoice, "lineItems
   }
   return invoices[idx];
 }
+
+// ─── マルチテナント定義 ───────────────────────────────────────────────────────
+
+export type DemoTenantAccount = {
+  tenantId: string;
+  tenantCode: string;
+  name: string;
+  email: string;
+  password: string;
+  role: "tenantAdmin";
+};
+
+/** デモ用テナントアカウント一覧（ログインページで使用） */
+export const DEMO_TENANT_ACCOUNTS: DemoTenantAccount[] = [
+  {
+    tenantId: "tenant_demo",
+    tenantCode: "240224",
+    name: "TENKU監理協同組合",
+    email: "support@techtas.jp",
+    password: "techtas720",
+    role: "tenantAdmin",
+  },
+  {
+    tenantId: "tenant_hikari",
+    tenantCode: "360101",
+    name: "ひかり監理組合",
+    email: "info@hikari-kanri.jp",
+    password: "hikari2024",
+    role: "tenantAdmin",
+  },
+  {
+    tenantId: "tenant_sunrise",
+    tenantCode: "480502",
+    name: "サンライズ協同組合",
+    email: "demo@sunrise-coop.jp",
+    password: "sunrise2024",
+    role: "tenantAdmin",
+  },
+];
+
+/** テナントコードまたはメール+パスワードで認証 */
+export function authenticateDemoTenant(
+  tenantCode: string,
+  email: string,
+  password: string
+): DemoTenantAccount | null {
+  return (
+    DEMO_TENANT_ACCOUNTS.find(
+      (a) =>
+        a.tenantCode === tenantCode &&
+        a.email === email &&
+        a.password === password
+    ) ?? null
+  );
+}
+
+// ─── テナント別デモデータ ────────────────────────────────────────────────────
+
+/** ひかり監理組合（tenant_hikari）の企業データ */
+const hikariCompanies: Company[] = [
+  {
+    id: "hcmp-001",
+    tenantId: "tenant_hikari",
+    name: "富士フーズ株式会社",
+    nameKana: "フジフーズカブシキガイシャ",
+    address: "静岡県富士市中央2-3-1",
+    postalCode: "417-0001",
+    phone: "0545-51-2345",
+    defaultOrgId: "org_hikari",
+    industryMajor: "食品製造",
+    industryMinor: "水産加工",
+    representativeName: "中田 浩一",
+    representativeKana: "ナカダ コウイチ",
+    corporateNumber: "2345678901234",
+    contactName: "鈴木 美咲",
+    contactTel: "0545-51-2345",
+  },
+  {
+    id: "hcmp-002",
+    tenantId: "tenant_hikari",
+    name: "東海農業協同組合",
+    nameKana: "トウカイノウギョウキョウドウクミアイ",
+    address: "愛知県豊橋市花田町1-1-1",
+    postalCode: "440-0001",
+    phone: "0532-30-1111",
+    defaultOrgId: "org_hikari",
+    industryMajor: "農業",
+    industryMinor: "野菜栽培",
+    representativeName: "加藤 達也",
+    representativeKana: "カトウ タツヤ",
+    corporateNumber: "3456789012345",
+    contactName: "伊藤 真紀",
+    contactTel: "0532-30-1111",
+  },
+];
+
+/** ひかり監理組合（tenant_hikari）の外国人データ */
+const hikariPersons: Person[] = [
+  {
+    id: "hprs-001",
+    tenantId: "tenant_hikari",
+    fullName: "Nguyen Van An",
+    foreignerId: "HK-0001",
+    nameKanji: "グエン・バン・アン",
+    nameKana: "グエン バン アン",
+    nameRoma: "Nguyen Van An",
+    nameRomaji: "Nguyen Van An",
+    gender: "男性",
+    nationality: "ベトナム",
+    birthdate: "1999-03-15",
+    age: 25,
+    currentProgram: "TITP",
+    currentCompanyId: "hcmp-001",
+    residenceCardExpiry: new Date(Date.now() + 1000 * 60 * 60 * 24 * 180).toISOString(),
+    passportExpiry: new Date(Date.now() + 1000 * 60 * 60 * 24 * 400).toISOString(),
+    dormAddress: "静岡県富士市中央2-3-101",
+    handlerName: "山田 一郎",
+    nextProcedure: "在留期間更新",
+  },
+  {
+    id: "hprs-002",
+    tenantId: "tenant_hikari",
+    fullName: "Tran Thi Mai",
+    foreignerId: "HK-0002",
+    nameKanji: "チャン・ティ・マイ",
+    nameKana: "チャン ティ マイ",
+    nameRoma: "Tran Thi Mai",
+    nameRomaji: "Tran Thi Mai",
+    gender: "女性",
+    nationality: "ベトナム",
+    birthdate: "2001-07-22",
+    age: 23,
+    currentProgram: "SSW",
+    currentCompanyId: "hcmp-001",
+    residenceCardExpiry: new Date(Date.now() + 1000 * 60 * 60 * 24 * 45).toISOString(),
+    passportExpiry: new Date(Date.now() + 1000 * 60 * 60 * 24 * 250).toISOString(),
+    dormAddress: "静岡県富士市中央2-3-102",
+    handlerName: "山田 一郎",
+    nextProcedure: "在留期間更新申請（EXT）",
+  },
+  {
+    id: "hprs-003",
+    tenantId: "tenant_hikari",
+    fullName: "Bui Thi Lan",
+    foreignerId: "HK-0003",
+    nameKanji: "ブイ・ティ・ラン",
+    nameKana: "ブイ ティ ラン",
+    nameRoma: "Bui Thi Lan",
+    nameRomaji: "Bui Thi Lan",
+    gender: "女性",
+    nationality: "ベトナム",
+    birthdate: "2000-11-08",
+    age: 24,
+    currentProgram: "TITP",
+    currentCompanyId: "hcmp-002",
+    residenceCardExpiry: new Date(Date.now() + 1000 * 60 * 60 * 24 * 270).toISOString(),
+    passportExpiry: new Date(Date.now() + 1000 * 60 * 60 * 24 * 500).toISOString(),
+    dormAddress: "愛知県豊橋市花田町1-1-201",
+    handlerName: "田中 花子",
+    nextProcedure: "技能検定（基礎級）申請",
+  },
+];
+
+/** サンライズ協同組合（tenant_sunrise）の企業データ */
+const sunriseCompanies: Company[] = [
+  {
+    id: "scmp-001",
+    tenantId: "tenant_sunrise",
+    name: "九州介護サービス株式会社",
+    nameKana: "キュウシュウカイゴサービスカブシキガイシャ",
+    address: "福岡県福岡市博多区博多駅前3-1-1",
+    postalCode: "812-0011",
+    phone: "092-411-5678",
+    defaultOrgId: "org_sunrise",
+    industryMajor: "介護",
+    industryMinor: "訪問介護",
+    representativeName: "松本 健二",
+    representativeKana: "マツモト ケンジ",
+    corporateNumber: "4567890123456",
+    contactName: "川口 さやか",
+    contactTel: "092-411-5678",
+  },
+];
+
+/** サンライズ協同組合（tenant_sunrise）の外国人データ */
+const sunrisePersons: Person[] = [
+  {
+    id: "sprs-001",
+    tenantId: "tenant_sunrise",
+    fullName: "Dela Cruz Maria",
+    foreignerId: "SR-0001",
+    nameKanji: "デラクルス・マリア",
+    nameKana: "デラクルス マリア",
+    nameRoma: "Dela Cruz Maria",
+    nameRomaji: "Dela Cruz Maria",
+    gender: "女性",
+    nationality: "フィリピン",
+    birthdate: "1997-05-20",
+    age: 27,
+    currentProgram: "SSW",
+    currentCompanyId: "scmp-001",
+    residenceCardExpiry: new Date(Date.now() + 1000 * 60 * 60 * 24 * 60).toISOString(),
+    passportExpiry: new Date(Date.now() + 1000 * 60 * 60 * 24 * 350).toISOString(),
+    dormAddress: "福岡県福岡市博多区1-2-3",
+    handlerName: "中村 隼人",
+    nextProcedure: "特定技能1号 EXT申請",
+  },
+  {
+    id: "sprs-002",
+    tenantId: "tenant_sunrise",
+    fullName: "Santos Juan",
+    foreignerId: "SR-0002",
+    nameKanji: "サントス・フアン",
+    nameKana: "サントス フアン",
+    nameRoma: "Santos Juan",
+    nameRomaji: "Santos Juan",
+    gender: "男性",
+    nationality: "フィリピン",
+    birthdate: "1995-09-12",
+    age: 29,
+    currentProgram: "SSW",
+    currentCompanyId: "scmp-001",
+    residenceCardExpiry: new Date(Date.now() + 1000 * 60 * 60 * 24 * 120).toISOString(),
+    passportExpiry: new Date(Date.now() + 1000 * 60 * 60 * 24 * 600).toISOString(),
+    dormAddress: "福岡県福岡市博多区1-2-4",
+    handlerName: "中村 隼人",
+    nextProcedure: "支援計画更新",
+  },
+];
+
+// ─── テナント別データ参照 ────────────────────────────────────────────────────
+
+const TENANT_COMPANIES: Record<string, Company[]> = {
+  tenant_demo:    companies,
+  tenant_hikari:  hikariCompanies,
+  tenant_sunrise: sunriseCompanies,
+};
+
+const TENANT_PERSONS: Record<string, Person[]> = {
+  tenant_demo:    persons,
+  tenant_hikari:  hikariPersons,
+  tenant_sunrise: sunrisePersons,
+};
+
+/**
+ * テナントIDに対応した企業リストを返す
+ * 未知のテナントは空配列を返す（データ漏洩防止）
+ */
+export function listCompaniesByTenant(tenantId: string): Company[] {
+  return TENANT_COMPANIES[tenantId] ?? [];
+}
+
+/**
+ * テナントIDに対応した外国人リストを返す
+ */
+export function listPersonsByTenant(tenantId: string, program?: string): Person[] {
+  const list = TENANT_PERSONS[tenantId] ?? [];
+  if (!program || program === "ALL") return list;
+  return list.filter((p) => p.currentProgram === program);
+}
+
+/**
+ * テナントIDを考慮してケースを返す
+ */
+export function listCasesByTenant(tenantId: string, program?: string): Case[] {
+  const tenantPersonIds = new Set((TENANT_PERSONS[tenantId] ?? []).map((p) => p.id));
+  const filtered = cases.filter((c) => tenantPersonIds.has(c.personId) && c.tenantId === tenantId);
+  if (!program || program === "ALL") return filtered;
+  return filtered.filter((c) => c.program === program);
+}
+
+/**
+ * テナントを認識してデータを追加する
+ */
+export function addPersonToTenant(tenantId: string, input: Omit<Person, "id" | "tenantId">): Person {
+  const person: Person = { id: randomUUID(), tenantId, ...input };
+  (TENANT_PERSONS[tenantId] ?? persons).push(person);
+  return person;
+}
+
+export function addCompanyToTenant(tenantId: string, input: Omit<Company, "id" | "tenantId">): Company {
+  const company: Company = { id: randomUUID(), tenantId, ...input };
+  (TENANT_COMPANIES[tenantId] ?? companies).push(company);
+  return company;
+}
+
+export function listInvoicesByTenant(tenantId: string, companyId?: string): Invoice[] {
+  const tenantCompanyIds = new Set((TENANT_COMPANIES[tenantId] ?? []).map((c) => c.id));
+  const filtered = store.invoices.filter((inv) => tenantCompanyIds.has(inv.companyId));
+  if (companyId) return filtered.filter((inv) => inv.companyId === companyId);
+  return filtered;
+}

@@ -6,8 +6,9 @@ import { Badge } from "@/components/ui/badge";
 
 type Person = {
   id: string;
-  nameKanji?: string;
   nameRomaji?: string;
+  nameRoma?: string;
+  nameKanji?: string;
   nationality?: string;
   birthdate?: string;
   currentProgram?: string;

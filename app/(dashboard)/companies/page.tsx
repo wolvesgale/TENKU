@@ -2,7 +2,7 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
 
-type Company = { id: string; name: string; address?: string; workplaceName?: string };
+type Company = { id: string; name: string };
 
 export default function CompaniesPage() {
   const [items, setItems] = useState<Company[]>([]);
@@ -21,8 +21,6 @@ export default function CompaniesPage() {
         <thead>
           <tr className="bg-surface/80">
             <th className="border px-2 py-1 text-left text-gray-100">法人名</th>
-            <th className="border px-2 py-1 text-gray-100">事業所名</th>
-            <th className="border px-2 py-1 text-gray-100">所在地</th>
             <th className="border px-2 py-1 text-gray-100">詳細</th>
           </tr>
         </thead>
@@ -30,8 +28,6 @@ export default function CompaniesPage() {
           {items.map((c) => (
             <tr key={c.id} className="hover:bg-white/10">
               <td className="border px-2 py-1">{c.name}</td>
-              <td className="border px-2 py-1">{c.workplaceName ?? "-"}</td>
-              <td className="border px-2 py-1">{c.address ?? "-"}</td>
               <td className="border px-2 py-1 text-center">
                 <Link className="text-blue-600" href={`/companies/${c.id}`}>
                   詳細

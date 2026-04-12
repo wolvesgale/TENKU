@@ -5,10 +5,10 @@ import { TITP_CATEGORIES, getJobByCode } from "@/lib/titp-jobs";
 import { SSW_SECTORS } from "@/lib/field-map";
 
 // SSW分野
-const SSW_FIELDS = SSW_SECTORS.map((s) => s.name);
+const SSW_FIELDS = SSW_SECTORS.map((s) => s.label);
 
 // 育成就労分野（SSWと同一ベース）
-const IKUSEI_FIELDS = SSW_SECTORS.map((s) => s.name);
+const IKUSEI_FIELDS = SSW_SECTORS.map((s) => s.label);
 
 // 産業分類（大分類）
 const INDUSTRY_MAJOR = [

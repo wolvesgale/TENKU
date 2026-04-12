@@ -38,6 +38,16 @@ export async function POST(req: NextRequest) {
     traineeInstructorRole: body.traineeInstructorRole,
     lifeInstructorName: body.lifeInstructorName,
     lifeInstructorRole: body.lifeInstructorRole,
+    website: body.website,
+    industryDetail: body.industryDetail,
+    laborInsuranceNo: body.laborInsuranceNo,
+    employmentInsuranceNo: body.employmentInsuranceNo,
+    unionJoinDate: body.unionJoinDate,
+    titpJobCode: body.titpJobCode,
+    titpJobName: body.titpJobName,
+    titpWorkName: body.titpWorkName,
+    sswField: body.sswField,
+    ikuseiField: body.ikuseiField,
   });
   return NextResponse.json({ data: created }, { status: 201 });
 }

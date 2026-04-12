@@ -56,6 +56,8 @@ export async function POST(req: NextRequest) {
     residenceCardExpiry: body.residenceCardExpiry,
     passportExpiry: body.passportExpiry,
     metaJson: body.metaJson,
+    myNumber: body.myNumber,
+    myNumberExpiry: body.myNumberExpiry,
   });
   return NextResponse.json({ data: created }, { status: 201 });
 }

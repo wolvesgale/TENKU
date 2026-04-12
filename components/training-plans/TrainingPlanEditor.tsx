@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import { TITP_CATEGORIES, TITP_CATEGORIES_AB, getJobByCode } from "@/lib/titp-jobs";
 
 type Company = {
   id: string;
@@ -371,71 +372,142 @@ export function TrainingPlanEditor({
         <div className="space-y-3">
           <h2 className="text-lg font-semibold">計画情報</h2>
           <div className="grid gap-3 md:grid-cols-2">
+            {/* 区分 */}
             <label className="text-sm">
-              区分（A〜F）
-              <input
+              区分
+              <select
                 className="w-full border px-2 py-1 rounded"
                 value={values.category}
                 onChange={(e) => setValues((prev) => ({ ...prev, category: e.target.value }))}
-              />
+              >
+                <option value="">選択</option>
+                {TITP_CATEGORIES_AB.map((c) => (
+                  <option key={c.value} value={c.value}>{c.label}</option>
+                ))}
+              </select>
             </label>
+            {/* 前段階認定番号 */}
             <label className="text-sm">
               前段階認定番号
               <input
                 className="w-full border px-2 py-1 rounded"
                 value={values.prevCertNumber}
+                placeholder="B・C区分の場合に入力"
                 onChange={(e) => setValues((prev) => ({ ...prev, prevCertNumber: e.target.value }))}
               />
             </label>
-            <label className="text-sm">
-              職種コード1
-              <input
-                className="w-full border px-2 py-1 rounded"
-                value={values.jobCode}
-                onChange={(e) => setValues((prev) => ({ ...prev, jobCode: e.target.value }))}
-              />
-            </label>
-            <label className="text-sm">
-              職種名1
-              <input
-                className="w-full border px-2 py-1 rounded"
-                value={values.jobName}
-                onChange={(e) => setValues((prev) => ({ ...prev, jobName: e.target.value }))}
-              />
-            </label>
-            <label className="text-sm">
-              作業名1
-              <input
-                className="w-full border px-2 py-1 rounded"
-                value={values.workName}
-                onChange={(e) => setValues((prev) => ({ ...prev, workName: e.target.value }))}
-              />
-            </label>
-            <div />
-            <label className="text-sm">
-              職種コード2
-              <input
-                className="w-full border px-2 py-1 rounded"
-                value={values.jobCode2}
-                onChange={(e) => setValues((prev) => ({ ...prev, jobCode2: e.target.value }))}
-              />
-            </label>
-            <label className="text-sm">
-              職種名2
-              <input
-                className="w-full border px-2 py-1 rounded"
-                value={values.jobName2}
-                onChange={(e) => setValues((prev) => ({ ...prev, jobName2: e.target.value }))}
-              />
-            </label>
-            <label className="text-sm">
-              作業名2
-              <input
-                className="w-full border px-2 py-1 rounded"
-                value={values.workName2}
-                onChange={(e) => setValues((prev) => ({ ...prev, workName2: e.target.value }))}
-              />
-            </label>
+
+            {/* 職種1 カスケード */}
+            <div className="col-span-2 border border-border rounded-lg p-3 space-y-2 bg-surface/40">
+              <p className="text-xs font-semibold text-muted uppercase tracking-wide">職種1</p>
+              <div className="grid gap-2 md:grid-cols-3">
+                <label className="text-sm">
+                  職種コード
+                  <select
+                    className="w-full border px-2 py-1 rounded"
+                    value={values.jobCode}
+                    onChange={(e) => {
+                      const code = e.target.value;
+                      const job = getJobByCode(code);
+                      setValues((prev) => ({
+                        ...prev,
+                        jobCode: code,
+                        jobName: job?.name ?? "",
+                        workName: "",
+                      }));
+                    }}
+                  >
+                    <option value="">選択</option>
+                    {TITP_CATEGORIES.map((cat) => (
+                      <optgroup key={cat.code} label={`${cat.code} ${cat.name}`}>
+                        {cat.jobs.map((j) => (
+                          <option key={j.code} value={j.code}>{j.code} {j.name}</option>
+                        ))}
+                      </optgroup>
+                    ))}
+                  </select>
+                </label>
+                <label className="text-sm">
+                  職種名
+                  <input
+                    className="w-full border px-2 py-1 rounded bg-surface/60"
+                    value={values.jobName}
+                    readOnly
+                    placeholder="職種コード選択で自動入力"
+                  />
+                </label>
+                <label className="text-sm">
+                  作業名
+                  <select
+                    className="w-full border px-2 py-1 rounded"
+                    value={values.workName}
+                    disabled={!values.jobCode}
+                    onChange={(e) => setValues((prev) => ({ ...prev, workName: e.target.value }))}
+                  >
+                    <option value="">選択</option>
+                    {(getJobByCode(values.jobCode)?.works ?? []).map((w) => (
+                      <option key={w.code} value={w.name}>{w.name}</option>
+                    ))}
+                  </select>
+                </label>
+              </div>
+            </div>
+
+            {/* 職種2 カスケード */}
+            <div className="col-span-2 border border-border rounded-lg p-3 space-y-2 bg-surface/40">
+              <p className="text-xs font-semibold text-muted uppercase tracking-wide">職種2（任意）</p>
+              <div className="grid gap-2 md:grid-cols-3">
+                <label className="text-sm">
+                  職種コード
+                  <select
+                    className="w-full border px-2 py-1 rounded"
+                    value={values.jobCode2}
+                    onChange={(e) => {
+                      const code = e.target.value;
+                      const job = getJobByCode(code);
+                      setValues((prev) => ({
+                        ...prev,
+                        jobCode2: code,
+                        jobName2: job?.name ?? "",
+                        workName2: "",
+                      }));
+                    }}
+                  >
+                    <option value="">選択</option>
+                    {TITP_CATEGORIES.map((cat) => (
+                      <optgroup key={cat.code} label={`${cat.code} ${cat.name}`}>
+                        {cat.jobs.map((j) => (
+                          <option key={j.code} value={j.code}>{j.code} {j.name}</option>
+                        ))}
+                      </optgroup>
+                    ))}
+                  </select>
+                </label>
+                <label className="text-sm">
+                  職種名
+                  <input
+                    className="w-full border px-2 py-1 rounded bg-surface/60"
+                    value={values.jobName2}
+                    readOnly
+                    placeholder="職種コード選択で自動入力"
+                  />
+                </label>
+                <label className="text-sm">
+                  作業名
+                  <select
+                    className="w-full border px-2 py-1 rounded"
+                    value={values.workName2}
+                    disabled={!values.jobCode2}
+                    onChange={(e) => setValues((prev) => ({ ...prev, workName2: e.target.value }))}
+                  >
+                    <option value="">選択</option>
+                    {(getJobByCode(values.jobCode2)?.works ?? []).map((w) => (
+                      <option key={w.code} value={w.name}>{w.name}</option>
+                    ))}
+                  </select>
+                </label>
+              </div>
+            </div>
           </div>
         </div>
 

@@ -67,6 +67,17 @@ export type Company = {
   lifeInstructorName?: string;
   lifeInstructorKana?: string;
   lifeInstructorRole?: string;
+  // 追加フィールド
+  website?: string;
+  industryDetail?: string;
+  laborInsuranceNo?: string;
+  employmentInsuranceNo?: string;
+  unionJoinDate?: string;
+  titpJobCode?: string;
+  titpJobName?: string;
+  titpWorkName?: string;
+  sswField?: string;
+  ikuseiField?: string;
 };
 export type Person = {
   id: string;
@@ -112,6 +123,8 @@ export type Person = {
   residenceCardExpiry?: string;
   passportExpiry?: string;
   metaJson?: any;
+  myNumber?: string;
+  myNumberExpiry?: string;
 };
 export type PersonStatusHistory = {
   id: string;

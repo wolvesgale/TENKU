@@ -2,6 +2,7 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { CompanyForm, type CompanyFormData } from "@/components/companies/CompanyForm";
+import { PrintButton } from "@/components/ui/print-button";
 
 export default function CompanyDetail({ params }: { params: { id: string } }) {
   const [company, setCompany] = useState<CompanyFormData | null>(null);
@@ -37,9 +38,10 @@ export default function CompanyDetail({ params }: { params: { id: string } }) {
           <h1 className="text-xl font-semibold">{company.name}</h1>
           <p className="text-sm text-gray-600">{company.address ?? "-"}</p>
         </div>
-        <Link className="text-blue-600" href="/companies">
-          一覧へ戻る
-        </Link>
+        <div className="flex items-center gap-2">
+          <PrintButton />
+          <Link className="text-brand-blue text-sm" href="/companies">一覧へ戻る</Link>
+        </div>
       </div>
       <CompanyForm initialData={company} onSubmit={submit} submitting={saving} />
     </div>

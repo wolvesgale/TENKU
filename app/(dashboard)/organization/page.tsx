@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { OrganizationForm, type OrganizationFormData } from "@/components/organization/OrganizationForm";
+import { PrintButton } from "@/components/ui/print-button";
 
 export default function OrganizationPage() {
   const [data, setData] = useState<OrganizationFormData | null>(null);
@@ -32,9 +33,12 @@ export default function OrganizationPage() {
 
   return (
     <div className="p-4 space-y-4 max-w-4xl">
-      <div>
-        <h1 className="text-xl font-semibold">監理団体情報</h1>
-        <p className="text-sm text-muted">テンプレPDFに反映する監理団体の情報を編集します。</p>
+      <div className="flex items-start justify-between">
+        <div>
+          <h1 className="text-xl font-semibold">監理団体情報</h1>
+          <p className="text-sm text-muted">テンプレPDFに反映する監理団体の情報を編集します。</p>
+        </div>
+        <PrintButton />
       </div>
       <OrganizationForm initialData={data} onSubmit={submit} submitting={saving} />
     </div>

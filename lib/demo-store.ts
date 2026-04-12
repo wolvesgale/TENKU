@@ -14,6 +14,11 @@ export type DemoOrganizationProfile = {
   tenantId: string;
   permitNumber?: string;
   permitType?: string;
+  permitExpiry?: string;
+  corporateNumber?: string;
+  laborInsuranceNo?: string;
+  employmentInsuranceNo?: string;
+  website?: string;
   name: string;
   nameKana?: string;
   postalCode?: string;
@@ -30,10 +35,23 @@ export type DemoOrganizationProfile = {
   supervisingOfficePhone?: string;
   planInstructorName?: string;
   planInstructorKana?: string;
+  // 登録支援機関
+  supportOrgNumber?: string;
+  supportOrgExpiry?: string;
+  // 監理支援機関
+  supervisingOrgNumber?: string;
+  supervisingOrgExpiry?: string;
+  // 送出機関（最大3件）
   sendingOrgName?: string;
   sendingOrgNumber?: string;
   sendingOrgNumberCountry?: string;
   sendingOrgRefNumber?: string;
+  sendingOrgName2?: string;
+  sendingOrgNumber2?: string;
+  sendingOrgNumberCountry2?: string;
+  sendingOrgName3?: string;
+  sendingOrgNumber3?: string;
+  sendingOrgNumberCountry3?: string;
 };
 export type Company = {
   id: string;

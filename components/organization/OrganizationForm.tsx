@@ -3,8 +3,14 @@
 import { useState } from "react";
 
 export type OrganizationFormData = {
+  // 監理団体
   permitNumber?: string;
   permitType?: string;
+  permitExpiry?: string;
+  corporateNumber?: string;
+  laborInsuranceNo?: string;
+  employmentInsuranceNo?: string;
+  website?: string;
   name: string;
   nameKana?: string;
   postalCode?: string;
@@ -21,13 +27,44 @@ export type OrganizationFormData = {
   supervisingOfficePhone?: string;
   planInstructorName?: string;
   planInstructorKana?: string;
+  // 登録支援機関
+  supportOrgNumber?: string;
+  supportOrgExpiry?: string;
+  // 監理支援機関
+  supervisingOrgNumber?: string;
+  supervisingOrgExpiry?: string;
+  // 送出機関（複数対応のため最大3件）
   sendingOrgName?: string;
   sendingOrgNumber?: string;
   sendingOrgNumberCountry?: string;
   sendingOrgRefNumber?: string;
+  sendingOrgName2?: string;
+  sendingOrgNumber2?: string;
+  sendingOrgNumberCountry2?: string;
+  sendingOrgName3?: string;
+  sendingOrgNumber3?: string;
+  sendingOrgNumberCountry3?: string;
 };
 
-const inputClassName = "w-full border px-2 py-1 rounded";
+const inp = "w-full border border-border bg-surface/60 px-2 py-1.5 rounded text-sm focus:outline-none focus:ring-1 focus:ring-brand-blue";
+
+function Field({ label, children, span2 }: { label: string; children: React.ReactNode; span2?: boolean }) {
+  return (
+    <div className={`space-y-0.5 ${span2 ? "sm:col-span-2" : ""}`}>
+      <label className="text-xs text-muted">{label}</label>
+      {children}
+    </div>
+  );
+}
+
+function Section({ title, children }: { title: string; children: React.ReactNode }) {
+  return (
+    <section className="space-y-3">
+      <h2 className="text-sm font-semibold text-brand-teal border-b border-border pb-1">{title}</h2>
+      <div className="grid gap-3 sm:grid-cols-2">{children}</div>
+    </section>
+  );
+}
 
 export function OrganizationForm({
   initialData,
@@ -41,6 +78,11 @@ export function OrganizationForm({
   const [form, setForm] = useState<OrganizationFormData>({
     permitNumber: "",
     permitType: "",
+    permitExpiry: "",
+    corporateNumber: "",
+    laborInsuranceNo: "",
+    employmentInsuranceNo: "",
+    website: "",
     name: "",
     nameKana: "",
     postalCode: "",
@@ -57,146 +99,173 @@ export function OrganizationForm({
     supervisingOfficePhone: "",
     planInstructorName: "",
     planInstructorKana: "",
+    supportOrgNumber: "",
+    supportOrgExpiry: "",
+    supervisingOrgNumber: "",
+    supervisingOrgExpiry: "",
     sendingOrgName: "",
     sendingOrgNumber: "",
     sendingOrgNumberCountry: "",
     sendingOrgRefNumber: "",
+    sendingOrgName2: "",
+    sendingOrgNumber2: "",
+    sendingOrgNumberCountry2: "",
+    sendingOrgName3: "",
+    sendingOrgNumber3: "",
+    sendingOrgNumberCountry3: "",
     ...initialData,
   });
 
+  const set = (key: keyof OrganizationFormData) =>
+    (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) =>
+      setForm((f) => ({ ...f, [key]: e.target.value }));
+
   return (
-    <div className="space-y-6">
-      <section className="space-y-3">
-        <h2 className="text-lg font-semibold">許可情報</h2>
-        <div className="grid gap-3 md:grid-cols-2">
-          <label className="text-sm">
-            許可番号
-            <input className={inputClassName} value={form.permitNumber ?? ""} onChange={(e) => setForm({ ...form, permitNumber: e.target.value })} />
-          </label>
-          <label className="text-sm">
-            許可区分（一般/特定）
-            <input className={inputClassName} value={form.permitType ?? ""} onChange={(e) => setForm({ ...form, permitType: e.target.value })} />
-          </label>
-        </div>
-      </section>
+    <div className="max-w-2xl space-y-6">
 
-      <section className="space-y-3">
-        <h2 className="text-lg font-semibold">監理団体</h2>
-        <div className="grid gap-3 md:grid-cols-2">
-          <label className="text-sm">
-            団体名
-            <input className={inputClassName} value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} />
-          </label>
-          <label className="text-sm">
-            団体名（カナ）
-            <input className={inputClassName} value={form.nameKana ?? ""} onChange={(e) => setForm({ ...form, nameKana: e.target.value })} />
-          </label>
-          <label className="text-sm">
-            郵便番号
-            <input className={inputClassName} placeholder="例: 123-4567" value={form.postalCode ?? ""} onChange={(e) => setForm({ ...form, postalCode: e.target.value })} />
-          </label>
-          <label className="text-sm">
-            住所
-            <input className={inputClassName} value={form.address ?? ""} onChange={(e) => setForm({ ...form, address: e.target.value })} />
-          </label>
-          <label className="text-sm">
-            電話番号
-            <input className={inputClassName} value={form.phone ?? ""} onChange={(e) => setForm({ ...form, phone: e.target.value })} />
-          </label>
-        </div>
-      </section>
+      {/* ── 監理団体 基本情報 ── */}
+      <Section title="監理団体 基本情報">
+        <Field label="許可番号">
+          <input className={inp} value={form.permitNumber ?? ""} onChange={set("permitNumber")} />
+        </Field>
+        <Field label="許可区分（一般/特定）">
+          <select className={inp} value={form.permitType ?? ""} onChange={set("permitType")}>
+            <option value="">選択</option>
+            <option value="一般監理事業">一般監理事業</option>
+            <option value="特定監理事業">特定監理事業</option>
+          </select>
+        </Field>
+        <Field label="許可有効期限">
+          <input type="date" className={inp} value={form.permitExpiry ?? ""} onChange={set("permitExpiry")} />
+        </Field>
+        <Field label="法人番号">
+          <input className={inp} value={form.corporateNumber ?? ""} onChange={set("corporateNumber")} placeholder="13桁" />
+        </Field>
+        <Field label="団体名">
+          <input className={inp} value={form.name} onChange={set("name")} />
+        </Field>
+        <Field label="団体名（カナ）">
+          <input className={inp} value={form.nameKana ?? ""} onChange={set("nameKana")} />
+        </Field>
+        <Field label="郵便番号">
+          <input className={inp} value={form.postalCode ?? ""} onChange={set("postalCode")} placeholder="000-0000" />
+        </Field>
+        <Field label="住所">
+          <input className={inp} value={form.address ?? ""} onChange={set("address")} />
+        </Field>
+        <Field label="電話番号">
+          <input className={inp} value={form.phone ?? ""} onChange={set("phone")} />
+        </Field>
+        <Field label="WEBサイト">
+          <input className={inp} value={form.website ?? ""} onChange={set("website")} placeholder="https://..." />
+        </Field>
+        <Field label="労働保険番号">
+          <input className={inp} value={form.laborInsuranceNo ?? ""} onChange={set("laborInsuranceNo")} placeholder="00-000000-000000-000" />
+        </Field>
+        <Field label="雇用保険適用事業者番号">
+          <input className={inp} value={form.employmentInsuranceNo ?? ""} onChange={set("employmentInsuranceNo")} placeholder="0000-000000-0" />
+        </Field>
+      </Section>
 
-      <section className="space-y-3">
-        <h2 className="text-lg font-semibold">代表者・責任者</h2>
-        <div className="grid gap-3 md:grid-cols-2">
-          <label className="text-sm">
-            代表者氏名
-            <input className={inputClassName} value={form.representativeName ?? ""} onChange={(e) => setForm({ ...form, representativeName: e.target.value })} />
-          </label>
-          <label className="text-sm">
-            代表者氏名（カナ）
-            <input className={inputClassName} value={form.representativeKana ?? ""} onChange={(e) => setForm({ ...form, representativeKana: e.target.value })} />
-          </label>
-          <label className="text-sm">
-            監理責任者
-            <input className={inputClassName} value={form.supervisorResponsibleName ?? ""} onChange={(e) => setForm({ ...form, supervisorResponsibleName: e.target.value })} />
-          </label>
-          <label className="text-sm">
-            監理責任者（カナ）
-            <input className={inputClassName} value={form.supervisorResponsibleKana ?? ""} onChange={(e) => setForm({ ...form, supervisorResponsibleKana: e.target.value })} />
-          </label>
-        </div>
-      </section>
+      {/* ── 登録支援機関 / 監理支援機関 ── */}
+      <Section title="登録支援機関・監理支援機関">
+        <Field label="登録支援機関番号">
+          <input className={inp} value={form.supportOrgNumber ?? ""} onChange={set("supportOrgNumber")} />
+        </Field>
+        <Field label="登録支援機関 有効期限">
+          <input type="date" className={inp} value={form.supportOrgExpiry ?? ""} onChange={set("supportOrgExpiry")} />
+        </Field>
+        <Field label="監理支援機関番号">
+          <input className={inp} value={form.supervisingOrgNumber ?? ""} onChange={set("supervisingOrgNumber")} />
+        </Field>
+        <Field label="監理支援機関 有効期限">
+          <input type="date" className={inp} value={form.supervisingOrgExpiry ?? ""} onChange={set("supervisingOrgExpiry")} />
+        </Field>
+      </Section>
 
-      <section className="space-y-3">
-        <h2 className="text-lg font-semibold">担当事業所</h2>
-        <div className="grid gap-3 md:grid-cols-2">
-          <label className="text-sm">
-            担当事業所名
-            <input className={inputClassName} value={form.supervisingOfficeName ?? ""} onChange={(e) => setForm({ ...form, supervisingOfficeName: e.target.value })} />
-          </label>
-          <label className="text-sm">
-            担当事業所名（カナ）
-            <input className={inputClassName} value={form.supervisingOfficeNameKana ?? ""} onChange={(e) => setForm({ ...form, supervisingOfficeNameKana: e.target.value })} />
-          </label>
-          <label className="text-sm">
-            担当事業所郵便番号
-            <input className={inputClassName} placeholder="例: 123-4567" value={form.supervisingOfficePostalCode ?? ""} onChange={(e) => setForm({ ...form, supervisingOfficePostalCode: e.target.value })} />
-          </label>
-          <label className="text-sm">
-            担当事業所住所
-            <input className={inputClassName} value={form.supervisingOfficeAddress ?? ""} onChange={(e) => setForm({ ...form, supervisingOfficeAddress: e.target.value })} />
-          </label>
-          <label className="text-sm">
-            担当事業所電話
-            <input className={inputClassName} value={form.supervisingOfficePhone ?? ""} onChange={(e) => setForm({ ...form, supervisingOfficePhone: e.target.value })} />
-          </label>
-        </div>
-      </section>
+      {/* ── 代表者・責任者 ── */}
+      <Section title="代表者・責任者">
+        <Field label="代表者氏名">
+          <input className={inp} value={form.representativeName ?? ""} onChange={set("representativeName")} />
+        </Field>
+        <Field label="代表者氏名（カナ）">
+          <input className={inp} value={form.representativeKana ?? ""} onChange={set("representativeKana")} />
+        </Field>
+        <Field label="監理責任者">
+          <input className={inp} value={form.supervisorResponsibleName ?? ""} onChange={set("supervisorResponsibleName")} />
+        </Field>
+        <Field label="監理責任者（カナ）">
+          <input className={inp} value={form.supervisorResponsibleKana ?? ""} onChange={set("supervisorResponsibleKana")} />
+        </Field>
+      </Section>
 
-      <section className="space-y-3">
-        <h2 className="text-lg font-semibold">計画指導担当者</h2>
-        <div className="grid gap-3 md:grid-cols-2">
-          <label className="text-sm">
-            計画指導担当者氏名
-            <input className={inputClassName} value={form.planInstructorName ?? ""} onChange={(e) => setForm({ ...form, planInstructorName: e.target.value })} />
-          </label>
-          <label className="text-sm">
-            計画指導担当者（カナ）
-            <input className={inputClassName} value={form.planInstructorKana ?? ""} onChange={(e) => setForm({ ...form, planInstructorKana: e.target.value })} />
-          </label>
-        </div>
-      </section>
+      {/* ── 担当事業所 ── */}
+      <Section title="担当事業所">
+        <Field label="担当事業所名">
+          <input className={inp} value={form.supervisingOfficeName ?? ""} onChange={set("supervisingOfficeName")} />
+        </Field>
+        <Field label="担当事業所名（カナ）">
+          <input className={inp} value={form.supervisingOfficeNameKana ?? ""} onChange={set("supervisingOfficeNameKana")} />
+        </Field>
+        <Field label="郵便番号">
+          <input className={inp} value={form.supervisingOfficePostalCode ?? ""} onChange={set("supervisingOfficePostalCode")} />
+        </Field>
+        <Field label="住所">
+          <input className={inp} value={form.supervisingOfficeAddress ?? ""} onChange={set("supervisingOfficeAddress")} />
+        </Field>
+        <Field label="電話">
+          <input className={inp} value={form.supervisingOfficePhone ?? ""} onChange={set("supervisingOfficePhone")} />
+        </Field>
+        <Field label="計画指導担当者氏名">
+          <input className={inp} value={form.planInstructorName ?? ""} onChange={set("planInstructorName")} />
+        </Field>
+        <Field label="計画指導担当者（カナ）">
+          <input className={inp} value={form.planInstructorKana ?? ""} onChange={set("planInstructorKana")} />
+        </Field>
+      </Section>
 
+      {/* ── 送出機関 ── */}
       <section className="space-y-3">
-        <h2 className="text-lg font-semibold">送出機関</h2>
-        <div className="grid gap-3 md:grid-cols-2">
-          <label className="text-sm">
-            送出機関名
-            <input className={inputClassName} value={form.sendingOrgName ?? ""} onChange={(e) => setForm({ ...form, sendingOrgName: e.target.value })} />
-          </label>
-          <label className="text-sm">
-            送出機関番号（国コード）
-            <input className={inputClassName} placeholder="例: VNM" value={form.sendingOrgNumberCountry ?? ""} onChange={(e) => setForm({ ...form, sendingOrgNumberCountry: e.target.value })} />
-          </label>
-          <label className="text-sm">
-            送出機関番号
-            <input className={inputClassName} value={form.sendingOrgNumber ?? ""} onChange={(e) => setForm({ ...form, sendingOrgNumber: e.target.value })} />
-          </label>
-          <label className="text-sm">
-            送出機関整理番号
-            <input className={inputClassName} value={form.sendingOrgRefNumber ?? ""} onChange={(e) => setForm({ ...form, sendingOrgRefNumber: e.target.value })} />
-          </label>
-        </div>
+        <h2 className="text-sm font-semibold text-brand-amber border-b border-border pb-1">送出機関情報</h2>
+
+        {[
+          { label: "1", name: "sendingOrgName" as const, num: "sendingOrgNumber" as const, country: "sendingOrgNumberCountry" as const, ref: "sendingOrgRefNumber" as const },
+          { label: "2", name: "sendingOrgName2" as const, num: "sendingOrgNumber2" as const, country: "sendingOrgNumberCountry2" as const },
+          { label: "3", name: "sendingOrgName3" as const, num: "sendingOrgNumber3" as const, country: "sendingOrgNumberCountry3" as const },
+        ].map((org) => (
+          <div key={org.label} className="border border-border rounded-lg p-3 space-y-2 bg-surface/40">
+            <p className="text-xs font-semibold text-muted">送出機関 {org.label}</p>
+            <div className="grid gap-2 sm:grid-cols-2">
+              <div className="space-y-0.5">
+                <label className="text-xs text-muted">機関名</label>
+                <input className={inp} value={(form[org.name] as string) ?? ""} onChange={set(org.name)} />
+              </div>
+              <div className="space-y-0.5">
+                <label className="text-xs text-muted">国コード</label>
+                <input className={inp} value={(form[org.country] as string) ?? ""} onChange={set(org.country)} placeholder="VNM / PHL / IDN …" />
+              </div>
+              <div className="space-y-0.5">
+                <label className="text-xs text-muted">機関番号</label>
+                <input className={inp} value={(form[org.num] as string) ?? ""} onChange={set(org.num)} />
+              </div>
+              {org.ref && (
+                <div className="space-y-0.5">
+                  <label className="text-xs text-muted">整理番号</label>
+                  <input className={inp} value={(form[org.ref] as string) ?? ""} onChange={set(org.ref)} />
+                </div>
+              )}
+            </div>
+          </div>
+        ))}
       </section>
 
       <button
         type="button"
-        className="px-4 py-2 bg-blue-600 text-white rounded disabled:opacity-60"
+        className="px-4 py-2 bg-brand-blue text-white rounded-lg text-sm font-medium disabled:opacity-60 hover:opacity-90 transition"
         onClick={() => onSubmit(form)}
         disabled={submitting}
       >
-        {submitting ? "保存中..." : "保存"}
+        {submitting ? "保存中…" : "保存"}
       </button>
     </div>
   );

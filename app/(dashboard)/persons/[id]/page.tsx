@@ -2,6 +2,7 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { PersonForm, type PersonFormData } from "@/components/persons/PersonForm";
+import { PrintButton } from "@/components/ui/print-button";
 
 export default function PersonDetail({ params }: { params: { id: string } }) {
   const [person, setPerson] = useState<PersonFormData | null>(null);
@@ -36,9 +37,10 @@ export default function PersonDetail({ params }: { params: { id: string } }) {
         <div>
           <h1 className="text-xl font-semibold">{person.nameKanji || person.nameRomaji}</h1>
         </div>
-        <Link className="text-blue-400" href="/persons">
-          一覧へ戻る
-        </Link>
+        <div className="flex items-center gap-2">
+          <PrintButton />
+          <Link className="text-brand-blue text-sm" href="/persons">一覧へ戻る</Link>
+        </div>
       </div>
       <PersonForm initialData={person} onSubmit={submit} submitting={saving} />
     </div>

@@ -124,6 +124,13 @@ export default function SswApplicationNewPage() {
   const selectedPerson = persons.find((p) => p.id === form.personId);
   const selectedCompany = companies.find((c) => c.id === form.companyId);
 
+  // 申請種別→PDFテンプレートID対応
+  const PDF_TEMPLATE: Record<AppType, string> = {
+    EXT: "residence-period-extension",
+    COS: "residence-status-change",
+    COE: "residence-period-extension", // COEはデモ用にEXTと同じテンプレートで代替
+  };
+
   async function handleSubmit() {
     if (!form.personId || !form.companyId) { setErrMsg("申請人と所属機関は必須です"); return; }
     setSubmitting(true);
@@ -149,13 +156,69 @@ export default function SswApplicationNewPage() {
     setSubmitting(false);
   }
 
+  function printSummary() {
+    const w = window.open("", "_blank");
+    if (!w) return;
+    w.document.write(`
+      <html><head><title>特定技能申請サマリ</title>
+      <style>
+        body { font-family: sans-serif; padding: 32px; color: #111; }
+        h1 { font-size: 18px; border-bottom: 2px solid #333; padding-bottom: 8px; }
+        h2 { font-size: 14px; margin-top: 20px; border-bottom: 1px solid #aaa; }
+        table { width: 100%; border-collapse: collapse; font-size: 13px; margin-top: 8px; }
+        td { padding: 6px 8px; border: 1px solid #ddd; }
+        td:first-child { background: #f5f5f5; font-weight: bold; width: 40%; }
+        .badge { display: inline-block; border: 1px solid #333; padding: 2px 8px; border-radius: 4px; font-size: 12px; }
+      </style></head><body>
+      <h1>特定技能申請サマリ</h1>
+      <p style="font-size:12px;color:#666">出力日: ${new Date().toLocaleDateString("ja-JP")}</p>
+      <h2>申請概要</h2>
+      <table>
+        <tr><td>申請種別</td><td><span class="badge">${form.appType}</span> ${appTypeMeta.label}</td></tr>
+        <tr><td>様式番号</td><td>${appTypeMeta.formNumber}</td></tr>
+        <tr><td>申請人</td><td>${selectedPerson?.nameKanji ?? selectedPerson?.nameRomaji ?? "-"} (${form.nationality})</td></tr>
+        <tr><td>所属機関</td><td>${selectedCompany?.name ?? "-"} (${form.employerType === "corporate" ? "法人" : "個人事業主"})</td></tr>
+        <tr><td>特定産業分野</td><td>${selectedSector?.label ?? "-"}</td></tr>
+        <tr><td>雇用期間</td><td>${form.contractStartDate || "-"} 〜 ${form.contractEndDate || "-"}</td></tr>
+        <tr><td>月額報酬</td><td>${form.monthlySalary ? `¥${Number(form.monthlySalary).toLocaleString()}` : "-"}</td></tr>
+        <tr><td>就労場所</td><td>${form.workLocation || "-"}</td></tr>
+        <tr><td>登録支援機関委託</td><td>${form.isDelegated ? `あり（${form.supportOrgName || "未入力"}）` : "なし（自社対応）"}</td></tr>
+        <tr><td>試験免除</td><td>${form.exemptFromTests ? "技能実習2号修了・育成就労修了により免除" : "-"}</td></tr>
+      </table>
+      <h2>書類確認状況</h2>
+      <table>
+        <tr><td>確認済</td><td>${checkedCount} / ${docList.length} 件</td></tr>
+        <tr><td>必須書類</td><td>${requiredChecked} / ${requiredDocs.length} 件確認済</td></tr>
+      </table>
+      ${form.notes ? `<h2>備考</h2><p style="font-size:13px">${form.notes}</p>` : ""}
+      </body></html>
+    `);
+    w.document.close();
+    w.print();
+  }
+
   if (submitted) {
+    const tplId = PDF_TEMPLATE[form.appType];
     return (
       <div className="max-w-xl mx-auto text-center space-y-4 pt-12">
         <div className="text-5xl">✅</div>
         <h2 className="text-xl font-bold text-white">申請書類を登録しました</h2>
         <p className="text-sm text-muted">特定技能申請（{appTypeMeta.shortLabel}）を下書き登録しました。</p>
-        <div className="flex justify-center gap-3">
+        <div className="flex flex-wrap justify-center gap-3">
+          <button
+            onClick={printSummary}
+            className="flex items-center gap-1.5 px-4 py-2 rounded border border-border text-sm text-gray-300 hover:bg-white/5"
+          >
+            🖨 申請サマリを印刷
+          </button>
+          <a
+            href={`/api/v1/pdf/preview?templateId=${tplId}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex items-center gap-1.5 px-4 py-2 rounded border border-brand-blue text-sm text-brand-blue hover:bg-brand-blue/10"
+          >
+            📄 申請書PDF（テンプレート）
+          </a>
           <Link href="/ssw" className="px-4 py-2 rounded border border-border text-sm text-gray-300 hover:bg-white/5">
             特定技能トップへ
           </Link>

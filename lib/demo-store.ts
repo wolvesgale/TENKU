@@ -2738,3 +2738,173 @@ export function listInvoicesByTenant(tenantId: string, companyId?: string): Invo
   if (companyId) return filtered.filter((inv) => inv.companyId === companyId);
   return filtered;
 }
+
+// ─── 特定活動46号 移行パイプライン ─────────────────────────────────────────────
+export type TaStage = "TA0" | "TA1" | "TA2" | "TA3" | "TA4";
+export type TaRecord = {
+  id: string;
+  tenantId: string;
+  personId: string;
+  currentStage: TaStage;
+  targetProgram: "SSW" | "IKUSEI" | "OTHER";
+  notes?: string;
+  dueDate?: string;
+  createdAt: string;
+  updatedAt: string;
+};
+
+const taRecords: TaRecord[] = [
+  {
+    id: "ta-001", tenantId: tenant.id, personId: "ssw-035",
+    currentStage: "TA1", targetProgram: "SSW",
+    notes: "在留カード切替申請書類作成中",
+    dueDate: "2026-02-15", createdAt: "2026-01-05T09:00:00Z", updatedAt: "2026-01-10T12:00:00Z",
+  },
+  {
+    id: "ta-002", tenantId: tenant.id, personId: "ssw-036",
+    currentStage: "TA2", targetProgram: "SSW",
+    notes: "追加資料（雇用契約書）提出待ち",
+    dueDate: "2026-02-20", createdAt: "2026-01-05T09:00:00Z", updatedAt: "2026-01-15T12:00:00Z",
+  },
+  {
+    id: "ta-003", tenantId: tenant.id, personId: "titp-101",
+    currentStage: "TA0", targetProgram: "SSW",
+    notes: "技能実習2号修了予定。SSW移行対象を確認中",
+    dueDate: "2026-04-30", createdAt: "2026-01-20T09:00:00Z", updatedAt: "2026-01-20T09:00:00Z",
+  },
+  {
+    id: "ta-004", tenantId: tenant.id, personId: "titp-102",
+    currentStage: "TA3", targetProgram: "IKUSEI",
+    notes: "許可通知受領済み。在留資格切替手続き中",
+    dueDate: "2026-02-05", createdAt: "2025-11-10T09:00:00Z", updatedAt: "2026-01-18T12:00:00Z",
+  },
+];
+
+export function listTaRecords(stage?: TaStage): TaRecord[] {
+  if (stage) return taRecords.filter((r) => r.currentStage === stage);
+  return [...taRecords];
+}
+
+export function addTaRecord(input: Omit<TaRecord, "id" | "tenantId" | "createdAt" | "updatedAt">): TaRecord {
+  const now = new Date().toISOString();
+  const record: TaRecord = { id: randomUUID(), tenantId: tenant.id, createdAt: now, updatedAt: now, ...input };
+  taRecords.push(record);
+  return record;
+}
+
+export function updateTaRecord(id: string, data: Partial<TaRecord>): TaRecord | null {
+  const idx = taRecords.findIndex((r) => r.id === id);
+  if (idx === -1) return null;
+  taRecords[idx] = { ...taRecords[idx], ...data, updatedAt: new Date().toISOString() };
+  return taRecords[idx];
+}
+
+// ─── 翻訳ジョブ ───────────────────────────────────────────────────────────────
+export type TranslationLang = "ID" | "VI" | "NE" | "EN";
+export type TranslationStatus = "pending" | "done" | "error";
+export type TranslationJob = {
+  id: string;
+  tenantId: string;
+  title: string;
+  sourceLang: "JA";
+  targetLang: TranslationLang;
+  sourceText: string;
+  translatedText?: string;
+  status: TranslationStatus;
+  createdAt: string;
+  completedAt?: string;
+};
+
+const translationJobs: TranslationJob[] = [
+  {
+    id: "tr-001", tenantId: tenant.id,
+    title: "雇用契約書（インドネシア語訳）",
+    sourceLang: "JA", targetLang: "ID",
+    sourceText: "この雇用契約書は、雇用主と労働者の間で締結されるものです。",
+    translatedText: "Perjanjian kerja ini dibuat antara pemberi kerja dan pekerja.",
+    status: "done", createdAt: "2026-01-10T09:00:00Z", completedAt: "2026-01-10T09:01:00Z",
+  },
+  {
+    id: "tr-002", tenantId: tenant.id,
+    title: "支援計画書（ベトナム語訳）",
+    sourceLang: "JA", targetLang: "VI",
+    sourceText: "支援計画書に基づき、定期的な面談を実施します。",
+    translatedText: "Các cuộc phỏng vấn định kỳ sẽ được thực hiện dựa trên kế hoạch hỗ trợ.",
+    status: "done", createdAt: "2026-01-12T10:30:00Z", completedAt: "2026-01-12T10:31:00Z",
+  },
+];
+
+export function listTranslationJobs(): TranslationJob[] {
+  return [...translationJobs].sort((a, b) => b.createdAt.localeCompare(a.createdAt));
+}
+
+export function addTranslationJob(input: Omit<TranslationJob, "id" | "tenantId" | "createdAt">): TranslationJob {
+  const job: TranslationJob = { id: randomUUID(), tenantId: tenant.id, createdAt: new Date().toISOString(), ...input };
+  translationJobs.unshift(job);
+  return job;
+}
+
+export function updateTranslationJob(id: string, data: Partial<TranslationJob>): TranslationJob | null {
+  const idx = translationJobs.findIndex((j) => j.id === id);
+  if (idx === -1) return null;
+  translationJobs[idx] = { ...translationJobs[idx], ...data };
+  return translationJobs[idx];
+}
+
+// ─── 一時帰国管理 ─────────────────────────────────────────────────────────────
+export type HomeVisitStatus = "DRAFT" | "PREP" | "READY" | "OUTBOUND" | "RETURNED";
+export type HomeVisit = {
+  id: string;
+  tenantId: string;
+  personId: string;
+  departureDate: string;
+  returnDate: string;
+  status: HomeVisitStatus;
+  flightInfo?: string;
+  busInfo?: string;
+  passportExpiry?: string;
+  notes?: string;
+  checklist: { label: string; done: boolean }[];
+  createdAt: string;
+  updatedAt: string;
+};
+
+const homeVisits: HomeVisit[] = [
+  {
+    id: "hv-001", tenantId: tenant.id, personId: "ssw-001",
+    departureDate: "2026-03-10", returnDate: "2026-03-24",
+    status: "PREP",
+    flightInfo: "大阪(KIX) → ホーチミン(SGN) ANA6869 2026-03-10",
+    busInfo: "丹波市 → 大阪（発車オーライ予約済み）",
+    passportExpiry: "2028-05-15",
+    notes: "ベトナム春節帰省",
+    checklist: [
+      { label: "在留期限と帰国日の整合確認", done: true },
+      { label: "緊急連絡先の共有", done: true },
+      { label: "航空券URL確認", done: true },
+      { label: "国内移動URL確認", done: false },
+      { label: "パスポート有効期限確認", done: true },
+    ],
+    createdAt: "2026-01-15T09:00:00Z", updatedAt: "2026-01-20T12:00:00Z",
+  },
+];
+
+export function listHomeVisits(personId?: string): HomeVisit[] {
+  const list = [...homeVisits].sort((a, b) => b.createdAt.localeCompare(a.createdAt));
+  if (personId) return list.filter((v) => v.personId === personId);
+  return list;
+}
+
+export function addHomeVisit(input: Omit<HomeVisit, "id" | "tenantId" | "createdAt" | "updatedAt">): HomeVisit {
+  const now = new Date().toISOString();
+  const visit: HomeVisit = { id: randomUUID(), tenantId: tenant.id, createdAt: now, updatedAt: now, ...input };
+  homeVisits.unshift(visit);
+  return visit;
+}
+
+export function updateHomeVisit(id: string, data: Partial<HomeVisit>): HomeVisit | null {
+  const idx = homeVisits.findIndex((v) => v.id === id);
+  if (idx === -1) return null;
+  homeVisits[idx] = { ...homeVisits[idx], ...data, updatedAt: new Date().toISOString() };
+  return homeVisits[idx];
+}

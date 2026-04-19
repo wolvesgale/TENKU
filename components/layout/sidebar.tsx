@@ -65,16 +65,16 @@ export const sidebarSections: SidebarSection[] = [
     links: [
       { href: "/training-plans", label: "技能実習", icon: ClipboardList },
       { href: "/ssw", label: "特定技能", icon: Award },
-      { href: "/ta", label: "特定活動（移行）", icon: ArrowRightLeft, wip: true },
+      { href: "/ta", label: "特定活動（移行）", icon: ArrowRightLeft },
     ],
   },
   {
     label: "支援・運用",
     defaultOpen: false,
     links: [
-      { href: "/support", label: "支援計画/面談/記録", icon: HeartHandshake, wip: true },
+      { href: "/support", label: "支援計画/面談/記録", icon: HeartHandshake },
       { href: "/education", label: "教育（Classroom連携）", icon: GraduationCap, wip: true },
-      { href: "/translation", label: "翻訳・通訳", icon: Languages, wip: true },
+      { href: "/translation", label: "翻訳・通訳", icon: Languages },
     ],
   },
   {
@@ -82,8 +82,8 @@ export const sidebarSections: SidebarSection[] = [
     defaultOpen: false,
     links: [
       { href: "/travel/flights", label: "航空券検索（TRP）", icon: Plane, wip: true },
-      { href: "/travel/bus", label: "国内移動（高速バス）", icon: Bus, wip: true },
-      { href: "/travel/homevisit", label: "一時帰国管理", icon: MapPin, wip: true },
+      { href: "/travel/bus", label: "国内移動（高速バス）", icon: Bus },
+      { href: "/travel/homevisit", label: "一時帰国管理", icon: MapPin },
     ],
   },
   {
@@ -91,7 +91,7 @@ export const sidebarSections: SidebarSection[] = [
     defaultOpen: false,
     links: [
       { href: "/chat/foreigner", label: "外国人向けチャット", icon: MessageCircle, wip: true },
-      { href: "/chat/staff", label: "職員向けAIアシスタント", icon: Bot, wip: true },
+      { href: "/chat/staff", label: "職員向けAIアシスタント", icon: Bot },
     ],
   },
   {
@@ -113,7 +113,7 @@ export const sidebarSections: SidebarSection[] = [
     label: "設定・連携",
     defaultOpen: false,
     links: [
-      { href: "/settings", label: "設定・API連携", icon: Settings, wip: true },
+      { href: "/settings", label: "設定・API連携", icon: Settings },
     ],
   },
 ];

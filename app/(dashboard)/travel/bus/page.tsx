@@ -1,65 +1,75 @@
-import { UnderConstruction } from "@/components/ui/under-construction";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { ExternalLink, Bus } from "lucide-react";
+"use client";
+import { ExternalLink, Bus, Info } from "lucide-react";
+
+const COMMON_ROUTES = [
+  { from: "丹波市（春日）", to: "大阪（梅田）", provider: "全但バス", note: "所要約2時間" },
+  { from: "丹波市（柏原）", to: "神戸（三宮）", provider: "全但バス", note: "所要約1時間30分" },
+  { from: "篠山市", to: "大阪（梅田）", provider: "神姫バス", note: "所要約1時間30分" },
+];
 
 export default function TravelBusPage() {
   return (
-    <div className="space-y-4">
-      <UnderConstruction
-        title="国内移動（高速バス）"
-        description="発車オーライネットへのリンク誘導による高速バス検索・予約URLの保存管理です。API連携・予約・決済は行わず、URLをTENKUに保存して旅程管理します。"
-        plannedFeatures={[
-          "発車オーライネット誘導ボタン",
-          "検索後URLのTENKUへの貼付・保存",
-          "TravelPlan（travel_type=bus）への登録",
-          "一時帰国管理との連携（trip_group_id）",
-          "person_id必須での紐付け管理",
-        ]}
-      />
+    <div className="space-y-4 p-4 max-w-2xl">
+      <div>
+        <h1 className="text-xl font-semibold">国内移動（高速バス）</h1>
+        <p className="text-sm text-muted">高速バスの検索・予約は発車オーライネットで行います</p>
+      </div>
 
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-sm flex items-center gap-2">
-            <Bus size={16} className="text-brand-blue" />
-            高速バス検索導線（実装予定）
-          </CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="p-4 rounded-lg border border-border bg-surface/60 flex items-center justify-between">
-            <div>
-              <p className="text-sm font-semibold text-white">発車オーライネットで検索</p>
-              <p className="text-xs text-muted">高速バス予約サイトへ移動します</p>
-            </div>
-            <a
-              href="https://www.j-bus.co.jp/"
-              target="_blank"
-              rel="noreferrer"
-              className="flex items-center gap-2 px-4 py-2 rounded-lg border border-brand-blue text-brand-blue text-sm hover:bg-brand-blue/10 transition"
-            >
-              <ExternalLink size={14} />
-              検索サイトへ
-            </a>
+      {/* メインリンクカード */}
+      <div className="rounded-xl border border-brand-blue/30 bg-brand-blue/5 p-5 flex items-center justify-between gap-4">
+        <div className="flex items-center gap-3">
+          <div className="w-10 h-10 rounded-lg bg-brand-blue/20 flex items-center justify-center">
+            <Bus size={20} className="text-brand-blue" />
           </div>
+          <div>
+            <p className="text-sm font-semibold text-white">発車オーライネット</p>
+            <p className="text-xs text-muted">高速バス予約サイト（外部）</p>
+          </div>
+        </div>
+        <a
+          href="https://www.j-bus.co.jp/"
+          target="_blank"
+          rel="noreferrer"
+          className="flex items-center gap-2 px-4 py-2 rounded-lg bg-brand-blue text-white text-sm hover:opacity-90 transition shrink-0"
+        >
+          <ExternalLink size={14} /> 検索・予約
+        </a>
+      </div>
 
-          <div className="space-y-2 text-sm">
-            <p className="text-[10px] uppercase tracking-wide text-muted">保存データ構造</p>
-            <div className="grid grid-cols-2 gap-2 p-3 rounded-lg border border-border bg-surface/60">
+      {/* よく使うルート */}
+      <div className="rounded-xl border border-border bg-surface/60 overflow-hidden">
+        <div className="px-4 py-3 border-b border-border flex items-center gap-2">
+          <Bus size={14} className="text-brand-teal" />
+          <h2 className="text-sm font-semibold">よく使うルート（参考）</h2>
+        </div>
+        <div className="divide-y divide-border">
+          {COMMON_ROUTES.map((r, i) => (
+            <div key={i} className="flex items-center justify-between px-4 py-3 gap-4 flex-wrap">
               <div>
-                <p className="text-[10px] uppercase tracking-wide mb-1 text-muted">travel_type</p>
-                <p className="text-white font-mono">bus</p>
+                <p className="text-sm text-white">{r.from} → {r.to}</p>
+                <p className="text-xs text-muted">{r.provider} / {r.note}</p>
               </div>
-              <div>
-                <p className="text-[10px] uppercase tracking-wide mb-1 text-muted">provider</p>
-                <p className="text-white font-mono">jbus_hassyaro</p>
-              </div>
-              <div className="col-span-2">
-                <p className="text-[10px] uppercase tracking-wide mb-1 text-muted">booking_url</p>
-                <p className="text-brand-blue font-mono">（発車オーライ検索後URL貼付）</p>
-              </div>
+              <a
+                href={`https://www.j-bus.co.jp/`}
+                target="_blank"
+                rel="noreferrer"
+                className="text-xs text-brand-blue hover:underline flex items-center gap-1"
+              >
+                <ExternalLink size={11} /> 検索
+              </a>
             </div>
-          </div>
-        </CardContent>
-      </Card>
+          ))}
+        </div>
+      </div>
+
+      {/* 使い方メモ */}
+      <div className="flex gap-3 p-4 rounded-xl border border-border bg-surface/60">
+        <Info size={16} className="text-muted shrink-0 mt-0.5" />
+        <div className="text-xs text-muted space-y-1">
+          <p>予約後、URLをコピーして一時帰国管理の旅程に貼り付けて管理できます。</p>
+          <p>パスポートの期限・在留カードの有効期限は出発前に必ず確認してください。</p>
+        </div>
+      </div>
     </div>
   );
 }

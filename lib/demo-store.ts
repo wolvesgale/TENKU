@@ -2449,13 +2449,17 @@ export function updateInvoice(id: string, data: Partial<Pick<Invoice, "lineItems
 
 // ─── マルチテナント定義 ───────────────────────────────────────────────────────
 
+export type TenantType = "supervisory_org" | "company_direct";
+export type UserRole = "admin" | "staff" | "foreigner";
+
 export type DemoTenantAccount = {
   tenantId: string;
   tenantCode: string;
   name: string;
   email: string;
   password: string;
-  role: "tenantAdmin";
+  role: UserRole;
+  tenantType: TenantType;
 };
 
 /** デモ用テナントアカウント一覧（ログインページで使用） */
@@ -2463,10 +2467,20 @@ export const DEMO_TENANT_ACCOUNTS: DemoTenantAccount[] = [
   {
     tenantId: "tenant_demo",
     tenantCode: "240224",
-    name: "TENKU監理協同組合",
+    name: "兵庫中央事業協同組合",
+    email: "horikane@yoshizumi.com",
+    password: "chc1234",
+    role: "admin",
+    tenantType: "supervisory_org",
+  },
+  {
+    tenantId: "tenant_hikari",
+    tenantCode: "360101",
+    name: "ひかり監理組合",
     email: "support@techtas.jp",
     password: "techtas720",
-    role: "tenantAdmin",
+    role: "admin",
+    tenantType: "supervisory_org",
   },
   {
     tenantId: "tenant_hikari",
@@ -2474,7 +2488,8 @@ export const DEMO_TENANT_ACCOUNTS: DemoTenantAccount[] = [
     name: "ひかり監理組合",
     email: "info@hikari-kanri.jp",
     password: "hikari2024",
-    role: "tenantAdmin",
+    role: "admin",
+    tenantType: "supervisory_org",
   },
   {
     tenantId: "tenant_sunrise",
@@ -2482,24 +2497,20 @@ export const DEMO_TENANT_ACCOUNTS: DemoTenantAccount[] = [
     name: "サンライズ協同組合",
     email: "demo@sunrise-coop.jp",
     password: "sunrise2024",
-    role: "tenantAdmin",
+    role: "admin",
+    tenantType: "supervisory_org",
   },
 ];
 
-/** テナントコードまたはメール+パスワードで認証 */
+/** メール+パスワードで認証（デモ: tenantCodeは将来の検証用） */
 export function authenticateDemoTenant(
-  tenantCode: string,
+  _tenantCode: string,
   email: string,
   password: string
 ): DemoTenantAccount | null {
-  return (
-    DEMO_TENANT_ACCOUNTS.find(
-      (a) =>
-        a.tenantCode === tenantCode &&
-        a.email === email &&
-        a.password === password
-    ) ?? null
-  );
+  return DEMO_TENANT_ACCOUNTS.find(
+    (a) => a.email === email && a.password === password
+  ) ?? null;
 }
 
 // ─── テナント別デモデータ ────────────────────────────────────────────────────

@@ -3,9 +3,23 @@
 import { useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Menu, X, Construction } from "lucide-react";
+import {
+  Menu, X, Home, Award, ClipboardList, Users, Building2,
+  Network, FolderOpen, ReceiptText, CheckSquare, ChevronRight,
+} from "lucide-react";
 import { cn } from "@/lib/utils";
-import { sidebarSections } from "@/components/layout/sidebar";
+
+const MOBILE_LINKS = [
+  { href: "/dashboard",      label: "ダッシュボード",  icon: Home },
+  { href: "/ssw",            label: "特定技能",         icon: Award },
+  { href: "/training-plans", label: "技能実習",         icon: ClipboardList },
+  { href: "/persons",        label: "外国人管理",       icon: Users },
+  { href: "/companies",      label: "企業管理",         icon: Building2 },
+  { href: "/organization",   label: "組織管理",         icon: Network },
+  { href: "/documents",      label: "書類管理",         icon: FolderOpen },
+  { href: "/billing",        label: "請求書管理",       icon: ReceiptText },
+  { href: "/tasks",          label: "タスク一覧",       icon: CheckSquare },
+];
 
 export function MobileNav() {
   const [open, setOpen] = useState(false);
@@ -21,7 +35,7 @@ export function MobileNav() {
       >
         <Menu size={18} />
       </button>
-      {open ? (
+      {open && (
         <div className="fixed inset-0 z-40 md:hidden">
           <button
             type="button"
@@ -50,50 +64,36 @@ export function MobileNav() {
               </button>
             </div>
 
-            <nav className="space-y-2 flex-1">
-              {sidebarSections.map((section) => (
-                <div key={section.label}>
-                  <p className="px-2 text-[10px] uppercase tracking-widest text-muted mb-1">
-                    {section.label}
-                  </p>
-                  <div className="space-y-0.5">
-                    {section.links.map((link) => {
-                      const active = pathname?.startsWith(link.href);
-                      const Icon = link.icon;
-                      return (
-                        <Link
-                          key={link.href}
-                          href={link.href}
-                          onClick={() => setOpen(false)}
-                          className={cn(
-                            "flex items-center gap-2.5 px-3 py-1.5 rounded-lg border transition text-sm",
-                            active
-                              ? "border-brand-blue text-white bg-brand-blue/10 shadow-glow"
-                              : "border-transparent text-gray-200 hover:border-border hover:bg-surface/80"
-                          )}
-                        >
-                          <Icon size={15} className={active ? "text-brand-blue" : "text-muted"} />
-                          <span className="flex-1">{link.label}</span>
-                          {link.wip && (
-                            <Construction size={11} className="text-brand-amber shrink-0" />
-                          )}
-                        </Link>
-                      );
-                    })}
-                  </div>
-                </div>
-              ))}
+            <nav className="space-y-0.5 flex-1">
+              {MOBILE_LINKS.map((link) => {
+                const active = pathname?.startsWith(link.href);
+                const Icon = link.icon;
+                return (
+                  <Link
+                    key={link.href}
+                    href={link.href}
+                    onClick={() => setOpen(false)}
+                    className={cn(
+                      "flex items-center gap-2.5 px-3 py-2 rounded-lg border transition text-sm",
+                      active
+                        ? "border-brand-blue text-white bg-brand-blue/10 shadow-glow"
+                        : "border-transparent text-gray-200 hover:border-border hover:bg-surface/80"
+                    )}
+                  >
+                    <Icon size={15} className={active ? "text-brand-blue" : "text-muted"} />
+                    <span className="flex-1">{link.label}</span>
+                    {active && <ChevronRight size={12} className="text-brand-blue" />}
+                  </Link>
+                );
+              })}
             </nav>
 
             <div className="text-[10px] text-muted border-t border-border pt-2">
-              <div className="flex items-center gap-1 text-brand-amber">
-                <Construction size={10} />
-                工事中 = 開発中機能
-              </div>
+              外国人就労ライフサイクル管理
             </div>
           </div>
         </div>
-      ) : null}
+      )}
     </div>
   );
 }

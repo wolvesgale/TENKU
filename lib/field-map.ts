@@ -192,21 +192,24 @@ export const SSW_APP_TYPES = {
     label: "在留資格認定証明書交付申請",
     shortLabel: "COE（海外招聘）",
     description: "海外に居住する外国人を特定技能として招聘する場合",
-    formNumber: "別記第六号の五様式",
+    formNumber: "別記第６号の３様式",
+    referenceUrl: "https://www.moj.go.jp/isa/applications/ssw/10_00020.html",
   },
   COS: {
     code: "COS",
     label: "在留資格変更許可申請",
     shortLabel: "COS（国内変更）",
     description: "国内で他の在留資格から特定技能へ変更する場合",
-    formNumber: "別記第二十二号の四様式",
+    formNumber: "別記第３０号様式",
+    referenceUrl: "https://www.moj.go.jp/isa/applications/ssw/10_00020.html",
   },
   EXT: {
     code: "EXT",
     label: "在留期間更新許可申請",
     shortLabel: "EXT（期間更新）",
     description: "特定技能の在留期間を更新する場合（最長1年）",
-    formNumber: "別記第二十八号の三様式",
+    formNumber: "別記第３０号の２様式",
+    referenceUrl: "https://www.moj.go.jp/isa/applications/ssw/10_00020.html",
   },
 } as const;
 

@@ -86,6 +86,13 @@ export type Company = {
   lifeInstructors?: InstructorEntry[];
   titpJobTypes?: TitpJobType[];
   sswJobTypes?: SswJobType[];
+  representativeTitle?: string;
+  fax?: string;
+  laborInsuranceNo?: string;
+  employmentInsuranceNo?: string;
+  socialInsuranceStatus?: string;
+  sswReceiptNo?: string;
+  contactPersonTitle?: string;
 };
 export type Person = {
   id: string;
@@ -136,6 +143,22 @@ export type Person = {
   address?: string;
   photoUrl?: string;
   metaJson?: any;
+  passportNumber?: string;
+  birthPlace?: string;
+  phoneNumber?: string;
+  emailAddress?: string;
+  lastEducation?: string;
+  japaneseTestType?: string;
+  japaneseTestLevel?: string;
+  japaneseTestDate?: string;
+  japaneseTestCertNo?: string;
+  skillTestType?: string;
+  skillTestDate?: string;
+  skillTestCertNo?: string;
+  titp2Completed?: boolean;
+  titp2CertNumber?: string;
+  sswSector?: string;
+  occupationType?: string;
 };
 export type PersonStatusHistory = {
   id: string;
@@ -379,6 +402,42 @@ export type SswJobChange = {
   changeDate?: string;
   reason?: string;
   notes?: string;
+  createdAt: string;
+  updatedAt: string;
+};
+
+export type SswApplicationDetailStatus = "DRAFT" | "REVIEW" | "SUBMITTED" | "APPROVED" | "REJECTED" | "CANCELLED";
+
+export type SswApplicationDetail = {
+  id: string;
+  tenantId: string;
+  personId: string;
+  companyId?: string;
+  appType: SswAppType;
+  status: SswApplicationDetailStatus;
+  sectorCode?: string;
+  sectorLabel?: string;
+  occupationType?: string;
+  employerType?: "corporate" | "individual";
+  japaneseTestExempt?: boolean;
+  skillTestPassed?: boolean;
+  japaneseTestPassed?: boolean;
+  contractStartDate?: string;
+  contractEndDate?: string;
+  monthlySalary?: number;
+  workLocation?: string;
+  workContent?: string;
+  employmentType?: string;
+  isDelegated?: boolean;
+  supportOrgName?: string;
+  supportOrgRegNo?: string;
+  targetSubmitDate?: string;
+  submittedDate?: string;
+  approvedDate?: string;
+  rejectedDate?: string;
+  docChecklist?: Record<string, boolean>;
+  notes?: string;
+  metadata?: Record<string, any>;
   createdAt: string;
   updatedAt: string;
 };
@@ -1489,6 +1548,26 @@ const sswRecords: SswRecord[] = [
 
 const sswJobChanges: SswJobChange[] = [];
 
+const sswApplicationDetails: SswApplicationDetail[] = [
+  {
+    id: "sswd-001", tenantId: tenant.id,
+    personId: "ssw-001", companyId: "cmp-002",
+    appType: "EXT", status: "DRAFT",
+    sectorCode: "01", sectorLabel: "介護",
+    occupationType: "介護",
+    employerType: "corporate",
+    japaneseTestExempt: false, skillTestPassed: true, japaneseTestPassed: true,
+    contractStartDate: "2024-11-01", contractEndDate: "2025-10-31",
+    monthlySalary: 200000, workLocation: "兵庫県丹波篠山市味間奥833-3",
+    workContent: "介護業務全般",
+    isDelegated: true, supportOrgName: "兵庫中央事業協同組合", supportOrgRegNo: "登録番号未入力",
+    targetSubmitDate: new Date(Date.now() + 1000*60*60*24*30).toISOString().slice(0,10),
+    docChecklist: { app_form: true, photo: false, passport_copy: true, skill_test_cert: true, employment_contract: false },
+    notes: "在留期間更新申請。雇用継続。",
+    createdAt: new Date().toISOString(), updatedAt: new Date().toISOString(),
+  },
+];
+
 // ─────────────────────────────────────────────────────────────────────────────
 
 function filterProgram<T extends { program?: string }>(items: T[], program?: Program | string) {
@@ -1518,6 +1597,7 @@ export const store = {
   sswApplications,
   sswRecords,
   sswJobChanges,
+  sswApplicationDetails,
 };
 
 function ensureTenantSettings(tenantId: string): TenantSettings {
@@ -2414,4 +2494,28 @@ export function updateInvoice(id: string, data: Partial<Pick<Invoice, "lineItems
     invoices[idx] = { ...invoices[idx], ...data, updatedAt: new Date().toISOString() };
   }
   return invoices[idx];
+}
+
+// ─── SswApplicationDetail CRUD ───────────────────────────────────────────────
+
+export function listSswApplicationDetails(personId?: string) {
+  if (personId) return sswApplicationDetails.filter((d) => d.personId === personId);
+  return sswApplicationDetails;
+}
+
+export function getSswApplicationDetail(id: string) {
+  return sswApplicationDetails.find((d) => d.id === id) ?? null;
+}
+
+export function addSswApplicationDetail(input: Omit<SswApplicationDetail, "id" | "tenantId" | "createdAt" | "updatedAt">): SswApplicationDetail {
+  const item: SswApplicationDetail = { id: randomUUID(), tenantId: tenant.id, createdAt: new Date().toISOString(), updatedAt: new Date().toISOString(), ...input };
+  sswApplicationDetails.push(item);
+  return item;
+}
+
+export function updateSswApplicationDetail(id: string, data: Partial<SswApplicationDetail>): SswApplicationDetail | null {
+  const idx = sswApplicationDetails.findIndex((d) => d.id === id);
+  if (idx === -1) return null;
+  sswApplicationDetails[idx] = { ...sswApplicationDetails[idx], ...data, updatedAt: new Date().toISOString() };
+  return sswApplicationDetails[idx];
 }

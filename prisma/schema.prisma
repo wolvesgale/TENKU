@@ -54,28 +54,39 @@ enum CaseProgram {
 }
 
 model Company {
-  id             String         @id @default(cuid())
-  tenantId       String
-  name           String
-  address        String?
-  industry       String?
-  contactName    String?
-  contactTel     String?
-  defaultOrgId   String?
-  defaultOrgType String?
-  metaJson       Json?          @map("meta_json")
-  tenant         Tenant         @relation(fields: [tenantId], references: [id])
-  jobs           Job[]
-  persons        Person[]
-  cases          Case[]
-  tasks          Task[]
-  applications   Application[]
-  trainingPlans  TrainingPlan[]
-  monitoringLogs MonitoringLog[]
-  engagements    Engagement[]
-  supportPlans   SupportPlan[]
-  createdAt      DateTime       @default(now())
-  updatedAt      DateTime       @updatedAt
+  id                    String         @id @default(cuid())
+  tenantId              String
+  name                  String
+  address               String?
+  industry              String?
+  contactName           String?
+  contactTel            String?
+  defaultOrgId          String?
+  defaultOrgType        String?
+  // SSW拡張フィールド
+  corporateNumber       String?        @map("corporate_number")
+  representativeName    String?        @map("representative_name")
+  representativeTitle   String?        @map("representative_title")
+  fax                   String?
+  laborInsuranceNo      String?        @map("labor_insurance_no")
+  employmentInsuranceNo String?        @map("employment_insurance_no")
+  socialInsuranceStatus String?        @map("social_insurance_status")
+  sswReceiptNo          String?        @map("ssw_receipt_no")
+  contactPersonTitle    String?        @map("contact_person_title")
+  metaJson              Json?          @map("meta_json")
+  tenant                Tenant         @relation(fields: [tenantId], references: [id])
+  jobs                  Job[]
+  persons               Person[]
+  cases                 Case[]
+  tasks                 Task[]
+  applications          Application[]
+  trainingPlans         TrainingPlan[]
+  monitoringLogs        MonitoringLog[]
+  engagements           Engagement[]
+  supportPlans          SupportPlan[]
+  sswApplicationDetails SswApplicationDetail[]
+  createdAt             DateTime       @default(now())
+  updatedAt             DateTime       @updatedAt
 }
 
 model Job {
@@ -122,6 +133,7 @@ model Tenant {
   supportPlans          SupportPlan[]
   educationCourses      EducationCourse[]
   translationJobs       TranslationJob[]
+  sswApplicationDetails SswApplicationDetail[]
 }
 
 model Organization {
@@ -175,6 +187,23 @@ model Person {
   currentProgram      String?
   residenceCardExpiry DateTime?             @map("residence_card_expiry")
   passportExpiry      DateTime?             @map("passport_expiry")
+  // SSW拡張フィールド
+  passportNumber      String?               @map("passport_number")
+  birthPlace          String?               @map("birth_place")
+  phoneNumber         String?               @map("phone_number")
+  emailAddress        String?               @map("email_address")
+  lastEducation       String?               @map("last_education")
+  japaneseTestType    String?               @map("japanese_test_type")
+  japaneseTestLevel   String?               @map("japanese_test_level")
+  japaneseTestDate    DateTime?             @map("japanese_test_date")
+  japaneseTestCertNo  String?               @map("japanese_test_cert_no")
+  skillTestType       String?               @map("skill_test_type")
+  skillTestDate       DateTime?             @map("skill_test_date")
+  skillTestCertNo     String?               @map("skill_test_cert_no")
+  titp2Completed      Boolean?              @map("titp2_completed")
+  titp2CertNumber     String?               @map("titp2_cert_number")
+  sswSector           String?               @map("ssw_sector")
+  occupationType      String?               @map("occupation_type")
   metaJson            Json?
   tenant              Tenant                @relation(fields: [tenantId], references: [id])
   currentCompany      Company?              @relation(fields: [currentCompanyId], references: [id])
@@ -190,6 +219,7 @@ model Person {
   supportPlans          SupportPlan[]
   educationSubmissions  EducationSubmission[]
   translationJobs       TranslationJob[]
+  sswApplicationDetails SswApplicationDetail[]
   createdAt             DateTime              @default(now())
   updatedAt             DateTime              @updatedAt
 }
@@ -460,4 +490,50 @@ model TranslationJob {
   person         Person?  @relation(fields: [personId], references: [id])
   createdAt      DateTime @default(now())
   updatedAt      DateTime @updatedAt
+}
+
+// ─── 特定技能 申請詳細（入管申請ワークシート）─────────────────────────────────
+
+model SswApplicationDetail {
+  id                   String    @id @default(cuid())
+  tenantId             String    @map("tenant_id")
+  personId             String?   @map("person_id")
+  companyId            String?   @map("company_id")
+  appType              String    @map("app_type")          // COE / COS / EXT
+  status               String    @default("DRAFT")
+  // 特定産業分野
+  sectorCode           String?   @map("sector_code")
+  sectorLabel          String?   @map("sector_label")
+  occupationType       String?   @map("occupation_type")
+  // 雇用主区分
+  employerType         String?   @map("employer_type")     // corporate / individual
+  // 試験要件
+  japaneseTestExempt   Boolean?  @map("japanese_test_exempt")
+  skillTestPassed      Boolean?  @map("skill_test_passed")
+  japaneseTestPassed   Boolean?  @map("japanese_test_passed")
+  // 雇用契約
+  contractStartDate    DateTime? @map("contract_start_date")
+  contractEndDate      DateTime? @map("contract_end_date")
+  monthlySalary        Int?      @map("monthly_salary")
+  workLocation         String?   @map("work_location")
+  workContent          String?   @map("work_content")
+  employmentType       String?   @map("employment_type")
+  // 支援
+  isDelegated          Boolean?  @map("is_delegated")
+  supportOrgName       String?   @map("support_org_name")
+  supportOrgRegNo      String?   @map("support_org_reg_no")
+  // 申請日程
+  targetSubmitDate     DateTime? @map("target_submit_date")
+  submittedDate        DateTime? @map("submitted_date")
+  approvedDate         DateTime? @map("approved_date")
+  rejectedDate         DateTime? @map("rejected_date")
+  // 書類チェックリスト（JSON）
+  docChecklist         Json?     @map("doc_checklist")
+  notes                String?
+  metadata             Json?
+  tenant               Tenant    @relation(fields: [tenantId], references: [id])
+  person               Person?   @relation(fields: [personId], references: [id])
+  company              Company?  @relation(fields: [companyId], references: [id])
+  createdAt            DateTime  @default(now()) @map("created_at")
+  updatedAt            DateTime  @updatedAt @map("updated_at")
 }

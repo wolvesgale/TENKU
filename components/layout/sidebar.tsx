@@ -8,122 +8,172 @@ import {
   Users,
   Network,
   Award,
-  ArrowRightLeft,
-  HeartHandshake,
-  GraduationCap,
-  Languages,
-  Plane,
-  Bus,
-  MapPin,
-  MessageCircle,
-  Bot,
   CheckSquare,
-  Settings,
   ChevronDown,
   ChevronRight,
-  Construction,
   FolderOpen,
   ReceiptText,
+  UserCircle,
+  Loader2,
+  AlertCircle,
+  Database,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
-export type SidebarLink = {
-  href: string;
-  label: string;
-  icon: React.ElementType;
-  wip?: boolean;
+// ─── 型 ──────────────────────────────────────────────────────────────────────
+
+type SswPerson = {
+  id: string;
+  name: string;
+  nationality?: string;
+  residenceCardExpiry?: string;
+  currentProgram?: string;
+  nextProcedure?: string;
 };
 
-export type SidebarSection = {
+type SswCompany = {
+  id: string;
+  name: string;
+  persons: SswPerson[];
+};
+
+// ─── 期限バッジ ───────────────────────────────────────────────────────────────
+
+function ExpiryDot({ iso }: { iso?: string }) {
+  if (!iso) return null;
+  const days = Math.ceil((new Date(iso).getTime() - Date.now()) / (1000 * 60 * 60 * 24));
+  if (days < 0) return <span className="w-1.5 h-1.5 rounded-full bg-red-500 shrink-0" title="期限切れ" />;
+  if (days <= 30) return <span className="w-1.5 h-1.5 rounded-full bg-red-400 shrink-0" title={`${days}日`} />;
+  if (days <= 60) return <span className="w-1.5 h-1.5 rounded-full bg-amber-400 shrink-0" title={`${days}日`} />;
+  return null;
+}
+
+// ─── 特定技能ツリー ───────────────────────────────────────────────────────────
+
+function SswTree({ pathname }: { pathname: string | null }) {
+  const [companies, setCompanies] = useState<SswCompany[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [expandedCompanies, setExpandedCompanies] = useState<Set<string>>(new Set());
+
+  useEffect(() => {
+    fetch("/api/v1/ssw/tree")
+      .then((r) => r.json())
+      .then((data) => {
+        const list: SswCompany[] = data.companies ?? [];
+        setCompanies(list);
+        // 現在のパスに対応する企業を自動展開
+        if (pathname) {
+          const personId = pathname.match(/\/ssw\/persons\/([^/]+)/)?.[1];
+          if (personId) {
+            const cmp = list.find((c) => c.persons.some((p) => p.id === personId));
+            if (cmp) setExpandedCompanies(new Set([cmp.id]));
+          }
+        }
+      })
+      .catch(() => {})
+      .finally(() => setLoading(false));
+  }, [pathname]);
+
+  const toggleCompany = (id: string) => {
+    setExpandedCompanies((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
+  };
+
+  if (loading) {
+    return (
+      <div className="flex items-center gap-1.5 px-3 py-1 text-xs text-muted">
+        <Loader2 size={11} className="animate-spin" />
+        <span>読み込み中...</span>
+      </div>
+    );
+  }
+
+  if (companies.length === 0) {
+    return (
+      <div className="flex items-center gap-1.5 px-3 py-1 text-xs text-muted">
+        <AlertCircle size={11} />
+        <span>特定技能者なし</span>
+      </div>
+    );
+  }
+
+  return (
+    <div className="space-y-0.5 ml-1">
+      {companies.map((company) => {
+        const isExpanded = expandedCompanies.has(company.id);
+        const hasActiveChild = company.persons.some((p) => pathname?.includes(p.id));
+
+        return (
+          <div key={company.id}>
+            {/* 企業ノード */}
+            <button
+              type="button"
+              onClick={() => toggleCompany(company.id)}
+              className={cn(
+                "w-full flex items-center gap-1.5 px-2 py-1 rounded text-left transition text-xs",
+                hasActiveChild
+                  ? "text-white bg-white/5"
+                  : "text-gray-400 hover:text-gray-200 hover:bg-white/5"
+              )}
+            >
+              <Building2 size={11} className="shrink-0 text-muted" />
+              <span className="flex-1 truncate text-[11px]">{company.name}</span>
+              <span className="text-[10px] text-muted shrink-0">{company.persons.length}</span>
+              {isExpanded ? (
+                <ChevronDown size={10} className="shrink-0 text-muted" />
+              ) : (
+                <ChevronRight size={10} className="shrink-0 text-muted" />
+              )}
+            </button>
+
+            {/* 個人リスト */}
+            {isExpanded && (
+              <div className="ml-3 border-l border-border/40 pl-2 space-y-0.5">
+                {company.persons.map((person) => {
+                  const active = pathname?.includes(person.id);
+                  return (
+                    <Link
+                      key={person.id}
+                      href={`/ssw/persons/${person.id}`}
+                      className={cn(
+                        "flex items-center gap-1.5 px-2 py-1 rounded transition text-[11px]",
+                        active
+                          ? "text-white bg-brand-blue/10 border border-brand-blue/30"
+                          : "text-gray-300 hover:text-white hover:bg-white/5 border border-transparent"
+                      )}
+                    >
+                      <UserCircle size={11} className={active ? "text-brand-blue shrink-0" : "text-muted shrink-0"} />
+                      <span className="flex-1 truncate">{person.name}</span>
+                      <ExpiryDot iso={person.residenceCardExpiry} />
+                    </Link>
+                  );
+                })}
+              </div>
+            )}
+          </div>
+        );
+      })}
+    </div>
+  );
+}
+
+// ─── 折りたたみセクション ─────────────────────────────────────────────────────
+
+function CollapsibleSection({
+  label,
+  defaultOpen = false,
+  children,
+}: {
   label: string;
-  links: SidebarLink[];
   defaultOpen?: boolean;
-};
-
-export const sidebarSections: SidebarSection[] = [
-  {
-    label: "ダッシュボード",
-    defaultOpen: true,
-    links: [
-      { href: "/dashboard", label: "ダッシュボード", icon: Home },
-    ],
-  },
-  {
-    label: "管理対象",
-    defaultOpen: true,
-    links: [
-      { href: "/persons", label: "外国人（統合）", icon: Users },
-      { href: "/companies", label: "企業（統合）", icon: Building2 },
-      { href: "/organization", label: "組織管理", icon: Network },
-    ],
-  },
-  {
-    label: "申請・制度管理",
-    defaultOpen: true,
-    links: [
-      { href: "/training-plans", label: "技能実習", icon: ClipboardList },
-      { href: "/ssw", label: "特定技能", icon: Award },
-      { href: "/ta", label: "特定活動（移行）", icon: ArrowRightLeft, wip: true },
-    ],
-  },
-  {
-    label: "支援・運用",
-    defaultOpen: false,
-    links: [
-      { href: "/support", label: "支援計画/面談/記録", icon: HeartHandshake, wip: true },
-      { href: "/education", label: "教育（Classroom連携）", icon: GraduationCap, wip: true },
-      { href: "/translation", label: "翻訳・通訳", icon: Languages, wip: true },
-    ],
-  },
-  {
-    label: "移動・渡航",
-    defaultOpen: false,
-    links: [
-      { href: "/travel/flights", label: "航空券検索（TRP）", icon: Plane, wip: true },
-      { href: "/travel/bus", label: "国内移動（高速バス）", icon: Bus, wip: true },
-      { href: "/travel/homevisit", label: "一時帰国管理", icon: MapPin, wip: true },
-    ],
-  },
-  {
-    label: "コミュニケーション",
-    defaultOpen: false,
-    links: [
-      { href: "/chat/foreigner", label: "外国人向けチャット", icon: MessageCircle, wip: true },
-      { href: "/chat/staff", label: "職員向けAIアシスタント", icon: Bot, wip: true },
-    ],
-  },
-  {
-    label: "書類・請求",
-    defaultOpen: true,
-    links: [
-      { href: "/documents", label: "書類管理", icon: FolderOpen },
-      { href: "/billing", label: "請求書管理", icon: ReceiptText },
-    ],
-  },
-  {
-    label: "タスクセンター",
-    defaultOpen: true,
-    links: [
-      { href: "/tasks", label: "タスク一覧", icon: CheckSquare },
-    ],
-  },
-  {
-    label: "設定・連携",
-    defaultOpen: false,
-    links: [
-      { href: "/settings", label: "設定・API連携", icon: Settings, wip: true },
-    ],
-  },
-];
-
-// Flat list for backward compatibility
-export const sidebarLinks: SidebarLink[] = sidebarSections.flatMap((s) => s.links);
-
-function SidebarSection({ section, pathname }: { section: SidebarSection; pathname: string | null }) {
-  const hasActive = section.links.some((l) => pathname?.startsWith(l.href));
-  const [open, setOpen] = useState(section.defaultOpen || hasActive);
-
+  children: React.ReactNode;
+}) {
+  const [open, setOpen] = useState(defaultOpen);
   return (
     <div>
       <button
@@ -131,44 +181,50 @@ function SidebarSection({ section, pathname }: { section: SidebarSection; pathna
         onClick={() => setOpen((v) => !v)}
         className="w-full flex items-center justify-between px-2 py-1 mb-1 text-[10px] uppercase tracking-widest text-muted hover:text-white transition"
       >
-        <span>{section.label}</span>
+        <span>{label}</span>
         {open ? <ChevronDown size={12} /> : <ChevronRight size={12} />}
       </button>
-
-      {open && (
-        <div className="space-y-0.5 mb-2">
-          {section.links.map((link) => {
-            const active = pathname?.startsWith(link.href);
-            const Icon = link.icon;
-            return (
-              <Link
-                key={link.href}
-                href={link.href}
-                className={cn(
-                  "flex items-center gap-2.5 px-3 py-1.5 rounded-lg border transition text-sm",
-                  active
-                    ? "border-brand-blue text-white bg-brand-blue/10 shadow-glow"
-                    : "border-transparent text-gray-300 hover:border-border hover:bg-surface/80"
-                )}
-              >
-                <Icon size={15} className={active ? "text-brand-blue" : "text-muted"} />
-                <span className="flex-1">{link.label}</span>
-                {link.wip && (
-                  <Construction size={11} className="text-brand-amber shrink-0" />
-                )}
-              </Link>
-            );
-          })}
-        </div>
-      )}
+      {open && <div className="space-y-0.5 mb-2">{children}</div>}
     </div>
   );
 }
 
+function NavLink({
+  href,
+  icon: Icon,
+  label,
+  pathname,
+}: {
+  href: string;
+  icon: React.ElementType;
+  label: string;
+  pathname: string | null;
+}) {
+  const active = pathname?.startsWith(href);
+  return (
+    <Link
+      href={href}
+      className={cn(
+        "flex items-center gap-2.5 px-3 py-1.5 rounded-lg border transition text-sm",
+        active
+          ? "border-brand-blue text-white bg-brand-blue/10 shadow-glow"
+          : "border-transparent text-gray-300 hover:border-border hover:bg-surface/80"
+      )}
+    >
+      <Icon size={15} className={active ? "text-brand-blue" : "text-muted"} />
+      <span className="flex-1">{label}</span>
+    </Link>
+  );
+}
+
+// ─── サイドバー本体 ───────────────────────────────────────────────────────────
+
 export function Sidebar() {
   const pathname = usePathname();
+
   return (
-    <aside className="w-64 hidden md:flex flex-col gap-3 p-4 border-r border-border bg-surface/60 overflow-y-auto">
+    <aside className="w-64 hidden md:flex flex-col gap-2 p-4 border-r border-border bg-surface/60 overflow-y-auto">
+      {/* ロゴ */}
       <div className="flex items-center gap-2 pb-2 border-b border-border">
         <div className="h-10 w-10 rounded-lg bg-gradient-to-br from-brand-teal/70 to-brand-blue/70 flex items-center justify-center text-slate-900 font-bold shadow-glow shrink-0">
           T
@@ -180,18 +236,68 @@ export function Sidebar() {
       </div>
 
       <nav className="space-y-1 flex-1">
-        {sidebarSections.map((section) => (
-          <SidebarSection key={section.label} section={section} pathname={pathname} />
-        ))}
+        {/* ダッシュボード */}
+        <CollapsibleSection label="ダッシュボード" defaultOpen={true}>
+          <NavLink href="/dashboard" icon={Home} label="ダッシュボード" pathname={pathname} />
+        </CollapsibleSection>
+
+        {/* 特定技能（ツリー） */}
+        <div className="mb-2">
+          <button
+            type="button"
+            className="w-full flex items-center justify-between px-2 py-1 mb-1 text-[10px] uppercase tracking-widest text-muted hover:text-white transition"
+            onClick={() => {}}
+          >
+            <span>特定技能</span>
+          </button>
+          <div className="space-y-0.5 mb-1">
+            <NavLink href="/ssw" icon={Award} label="特定技能 概要" pathname={pathname?.startsWith("/ssw/persons") ? null : pathname} />
+          </div>
+          <SswTree pathname={pathname} />
+        </div>
+
+        {/* 技能実習 */}
+        <CollapsibleSection label="技能実習" defaultOpen={true}>
+          <NavLink href="/training-plans" icon={ClipboardList} label="技能実習" pathname={pathname} />
+        </CollapsibleSection>
+
+        {/* DB管理（収納） */}
+        <CollapsibleSection label="DBデータ管理" defaultOpen={false}>
+          <NavLink href="/persons" icon={Users} label="外国人管理" pathname={pathname} />
+          <NavLink href="/companies" icon={Building2} label="企業管理" pathname={pathname} />
+          <NavLink href="/organization" icon={Network} label="組織管理" pathname={pathname} />
+        </CollapsibleSection>
+
+        {/* 書類・請求 */}
+        <CollapsibleSection label="書類・請求" defaultOpen={false}>
+          <NavLink href="/documents" icon={FolderOpen} label="書類管理" pathname={pathname} />
+          <NavLink href="/billing" icon={ReceiptText} label="請求書管理" pathname={pathname} />
+        </CollapsibleSection>
+
+        {/* タスク */}
+        <CollapsibleSection label="タスク" defaultOpen={true}>
+          <NavLink href="/tasks" icon={CheckSquare} label="タスク一覧" pathname={pathname} />
+        </CollapsibleSection>
+
+        {/* ── 以下は一時非表示（データは保持）──
+          支援・運用、移動・渡航、コミュニケーション、設定 は
+          データを毀損せず、サイドバーからのみ非表示としています。
+          要望に応じてここに追加していきます。
+        ── */}
       </nav>
 
-      <div className="text-[10px] text-muted border-t border-border pt-2 space-y-0.5">
+      <div className="text-[10px] text-muted border-t border-border pt-2">
         <div className="flex items-center gap-1">
-          <Construction size={10} className="text-brand-amber" />
-          <span className="text-brand-amber">工事中 = 開発中機能</span>
+          <Database size={9} className="text-muted" />
+          <span>外国人就労ライフサイクル管理</span>
         </div>
-        <div>外国人就労ライフサイクル管理</div>
       </div>
     </aside>
   );
 }
+
+// backward compat export
+export const sidebarSections: never[] = [];
+export const sidebarLinks: never[] = [];
+export type SidebarLink = { href: string; label: string; icon: React.ElementType; wip?: boolean };
+export type SidebarSection = { label: string; links: SidebarLink[]; defaultOpen?: boolean };
